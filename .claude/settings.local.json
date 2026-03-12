@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(env:*)",
+      "Bash(xargs grep:*)",
+      "Bash(tar:*)",
+      "Bash(ssh:*)",
+      "WebSearch"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "drawio"
+  ]
+}
