@@ -28,6 +28,7 @@ Read these docs after:
 | [Directory Structure](./directory-structure.md) | Where controller code, configs, artifacts, and docs live | Filled |
 | [Database Guidelines](./database-guidelines.md) | File-backed state rules for manifests / CSV / Markdown | Filled |
 | [Error Handling](./error-handling.md) | How controller scripts fail, downgrade, and preserve diagnostics | Filled |
+| [Experiment Operations](./experiment-operations.md) | Server targets, preflight checks, forbidden operations, and doc-sync obligations | Filled |
 | [Logging Guidelines](./logging-guidelines.md) | What run context must be logged and what must never be logged | Filled |
 | [Quality Guidelines](./quality-guidelines.md) | Reproducibility, artifact contract, and review expectations | Filled |
 

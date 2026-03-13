@@ -63,6 +63,7 @@ from common.task_utils import (
     archive_task_complete,
 )
 from common.config import get_hooks
+from common.experiment_ops import get_experiment_preflight_banner
 
 
 # =============================================================================
@@ -668,6 +669,10 @@ def cmd_start(args: argparse.Namespace) -> int:
         print(colored(f"✓ Current task set to: {task_dir}", Colors.GREEN))
         print()
         print(colored("The hook will now inject context from this task's jsonl files.", Colors.BLUE))
+        banner = get_experiment_preflight_banner(repo_root)
+        if banner:
+            print()
+            print(banner)
 
         task_json_path = full_path / FILE_TASK_JSON
         _run_hooks("after_start", task_json_path, repo_root)

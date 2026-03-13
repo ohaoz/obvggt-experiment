@@ -5,7 +5,9 @@
       "Bash(xargs grep:*)",
       "Bash(tar:*)",
       "Bash(ssh:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(find /c/Users/zgg20/Documents/trae_projects/vggt/XStreamVGGT -type f -not -path '*/.git/*' -not -name '.DS_Store' 2>/dev/null | sort)",
+      "Bash(find /c/Users/zgg20/Documents/trae_projects/vggt/StreamVGGT -type f -not -path '*/.git/*' -not -name '.DS_Store' 2>/dev/null | sort)"
     ]
   },
   "enableAllProjectMcpServers": true,

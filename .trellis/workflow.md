@@ -35,6 +35,7 @@ Read these in order:
 3. `OBVGGT/experiments/README.md`
 4. `OBVGGT/experiments/EXPERIMENTS.md`
 5. `.trellis/spec/backend/index.md`
+6. The `EXPERIMENT PREFLIGHT` block printed by `.trellis/scripts/get_context.py`
 
 If you are changing contracts, also read:
 
@@ -49,6 +50,8 @@ python3 ./.trellis/scripts/task.py list
 git status
 ```
 
+Treat the `EXPERIMENT PREFLIGHT` section from `get_context.py` as mandatory before any remote run or server-side path change.
+
 ### Step 3: Create Or Select A Task
 
 ```bash
@@ -61,8 +64,9 @@ python3 ./.trellis/scripts/task.py create "<title>" --slug <task-name>
 
 | Task Type | Must-read Documents |
 |-----------|---------------------|
-| Experiment harness / adapters / scripts | `PROJECT_BRIEF.md`, `agents.md`, `.trellis/spec/backend/index.md` |
+| Experiment harness / adapters / scripts | `PROJECT_BRIEF.md`, `agents.md`, `.trellis/spec/backend/index.md`, `.trellis/spec/backend/experiment-operations.md` |
 | Artifact / status / doc contract change | all of the above + `.trellis/spec/guides/cross-layer-thinking-guide.md` |
+| Remote run / server / path change | `PROJECT_BRIEF.md`, `agents.md`, `.trellis/spec/backend/experiment-operations.md`, `.trellis/spec/guides/cross-layer-thinking-guide.md` |
 | Repeated constants / helper cleanup | `.trellis/spec/guides/code-reuse-thinking-guide.md` |
 | Explicit UI work | `.trellis/spec/frontend/index.md` first, then define the UI boundary before coding |
 
