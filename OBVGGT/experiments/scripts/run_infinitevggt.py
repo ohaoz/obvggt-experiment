@@ -1,6 +1,9 @@
+import os
 from pathlib import Path
 
 from adapter_utils import (
+    accelerate_launch_parts,
+    MONODEPTH_DATASETS,
     VIDEO_DEPTH_DATASETS,
     build_payload,
     checkpoint_path,
@@ -15,7 +18,16 @@ from adapter_utils import (
 )
 
 
-SUPPORTED_TASKS = ["video_depth", "mv_recon", "pose_co3d", "long_stream"]
+SUPPORTED_TASKS = ["monodepth", "video_depth", "mv_recon", "pose_co3d", "long_stream"]
+
+
+def mv_recon_process_count(cfg):
+    raw_visible = os.getenv("CUDA_VISIBLE_DEVICES", "").strip()
+    visible_count = len([item for item in raw_visible.split(",") if item.strip()]) if raw_visible else 1
+    configured = cfg.get("num_processes") or os.getenv("INFINITEVGGT_MV_RECON_PROCESSES")
+    if configured:
+        return max(1, int(configured))
+    return max(1, visible_count)
 
 
 def build_commands(args):
@@ -27,7 +39,40 @@ def build_commands(args):
     cfg = parse_json_arg(args.kv_cache_cfg_json)
     commands = []
 
-    if args.task == "video_depth":
+    if args.task == "monodepth":
+        src_root = repo_root / "src"
+        for dataset in MONODEPTH_DATASETS:
+            out_dir = output_root / f"{dataset}_{result_tag}"
+            commands.append(
+                shell_join(
+                    [
+                        "python",
+                        "./eval/monodepth/launch.py",
+                        "--weights",
+                        str(ckpt),
+                        "--output_dir",
+                        str(out_dir),
+                        "--eval_dataset",
+                        dataset,
+                        *extra,
+                    ]
+                )
+            )
+        for dataset in MONODEPTH_DATASETS:
+            out_dir = output_root / f"{dataset}_{result_tag}"
+            commands.append(
+                shell_join(
+                    [
+                        "python",
+                        "./eval/monodepth/eval_metrics.py",
+                        "--output_dir",
+                        str(out_dir),
+                        "--eval_dataset",
+                        dataset,
+                    ]
+                )
+            )
+    elif args.task == "video_depth":
         src_root = repo_root / "src"
         datasets = VIDEO_DEPTH_DATASETS
         if args.sequence_length > 0 and "bonn_500" in (cfg.get("preferred_long_dataset") or "bonn_500"):
@@ -37,10 +82,10 @@ def build_commands(args):
             commands.append(
                 shell_join(
                     [
-                        "accelerate",
-                        "launch",
-                        "--num_processes",
-                        "1",
+                        *accelerate_launch_parts(
+                            "--num_processes",
+                            "1",
+                        ),
                         "../src/eval/video_depth/launch.py",
                         "--weights",
                         str(ckpt),
@@ -72,15 +117,16 @@ def build_commands(args):
         src_root = repo_root / "src"
         out_dir = output_root / result_tag
         max_frames = args.sequence_length if args.sequence_length > 0 else cfg.get("max_frames", 300)
+        num_processes = mv_recon_process_count(cfg)
         commands.append(
             shell_join(
                 [
-                    "accelerate",
-                    "launch",
-                    "--num_processes",
-                    "2",
-                    "--main_process_port",
-                    "29602",
+                    *accelerate_launch_parts(
+                        "--num_processes",
+                        str(num_processes),
+                        "--main_process_port",
+                        "29602",
+                    ),
                     "./eval/mv_recon/launch.py",
                     "--weights",
                     str(ckpt),
@@ -95,26 +141,26 @@ def build_commands(args):
             )
         )
     elif args.task == "pose_co3d":
+        if not args.pose_co3d_dir or not args.pose_co3d_anno_dir:
+            raise ValueError("pose_co3d requires --pose-co3d-dir and --pose-co3d-anno-dir.")
         src_root = repo_root / "src"
         out_dir = output_root / result_tag
-        pose_args = list(extra)
-        if "--eval_dataset" not in pose_args:
-            pose_args = ["--eval_dataset", "scannet-257", *pose_args]
         commands.append(
             shell_join(
                 [
-                    "accelerate",
-                    "launch",
-                    "--num_processes",
-                    "1",
-                    "./eval/pose_evaluation/launch.py",
+                    "python",
+                    "./eval/pose_evaluation/test_co3d.py",
                     "--weights",
                     str(ckpt),
+                    "--co3d_dir",
+                    args.pose_co3d_dir,
+                    "--co3d_anno_dir",
+                    args.pose_co3d_anno_dir,
                     "--output_dir",
                     str(out_dir),
-                    "--size",
-                    "518",
-                    *pose_args,
+                    "--seed",
+                    "0",
+                    *extra,
                 ]
             )
         )

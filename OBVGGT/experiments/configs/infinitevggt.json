@@ -8,6 +8,7 @@
   "env_name": "infinitevggt",
   "adapter": "run_infinitevggt.py",
   "supported_tasks": [
+    "monodepth",
     "video_depth",
     "mv_recon",
     "pose_co3d",

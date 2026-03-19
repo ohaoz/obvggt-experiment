@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from adapter_utils import (
+    accelerate_launch_parts,
     MONODEPTH_DATASETS,
     VIDEO_DEPTH_DATASETS,
     build_payload,
@@ -79,10 +80,10 @@ def build_commands(args):
             commands.append(
                 shell_join(
                     [
-                        "accelerate",
-                        "launch",
-                        "--num_processes",
-                        "1",
+                        *accelerate_launch_parts(
+                            "--num_processes",
+                            "1",
+                        ),
                         "../src/eval/video_depth/launch.py",
                         "--weights",
                         str(ckpt),
@@ -116,12 +117,12 @@ def build_commands(args):
         commands.append(
             shell_join(
                 [
-                    "accelerate",
-                    "launch",
-                    "--num_processes",
-                    "1",
-                    "--main_process_port",
-                    "29602",
+                    *accelerate_launch_parts(
+                        "--num_processes",
+                        "1",
+                        "--main_process_port",
+                        "29602",
+                    ),
                     "./eval/mv_recon/launch.py",
                     "--weights",
                     str(ckpt),
@@ -143,6 +144,8 @@ def build_commands(args):
                 [
                     "python",
                     "./eval/pose_evaluation/test_co3d.py",
+                    "--weights",
+                    str(ckpt),
                     "--co3d_dir",
                     args.pose_co3d_dir,
                     "--co3d_anno_dir",

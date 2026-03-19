@@ -222,6 +222,7 @@ def setup_args():
     parser.add_argument('--co3d_dir', type=str, required=True, help='Path to CO3D dataset')
     parser.add_argument('--co3d_anno_dir', type=str, required=True, help='Path to CO3D annotations')
     parser.add_argument('--output_dir', type=str, default='../eval_results/pose_co3d', help='Directory to save evaluation summaries')
+    parser.add_argument('--weights', type=str, default='../ckpt/checkpoints.pth', help='Path to model checkpoint')
     parser.add_argument('--seed', type=int, default=0, help='Random seed for reproducibility')
     parser.add_argument("--swanlab_enable", type=_str2bool, default=True)
     parser.add_argument("--swanlab_mode", type=str, default="auto")
@@ -363,7 +364,7 @@ def main():
 
     # Load model
     model = StreamVGGT()
-    checkpoint_path = "../ckpt/checkpoints.pth"  # Path to the model checkpoint
+    checkpoint_path = args.weights
     checkpoint = torch.load(checkpoint_path, map_location=device)
     model.load_state_dict(checkpoint, strict=True)
     model.to(device).eval()

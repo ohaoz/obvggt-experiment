@@ -41,6 +41,15 @@ class Attention(nn.Module):
         self.proj = nn.Linear(dim, dim, bias=proj_bias)
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
+        self.last_cache_event = None
+
+    @staticmethod
+    def _cache_tokens(k_tensor: torch.Tensor) -> int:
+        if k_tensor.dim() >= 5:
+            return int(k_tensor.shape[-3] * k_tensor.shape[-2])
+        if k_tensor.dim() >= 4:
+            return int(k_tensor.shape[-2])
+        return 0
 
     def forward(self, 
         x: torch.Tensor, 
@@ -50,19 +59,31 @@ class Attention(nn.Module):
         use_cache=False
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, Tuple]]:
         B, N, C = x.shape
+        self.last_cache_event = None
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)
 
         pos_k = pos
         if use_cache:
+            old_tokens = 0
             k = k.unsqueeze(2)
             v = v.unsqueeze(2)
             if past_key_values is not None:
                 past_k, past_v = past_key_values
+                old_tokens = self._cache_tokens(past_k)
                 k = torch.cat([past_k, k], dim=2)
                 v = torch.cat([past_v, v], dim=2)
                 
             new_kv = (k, v)
+            new_tokens = self._cache_tokens(new_kv[0])
+            self.last_cache_event = {
+                "old_tokens": float(old_tokens),
+                "appended_tokens": float(N),
+                "reused_tokens": float(old_tokens),
+                "evicted_tokens": float(max(old_tokens + N - new_tokens, 0)),
+                "evict_calls": float(1 if (old_tokens + N - new_tokens) > 0 else 0),
+                "cache_tokens": float(new_tokens),
+            }
             a, b, c, d, e = k.shape
             k = k.reshape(a, b, c*d, e)
             v = v.reshape(a, b, c*d, e)

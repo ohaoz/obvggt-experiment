@@ -14,19 +14,21 @@
 >
 ---
 
-## 📍 项目当前状态（2026-03-04）
+## 📍 项目当前状态（2026-03-19）
 
 **研究目标**：围绕 `StreamVGGT / OBVGGT / XStreamVGGT / InfiniteVGGT` 做 KV cache / 长序列可运行性评测与复现；`IncVGGT` 当前只做文献参照。
 
 **已完成实验**：
 - ✅ video_depth: baseline vs obcache 完整对比（精度+系统指标）
 - ✅ monodepth: obcache 已完成 5 个数据集（sintel/bonn/kitti/nyu/scannet）
-- ✅ mv_recon: obcache 已完成 7scenes + NRGBD
+- ✅ mv_recon: obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 已补齐统一中台 rerun
+- ✅ XStreamVGGT: `video_depth` + `mv_recon` 已补齐 `system_metrics.json`
+- ✅ InfiniteVGGT: `video_depth` + `mv_recon` 已补齐 `system_metrics.json`
 - ⚠️ pose_co3d: 已执行但注释缺失，未产出 `pose_summary.json`
 
 **当前缺口**：
 - ⚠️ monodepth 缺 `StreamVGGT` 对照组（且仅作为 regression）
-- ⚠️ mv_recon 缺 `StreamVGGT` 对照组
+- ⚠️ `StreamVGGT video_depth` 最新重跑仍为 `PARTIAL_DONE`（`result=1/3, system=2/3`），需修复原始 `eval_depth.py` 后处理错误
 
 **核心发现**（基于 video_depth）：
 - 显存峰值下降 56-59%
@@ -39,10 +41,10 @@
 - ℹ️ 3号机（`192.168.166.9`）保留为历史结果与迁移来源
 
 **下一步优先级**：
-1. 🔴 补跑 `StreamVGGT` 线的 monodepth regression（验证精度不掉点）
-2. 🔴 补跑 `StreamVGGT` 线的 mv_recon baseline
-3. 🟡 补齐 CO3D 注释后重跑 pose_evaluation
-4. 🟡 用统一实验中台验证 `XStreamVGGT` / `InfiniteVGGT` 的 smoke 与结果 contract
+1. 🔴 修复并补齐 `StreamVGGT video_depth` 的最后一个缺口
+2. 🔴 补跑 `StreamVGGT` 线的 monodepth regression（验证精度不掉点）
+3. 🟡 汇总四条线统一效率对比并沉淀到报告
+4. 🟡 补齐 CO3D 注释后重跑 pose_evaluation
 5. 🟡 消融实验（不同 KV 配置）
 
 **详细信息**：先看 `PROJECT_BRIEF.md`，再看 `OBVGGT/experiments/` 目录

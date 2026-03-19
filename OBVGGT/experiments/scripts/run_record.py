@@ -34,6 +34,12 @@ def write_json(path: Path, payload: Dict[str, Any]) -> None:
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
 
+def normalize_expected_artifacts(raw: Any) -> List[str]:
+    if not raw:
+        return []
+    return [str(Path(item)) for item in raw if item]
+
+
 def discover_artifacts(output_root: Path) -> List[Dict[str, Any]]:
     artifacts: List[Dict[str, Any]] = []
     if not output_root.exists():
@@ -54,20 +60,49 @@ def discover_artifacts(output_root: Path) -> List[Dict[str, Any]]:
     return artifacts
 
 
+def summarize_contract(
+    *,
+    exit_code: int | None,
+    requested_status: str,
+    expected_artifacts: List[str],
+    artifact_items: List[Dict[str, Any]],
+) -> tuple[str, List[str]]:
+    expected = normalize_expected_artifacts(expected_artifacts)
+    if not expected:
+        return requested_status, []
+
+    discovered = {str(Path(item["path"])) for item in artifact_items}
+    matched = [path for path in expected if path in discovered]
+    missing = [path for path in expected if path not in discovered]
+
+    if not missing:
+        return ("DONE" if exit_code == 0 else "FAILED"), []
+
+    if matched or exit_code == 0:
+        return "PARTIAL_DONE", missing
+    return "FAILED", missing
+
+
 def render_record(manifest: Dict[str, Any], artifacts: Dict[str, Any]) -> str:
     kv_cfg = manifest.get("kv_cache", {}).get("config")
     kv_cfg_pretty = json.dumps(kv_cfg, ensure_ascii=False, indent=2) if kv_cfg else "{}"
     artifact_lines = artifacts.get("artifacts", [])
+    missing_lines = artifacts.get("missing_artifacts", [])
     if artifact_lines:
         artifacts_md = "\n".join(f"- `{item['name']}`: `{item['path']}`" for item in artifact_lines)
     else:
         artifacts_md = "- 暂无已发现产物"
+    if missing_lines:
+        missing_md = "\n".join(f"  - `{path}`" for path in missing_lines)
+        artifacts_md += f"\n- 缺失必需产物:\n{missing_md}"
 
     notes = [
         "- 结束后请同步检查 `experiments/EXPERIMENTS.md`、`experiments/analysis/SUMMARY.md`、`experiments/README.md` 与 `AGENTS.md`。",
     ]
     if manifest.get("task") == "monodepth":
         notes.append("- `monodepth` 仅作为 depth regression check，不作为主 KV benchmark。")
+    if missing_lines:
+        notes.append("- 当前状态已按必需产物 contract 自动降级；请优先检查缺失产物对应的数据集或汇总步骤。")
 
     notes_md = "\n".join(notes)
     status = manifest.get("status", "RUNNING")
@@ -148,10 +183,19 @@ def init_run(args: argparse.Namespace) -> None:
         "config_snapshot_file": str(config_snapshot_path),
         "git": {"branch": args.git_branch, "commit": args.git_commit},
         "kv_cache": {"enabled": args.kv_cache_enabled, "config": kv_cfg},
+        "expected_artifacts": normalize_expected_artifacts(
+            json.loads(args.expected_artifacts_json) if args.expected_artifacts_json else []
+        ),
         "timestamps": {"start": iso_now(), "end": None},
         "exit_code": None,
     }
-    artifacts = {"status": "RUNNING", "output_root": args.output_root, "artifacts": []}
+    artifacts = {
+        "status": "RUNNING",
+        "output_root": args.output_root,
+        "expected_artifacts": manifest["expected_artifacts"],
+        "missing_artifacts": [],
+        "artifacts": [],
+    }
     write_json(run_dir / "manifest.json", manifest)
     write_json(run_dir / "artifacts.json", artifacts)
     (run_dir / "record.md").write_text(render_record(manifest, artifacts), encoding="utf-8")
@@ -167,14 +211,23 @@ def finalize_run(args: argparse.Namespace) -> None:
 
     output_root = Path(manifest.get("output_root", args.output_root or ""))
     artifact_items = discover_artifacts(output_root)
+    expected_artifacts = normalize_expected_artifacts(manifest.get("expected_artifacts", []))
+    final_status, missing_artifacts = summarize_contract(
+        exit_code=args.exit_code,
+        requested_status=args.status,
+        expected_artifacts=expected_artifacts,
+        artifact_items=artifact_items,
+    )
     artifacts = {
-        "status": args.status,
+        "status": final_status,
         "output_root": str(output_root),
+        "expected_artifacts": expected_artifacts,
+        "missing_artifacts": missing_artifacts,
         "artifacts": artifact_items,
         "updated_at": iso_now(),
     }
 
-    manifest["status"] = args.status
+    manifest["status"] = final_status
     manifest["exit_code"] = args.exit_code
     manifest["timestamps"]["end"] = iso_now()
 
@@ -205,6 +258,7 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--git-commit", required=True)
     init_parser.add_argument("--kv-cache-enabled", action="store_true")
     init_parser.add_argument("--kv-cache-cfg-json", default="")
+    init_parser.add_argument("--expected-artifacts-json", default="")
 
     finalize_parser = subparsers.add_parser("finalize")
     finalize_parser.add_argument("--run-dir", required=True)

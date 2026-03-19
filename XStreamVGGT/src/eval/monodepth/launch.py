@@ -102,9 +102,10 @@ def eval_mono_depth(args, model, device, filelist, save_dir=None):
         depth_map = pts3ds_self[0][..., -1].mean(dim=0)
 
         if save_dir is not None:
-            # save the depth map to the save_dir as npy
+            output_stem = f"{Path(file[0]).stem}depth"
+            # Save depth predictions with a stable stem for both .png and .jpg inputs.
             np.save(
-                f"{save_dir}/{file[0].split('/')[-1].replace('.png','depth.npy')}",
+                f"{save_dir}/{output_stem}.npy",
                 depth_map.cpu().detach().numpy(),
             )
             # also save the png
@@ -113,7 +114,7 @@ def eval_mono_depth(args, model, device, filelist, save_dir=None):
             )
             depth_map = (depth_map * 255).cpu().detach().numpy().astype(np.uint8)
             cv2.imwrite(
-                f"{save_dir}/{file[0].split('/')[-1].replace('.png','depth.png')}",
+                f"{save_dir}/{output_stem}.png",
                 depth_map,
             )
 

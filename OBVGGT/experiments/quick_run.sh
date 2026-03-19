@@ -195,6 +195,7 @@ payload = json.loads(sys.argv[1])
 print(payload["repo_root"])
 print(payload["env_name"])
 print(json.dumps(payload.get("env_overrides", {}), ensure_ascii=False, separators=(",", ":")))
+print(json.dumps(payload.get("expected_artifacts", []), ensure_ascii=False, separators=(",", ":")))
 for cmd in payload.get("commands", []):
     print(cmd)
 PY
@@ -203,7 +204,8 @@ PY
 REPO_ROOT_RESOLVED="${RESOLVED_VALUES[0]}"
 ENV_NAME_RESOLVED="${RESOLVED_VALUES[1]}"
 ENV_OVERRIDES_JSON="${RESOLVED_VALUES[2]}"
-COMMANDS=("${RESOLVED_VALUES[@]:3}")
+EXPECTED_ARTIFACTS_JSON="${RESOLVED_VALUES[3]}"
+COMMANDS=("${RESOLVED_VALUES[@]:4}")
 TARGET_GIT_BRANCH="$(git -C "${REPO_ROOT_RESOLVED}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
 TARGET_GIT_COMMIT="$(git -C "${REPO_ROOT_RESOLVED}" rev-parse HEAD 2>/dev/null || echo unknown)"
 CONTROLLER_GIT_BRANCH="$(git -C "${STREAMVGGT_CODE}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo unknown)"
@@ -240,6 +242,7 @@ chmod +x "${COMMAND_FILE}"
     echo "ENV_NAME=${ENV_NAME_RESOLVED}"
     echo "CURRENT_CONDA_ENV=${CONDA_ENV_NAME}"
     echo "ENV_OVERRIDES_JSON=${ENV_OVERRIDES_JSON}"
+    echo "EXPECTED_ARTIFACTS_JSON=${EXPECTED_ARTIFACTS_JSON}"
     echo "KV_CACHE_ENABLE=${KV_CACHE_ENABLE}"
     echo "KV_CACHE_CFG_JSON=${KV_CACHE_CFG_JSON}"
     echo "KV_POLICY_SUMMARY=${KV_POLICY_SUMMARY}"
@@ -267,6 +270,7 @@ INIT_RECORD_ARGS=(
     --git-branch "${TARGET_GIT_BRANCH}"
     --git-commit "${TARGET_GIT_COMMIT}"
     --kv-cache-cfg-json "${KV_CACHE_CFG_JSON}"
+    --expected-artifacts-json "${EXPECTED_ARTIFACTS_JSON}"
 )
 if [[ "${KV_CACHE_ENABLE}" == "true" ]]; then
     INIT_RECORD_ARGS+=(--kv-cache-enabled)
@@ -328,9 +332,22 @@ else
     STATUS="FAILED"
 fi
 
+finish_run
+trap - EXIT
+
+python "${SCRIPTS_DIR}/render_experiment_docs.py" --experiments-root "${SCRIPT_DIR}" >/dev/null 2>&1 || true
+
+FINAL_STATUS="$(python - "${RUN_DIR}/manifest.json" <<'PY'
+import json
+import sys
+with open(sys.argv[1], "r", encoding="utf-8") as f:
+    print(json.load(f).get("status", "UNKNOWN"))
+PY
+)"
+
 echo ""
 echo "========================================="
-echo "Experiment finished: ${STATUS}"
+echo "Experiment finished: ${FINAL_STATUS}"
 echo "Run ID: ${RUN_ID}"
 echo "Run record: ${RUN_DIR}/record.md"
 echo "Artifacts index: ${RUN_DIR}/artifacts.json"

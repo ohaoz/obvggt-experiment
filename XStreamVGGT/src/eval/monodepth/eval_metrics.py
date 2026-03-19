@@ -61,6 +61,14 @@ def depth_read_kitti(filename):
     return depth
 
 
+def depth_read_scannet(filename):
+    depth_png = np.asarray(Image.open(filename))
+    assert np.max(depth_png) > 255
+    depth = depth_png.astype(np.float64) / 1000.0
+    depth[depth_png == 0] = -1.0
+    return depth
+
+
 def get_gt_depth(filename, dataset):
     if dataset == "sintel":
         return depth_read_sintel(filename)
@@ -68,6 +76,8 @@ def get_gt_depth(filename, dataset):
         return depth_read_bonn(filename)
     elif dataset == "kitti":
         return depth_read_kitti(filename)
+    elif dataset == "scannet":
+        return depth_read_scannet(filename)
     elif dataset == "nyu":
         return np.load(filename)
     else:
@@ -158,9 +168,25 @@ def main(args):
         )
         depth_pathes = sorted(depth_pathes)
         pred_pathes = glob.glob(
-            f"{args.output_dir}/*/*depth.npy"
+            f"{args.output_dir}/*/*.npy"
         )  # TODO: update the path to your prediction
         pred_pathes = sorted(pred_pathes)
+    elif args.eval_dataset == "scannet":
+        depth_pathes_raw = sorted(glob.glob("../data/eval/scannetv2/*/depth_90/*.png"))
+        pred_lookup = {}
+        for p in sorted(glob.glob(f"{args.output_dir}/*/*.npy")):
+            scene = os.path.basename(os.path.dirname(p))
+            frame = os.path.basename(p).replace(".jpg.npy", "").replace("depth.npy", "").replace(".npy", "")
+            pred_lookup[(scene, frame)] = p
+        depth_pathes, pred_pathes = [], []
+        for d in depth_pathes_raw:
+            scene = os.path.basename(os.path.dirname(os.path.dirname(d)))
+            frame = os.path.splitext(os.path.basename(d))[0]
+            if (scene, frame) in pred_lookup:
+                depth_pathes.append(d)
+                pred_pathes.append(pred_lookup[(scene, frame)])
+        print(f"scannet: matched {len(depth_pathes)} pairs "
+              f"(from {len(depth_pathes_raw)} gt, {len(pred_lookup)} pred)")
     else:
         raise NotImplementedError
 
@@ -188,6 +214,10 @@ def main(args):
         elif args.eval_dataset == "kitti":
             depth_results, error_map, depth_predict, depth_gt = depth_evaluation(
                 pred_depth, gt_depth, max_depth=None, use_gpu=True
+            )
+        elif args.eval_dataset == "scannet":
+            depth_results, error_map, depth_predict, depth_gt = depth_evaluation(
+                pred_depth, gt_depth, max_depth=10, use_gpu=True
             )
         gathered_depth_metrics.append(depth_results)
 

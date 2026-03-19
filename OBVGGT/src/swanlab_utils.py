@@ -2,7 +2,7 @@ import datetime
 import os
 import socket
 import subprocess
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, Dict, Iterable, List, Optional
 
 
 def _to_bool(value: Any, default: bool = False) -> bool:
@@ -45,7 +45,7 @@ def _to_config_dict(obj: Any) -> Dict[str, Any]:
     return {}
 
 
-def _parse_tags(raw_tags: Any) -> list[str]:
+def _parse_tags(raw_tags: Any) -> List[str]:
     if raw_tags is None:
         return []
     if isinstance(raw_tags, str):

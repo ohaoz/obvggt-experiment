@@ -153,7 +153,35 @@ def process_nyu(args, img_path):
 def process_scannet(args, img_path):
     seq_list = sorted(glob.glob(f"{img_path}/*"))
     for seq in tqdm(seq_list):
-        filelist = sorted(glob.glob(f"{seq}/color_90/*.jpg"))
+        color_paths = sorted(glob.glob(f"{seq}/color_90/*"))
+        depth_paths = sorted(glob.glob(f"{seq}/depth_90/*.png"))
+        seq_name = os.path.basename(seq)
+        if not depth_paths:
+            print(f"[scannet] skip {seq_name}: no depth_90 ground truth")
+            continue
+
+        color_by_stem = {
+            os.path.splitext(os.path.basename(path))[0]: path for path in color_paths
+        }
+        filelist = []
+        missing_color = []
+        for depth_path in depth_paths:
+            stem = os.path.splitext(os.path.basename(depth_path))[0]
+            color_path = color_by_stem.get(stem)
+            if color_path is None:
+                missing_color.append(stem)
+                continue
+            filelist.append(color_path)
+
+        if missing_color:
+            print(
+                f"[scannet] warn {seq_name}: missing {len(missing_color)} RGB frames "
+                "for depth_90 ground truth"
+            )
+        if not filelist:
+            print(f"[scannet] skip {seq_name}: no color_90 frames matched depth_90")
+            continue
+
         save_dir = f"{args.output_dir}/{os.path.basename(seq)}"
         yield filelist, save_dir
 

@@ -10,13 +10,19 @@ import argparse
 import json
 
 from copy import deepcopy
-from eval.kv_cache_utils import add_kv_cache_args, build_kv_cache_cfg, format_kv_status, write_kv_metadata
 from eval.video_depth.metadata import dataset_metadata
 from eval.video_depth.utils import save_depth_maps
 from accelerate import PartialState
 from add_ckpt_path import add_path_to_dust3r
 import time
 from tqdm import tqdm
+
+
+def _str2bool(value):
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "y", "on"}
+
 
 def get_args_parser():
     parser = argparse.ArgumentParser()
@@ -62,8 +68,23 @@ def get_args_parser():
         default=None,
         help="list of sequences for pose evaluation",
     )
-    add_kv_cache_args(parser, use_env_defaults=True)
+    parser.add_argument("--kv_cache_enable", type=_str2bool, default=False)
+    parser.add_argument("--kv_cache_cfg_json", type=str, default="")
     return parser
+
+
+def build_kv_cache_cfg(args):
+    cfg = {}
+    if args.kv_cache_cfg_json:
+        parsed = json.loads(args.kv_cache_cfg_json)
+        if not isinstance(parsed, dict):
+            raise ValueError("--kv_cache_cfg_json must be a JSON object")
+        cfg.update(parsed)
+    enabled = bool(args.kv_cache_enable) or bool(cfg.get("enable", False))
+    if not enabled:
+        return None
+    cfg["enable"] = True
+    return cfg
 
 
 def eval_pose_estimation(args, model, save_dir=None, kv_cache_cfg=None):
@@ -99,13 +120,6 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
     if save_dir is None:
         save_dir = args.output_dir
     os.makedirs(save_dir, exist_ok=True)
-    kv_meta = write_kv_metadata(
-        save_dir,
-        kv_cache_cfg,
-        task="video_depth",
-        benchmark_role="streaming_benchmark",
-        extra={"eval_dataset": args.eval_dataset},
-    )
 
     distributed_state = PartialState()
     model.to(distributed_state.device)
@@ -182,7 +196,6 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     "peak_allocated_mb": float(peak_allocated_mb),
                     "peak_reserved_mb": float(peak_reserved_mb),
                 }
-                seq_stats.update({key: value for key, value in kv_meta.items() if key != "kv_cfg"})
                 kv_stats = outputs.get("kv_cache_stats", {}) if isinstance(outputs, dict) else {}
                 if isinstance(kv_stats, dict):
                     for key, value in kv_stats.items():
@@ -299,12 +312,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
 
         system_metrics_path = os.path.join(save_dir, "system_metrics.json")
         with open(system_metrics_path, "w", encoding="utf-8") as f_out:
-            json.dump(
-                {"summary": summary, "per_sequence": merged_records, "_meta": kv_meta},
-                f_out,
-                ensure_ascii=False,
-                indent=2,
-            )
+            json.dump({"summary": summary, "per_sequence": merged_records}, f_out, ensure_ascii=False, indent=2)
         print(f"[system_metrics] saved: {system_metrics_path}")
     return None, None, None
 
@@ -447,6 +455,9 @@ if __name__ == "__main__":
     model = model.to("cuda")
     del ckpt
     kv_cache_cfg = build_kv_cache_cfg(args)
-    print(format_kv_status(kv_cache_cfg))
+    print(
+        f"[kv_cache] {'enabled' if kv_cache_cfg is not None else 'disabled'}; "
+        f"cfg={kv_cache_cfg if kv_cache_cfg is not None else '{}'}"
+    )
     with torch.no_grad():
         eval_pose_estimation(args, model, save_dir=args.output_dir, kv_cache_cfg=kv_cache_cfg)

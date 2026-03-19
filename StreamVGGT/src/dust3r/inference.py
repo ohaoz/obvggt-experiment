@@ -94,6 +94,9 @@ def loss_of_one_batch(
                 output = model.inference(batch, query_pts)
                 preds, batch = output.ress, output.views
                 result = dict(views=batch, pred=preds)
+                kv_cache_stats = getattr(output, "kv_cache_stats", None)
+                if kv_cache_stats is not None:
+                    result["kv_cache_stats"] = kv_cache_stats
                 return result[ret] if ret else result
         else:
             output = model(batch, query_pts)

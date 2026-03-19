@@ -212,6 +212,8 @@ def setup_args():
     parser.add_argument('--num_frames', type=int, default=10, help='Number of frames to use for testing')
     parser.add_argument('--co3d_dir', type=str, required=True, help='Path to CO3D dataset')
     parser.add_argument('--co3d_anno_dir', type=str, required=True, help='Path to CO3D annotations')
+    parser.add_argument('--output_dir', type=str, default='../eval_results/pose_co3d', help='Directory to save evaluation summaries')
+    parser.add_argument('--weights', type=str, default='../ckpt/checkpoints.pth', help='Path to model checkpoint')
     parser.add_argument('--seed', type=int, default=0, help='Random seed for reproducibility')
     return parser.parse_args()
 
@@ -307,6 +309,7 @@ def main():
     """Main function to evaluate VGGT on CO3D dataset."""
     # Parse command-line arguments
     args = setup_args()
+    os.makedirs(args.output_dir, exist_ok=True)
 
     # Setup device and data type
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -314,7 +317,7 @@ def main():
 
     # Load model
     model = StreamVGGT()
-    checkpoint_path = "../ckpt/checkpoints.pth"  # Path to the model checkpoint
+    checkpoint_path = args.weights
     checkpoint = torch.load(checkpoint_path, map_location=device)
     model.load_state_dict(checkpoint, strict=True)
     model.to(device).eval()
@@ -433,6 +436,27 @@ def main():
         mean_AUC_3 = np.mean([per_category_results[category]["Auc_3"] for category in per_category_results])
         print("-"*50)
         print(f"Mean AUC: {mean_AUC_30:.4f} (AUC@30), {mean_AUC_15:.4f} (AUC@15), {mean_AUC_5:.4f} (AUC@5), {mean_AUC_3:.4f} (AUC@3)")
+        summary = {
+            "mean": {
+                "Auc_30": float(mean_AUC_30),
+                "Auc_15": float(mean_AUC_15),
+                "Auc_5": float(mean_AUC_5),
+                "Auc_3": float(mean_AUC_3),
+            },
+            "per_category": {
+                category: {
+                    "Auc_30": float(per_category_results[category]["Auc_30"]),
+                    "Auc_15": float(per_category_results[category]["Auc_15"]),
+                    "Auc_5": float(per_category_results[category]["Auc_5"]),
+                    "Auc_3": float(per_category_results[category]["Auc_3"]),
+                }
+                for category in sorted(per_category_results.keys())
+            },
+        }
+        with open(os.path.join(args.output_dir, "pose_summary.json"), "w", encoding="utf-8") as summary_file:
+            json.dump(summary, summary_file, ensure_ascii=False, indent=2)
+        with open(os.path.join(args.output_dir, "system_metrics.json"), "w", encoding="utf-8") as system_file:
+            json.dump({"summary": summary["mean"], "per_sequence": []}, system_file, ensure_ascii=False, indent=2)
 
 
 if __name__ == "__main__":

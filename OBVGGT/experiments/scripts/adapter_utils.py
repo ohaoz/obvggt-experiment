@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 
-MONODEPTH_DATASETS = ["sintel", "bonn", "kitti", "nyu"]
+MONODEPTH_DATASETS = ["sintel", "bonn", "kitti", "nyu", "scannet"]
 VIDEO_DEPTH_DATASETS = ["sintel", "bonn", "kitti"]
 
 
@@ -34,7 +34,14 @@ def parse_json_arg(raw: str) -> Dict:
 
 
 def shell_join(parts: List[str]) -> str:
-    return shlex.join(parts)
+    if hasattr(shlex, "join"):
+        return shlex.join(parts)
+    return " ".join(shlex.quote(str(part)) for part in parts)
+
+
+def accelerate_launch_parts(*args: str) -> List[str]:
+    """Build an accelerate launch command via the current Python interpreter."""
+    return ["python", "-m", "accelerate.commands.launch", *args]
 
 
 def run_shell_commands(commands: List[str], cwd: Path, env: Optional[Dict[str, str]] = None) -> int:

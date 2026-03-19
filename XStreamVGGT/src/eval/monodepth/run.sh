@@ -5,7 +5,7 @@ workdir='..'
 model_name='StreamVGGT'
 ckpt_name='checkpoints'
 model_weights="${workdir}/ckpt/${ckpt_name}.pth"
-datasets=('sintel' 'bonn' 'kitti' 'nyu')
+datasets=('sintel' 'bonn' 'kitti' 'nyu' 'scannet')
 
 for data in "${datasets[@]}"; do
     output_dir="${workdir}/eval_results/monodepth/${data}_${model_name}"

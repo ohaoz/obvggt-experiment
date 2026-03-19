@@ -20,7 +20,9 @@ experiments/
 ├── runs/
 │   └── <run_id>/         # 每次运行的单独记录目录（manifest / record / log / artifacts）
 ├── scripts/
-│   └── run_record.py     # 生成和更新 run 记录
+│   ├── run_record.py           # 生成和更新 run 记录
+│   ├── render_experiment_docs.py # 从 runs/* 自动重建 EXPERIMENTS.md / analysis/SUMMARY.md
+│   └── refresh_docs_from_amd_server.ps1 # 在本地一键拉取 amd_server 上的最新 docs
 ├── results/              # 预留/历史目录；不再作为单次 run 的主入口
 ├── analysis/
 │   └── SUMMARY.md        # 已完成实验摘要
@@ -45,11 +47,15 @@ $STREAMVGGT_RUNS/eval_results/
 - `experiments/runs/<run_id>/`：看“这次到底跑了什么”
 - `eval_results/by_run/<run_id>/...`：看“这次产出了什么文件”
 - `experiments/analysis/SUMMARY.md`：看“已经整理过的结论”
+- `experiments/scripts/render_experiment_docs.py`：把 `runs/*` 的机器真相重建成文档
 
-## 3. 当前状态（2026-03-12）
+## 3. 当前状态（2026-03-19）
 - ✅ `video_depth`：baseline vs obcache 对比已完成（含系统指标）。
 - ✅ `monodepth`：obcache 已完成 5 个数据集（缺 baseline 对照；仅作为 regression check）。
-- ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD（缺 baseline 对照；应作为主 KV benchmark 之一）。
+- ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 现已补齐统一中台 rerun。
+- ✅ `XStreamVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
+- ✅ `InfiniteVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
+- ⚠️ `StreamVGGT video_depth`：2026-03-19 重跑已补到 `system=2/3`，但仍因原始 `eval_depth.py` 后处理报错处于 `PARTIAL_DONE`。
 - ⚠️ `pose_co3d`：已执行但注释缺失，未生成 `pose_summary.json`。
 - 当前工作区内可运行的 baseline repo 是：`StreamVGGT`、`OBVGGT`、`XStreamVGGT`、`InfiniteVGGT`。
 - `IncVGGT` 当前只保留论文参考位，不应在本工作区文档里写成“可直接运行”。
@@ -91,18 +97,27 @@ bash quick_run.sh infinitevggt mv_recon
 7. 单次 run 的权威记录在 `experiments/runs/<run_id>/`；`experiments/results/` 当前不作为主入口。
 
 ## 7. 跑后文档同步（强制）
-每次 run（成功/失败/部分完成）后必须检查并更新：
-1. `experiments/EXPERIMENTS.md`：状态、覆盖、缺失项、报告路径。
-2. `experiments/analysis/SUMMARY.md`：关键指标与结论。
-3. 根目录 `agents.md` 顶部“项目当前状态”与 `PROJECT_BRIEF.md`。
-4. 本 README 的“当前状态 / 已知限制 / 下一步”。
-5. `experiments/runs/<run_id>/record.md`：补充人工总结、失败原因、后续动作。
+每次 run（成功/失败/部分完成）后按以下规范执行：
+1. `experiments/runs/<run_id>/manifest.json` 与 `artifacts.json` 是唯一机器真相，不手工改。
+2. `quick_run.sh` 结束后会自动重建服务器侧的 `EXPERIMENTS.md` 和 `analysis/SUMMARY.md`。
+3. 本地需要刷新时，运行：
 
-若确认无需更新，也要在 run record 中写明“已检查无需更新 + 理由”。
+```powershell
+pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
+```
+
+4. 仍然需要人工检查并按需更新：
+   根目录 `agents.md` 顶部“项目当前状态”与 `PROJECT_BRIEF.md`，
+   以及本 README 的“当前状态 / 已知限制 / 下一步”。
+5. `experiments/runs/<run_id>/record.md` 继续保留人工结论、失败原因、后续动作。
+
+换句话说：
+- `EXPERIMENTS.md` / `analysis/SUMMARY.md` = 生成物
+- `runs/<run_id>/manifest.json` / `artifacts.json` / `record.md` = 真相来源
 
 ## 8. 下一步优先级
-1. 补跑 `StreamVGGT` 线的 `monodepth` regression（历史标签：`baseline_monodepth_full`）。
-2. 补跑 `StreamVGGT` 线的 `mv_recon` baseline。
-3. 用新中台验证 `XStreamVGGT` / `InfiniteVGGT` 的 smoke 入口和结果 contract。
-4. 用统一口径补齐 `video_depth + mv_recon` 的系统指标对比。
-5. 补齐 CO3D 注释后重跑 `pose_co3d`。
+1. 修复并补齐 `StreamVGGT video_depth` 的最后一个缺口（当前 `result=1/3, system=2/3`）。
+2. 补跑 `StreamVGGT` 线的 `monodepth` regression（历史标签：`baseline_monodepth_full`）。
+3. 汇总 `StreamVGGT / OBVGGT / XStreamVGGT / InfiniteVGGT` 的统一效率对比表并用于组会/报告。
+4. 补齐 CO3D 注释后重跑 `pose_co3d`。
+5. 继续做 KV 配置消融和长序列验证。

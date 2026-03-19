@@ -64,6 +64,7 @@ class Attention(nn.Module):
         self.prune_mode = os.getenv("KV_PRUNE_MODE", "XStreamVGGT") # XStreamVGGT / SlidingWindow / Random
         self.cache_size = int(os.getenv("KV_CACHE_SIZE", cache_size)) # cache max len
         self.pool_size = int(os.getenv("KV_POOL_SIZE", 16)) # pooling len
+        self.last_cache_event = None
         
 
 
@@ -186,6 +187,7 @@ class Attention(nn.Module):
         **kwargs
     ):
         B, N, C = x.shape
+        self.last_cache_event = None
 
 
         # ---- QKV projection ----
@@ -203,8 +205,10 @@ class Attention(nn.Module):
 
         # ---- KV cache update ----
         if use_cache:
+            old_tokens = 0
             if past_key_values is not None:
                 past_k, past_v = past_key_values  # [B,H,T,D]
+                old_tokens = int(past_k.shape[2])
                 k = torch.cat([past_k, k], dim=2)
                 v = torch.cat([past_v, v], dim=2)
                 # import pdb; pdb.set_trace()
@@ -229,6 +233,16 @@ class Attention(nn.Module):
         if use_cache:
 
             new_kv = self.prune_kv_cache(new_kv, q) #, token_num_eachframe=kwargs.get("token_num_eachframe", 0))
+            new_tokens = int(new_kv[0].shape[2])
+            evicted_tokens = max(old_tokens + N - new_tokens, 0)
+            self.last_cache_event = {
+                "old_tokens": float(old_tokens),
+                "appended_tokens": float(N),
+                "reused_tokens": float(old_tokens),
+                "evicted_tokens": float(evicted_tokens),
+                "evict_calls": float(1 if evicted_tokens > 0 else 0),
+                "cache_tokens": float(new_tokens),
+            }
 
             return x, new_kv
 
