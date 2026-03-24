@@ -76,6 +76,20 @@ After any run that changes status, coverage, or conclusions, check and update:
 
 If no update is needed, the run record should still say that the docs were checked and why no change was required.
 
+### Generated Docs Rule
+
+- Treat `experiments/runs/<run_id>/manifest.json`, `artifacts.json`, and `record.md` as the single source of truth.
+- Treat `OBVGGT/experiments/EXPERIMENTS.md` and `OBVGGT/experiments/analysis/SUMMARY.md` as generated documents.
+- Rebuild generated docs with `OBVGGT/experiments/scripts/render_experiment_docs.py`.
+- `quick_run.sh` should trigger that renderer automatically after each run finalization.
+- Local workspaces should refresh docs from the default server with `OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1` instead of hand-editing stale Markdown.
+
+### Stale-Record Cleanup Rule
+
+- Do not preserve placeholder or manually curated summaries that disagree with run manifests.
+- When stale local docs are discovered, replace them by regenerating from manifests or by pulling regenerated docs from the default server.
+- If local `experiments/runs/` is intentionally sparse, generated docs may be partial; in that case refresh from the default server before making conclusions.
+
 ---
 
 ## Source Of Truth Rule

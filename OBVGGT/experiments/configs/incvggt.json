@@ -1,0 +1,18 @@
+{
+  "variant": "incvggt",
+  "description": "IncVGGT - 文献基线，无公开代码，不纳入当前可复现实验",
+  "runnable": false,
+  "repo_path": "../IncVGGT",
+  "model_family": "IncVGGT",
+  "model_name": "IncVGGT",
+  "env_name": "incvggt",
+  "adapter": "",
+  "supported_tasks": [],
+  "kv_policy_summary": "Literature-only baseline; no public runnable code in this workspace.",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "method": "incremental",
+    "note": "具体配置根据 IncVGGT 的实现调整"
+  }
+}

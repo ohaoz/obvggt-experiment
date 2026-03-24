@@ -1,6 +1,6 @@
 # PROJECT_BRIEF
 
-Last updated: 2026-03-12
+Last updated: 2026-03-24
 
 ## What This Workspace Is
 - Multi-repo workspace for VGGT long-sequence / KV-cache evaluation and reproduction.
@@ -18,6 +18,8 @@ Last updated: 2026-03-12
 - Primary KV-sensitive benchmarks: `video_depth` and `mv_recon`.
 - `monodepth` is regression-only. Use it to check accuracy drift, not to claim KV wins or losses.
 - `pose_co3d` is supplementary and still incomplete because annotation / result cleanup is unfinished.
+- As of March 19, 2026, `XStreamVGGT` and `InfiniteVGGT` have fresh unified-harness system metrics for both `video_depth` and `mv_recon`; `StreamVGGT` has fresh `mv_recon` system metrics and a partial `video_depth` rerun (`result=1/3, system=2/3`).
+- As of March 24, 2026, 15 ablation configs for OBVGGT are ready (scoring method / budget / component / probe / sliding window); code supports `random` eviction and `sliding_window` mode. Runs pending.
 
 ## Naming Map
 - Historical `baseline` in `OBVGGT/experiments/*` means the `StreamVGGT` baseline line.

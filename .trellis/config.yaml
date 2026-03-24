@@ -55,6 +55,16 @@ experiment_ops:
     - OBVGGT/experiments/README.md
     - OBVGGT/experiments/EXPERIMENTS.md
     - OBVGGT/experiments/analysis/SUMMARY.md
+  docs_generation:
+    source_of_truth:
+      - OBVGGT/experiments/runs/<run_id>/manifest.json
+      - OBVGGT/experiments/runs/<run_id>/artifacts.json
+      - OBVGGT/experiments/runs/<run_id>/record.md
+    generated_docs:
+      - OBVGGT/experiments/EXPERIMENTS.md
+      - OBVGGT/experiments/analysis/SUMMARY.md
+    render_command: python OBVGGT/experiments/scripts/render_experiment_docs.py --experiments-root OBVGGT/experiments
+    local_refresh_command: pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
   benchmark_stance:
     - Treat video_depth and mv_recon as the KV-sensitive benchmark pair.
     - Treat monodepth as regression-only unless the stance is intentionally changed everywhere.

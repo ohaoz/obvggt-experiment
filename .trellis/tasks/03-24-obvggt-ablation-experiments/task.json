@@ -1,0 +1,54 @@
+{
+  "id": "obvggt-ablation-experiments",
+  "name": "obvggt-ablation-experiments",
+  "title": "OBVGGT ablation experiment code + configs",
+  "description": "Add RandomEvictionTracker + sliding window to obcache_kv.py/attention.py; create 15 ablation configs (scoring/budget/component/probe/sliding_window); run on video_depth.",
+  "status": "in-progress",
+  "dev_type": "backend",
+  "scope": "OBVGGT/src + OBVGGT/experiments/configs",
+  "priority": "P0",
+  "creator": "zyh",
+  "assignee": "zyh",
+  "createdAt": "2026-03-24",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "current_phase": 1,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "run-experiments",
+      "note": "P0 batch (7 runs) then P1 batch (8 runs) on server"
+    },
+    {
+      "phase": 2,
+      "action": "check",
+      "note": "Verify system_metrics.json and result files"
+    },
+    {
+      "phase": 3,
+      "action": "finish",
+      "note": "render_experiment_docs.py + doc update"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [
+    {"id": "code-changes", "title": "Code: RandomEvictionTracker + sliding window", "status": "done"},
+    {"id": "configs", "title": "Create 15 ablation config files", "status": "done"},
+    {"id": "syntax-check", "title": "py_compile validation", "status": "done"},
+    {"id": "run-p0", "title": "Run P0 batch (scoring+budget, 7 runs)", "status": "pending"},
+    {"id": "run-p1", "title": "Run P1 batch (component+probe+sw, 8 runs)", "status": "pending"},
+    {"id": "verify", "title": "Check system_metrics + render docs", "status": "pending"}
+  ],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "OBVGGT/src/streamvggt/utils/obcache_kv.py",
+    "OBVGGT/src/streamvggt/layers/attention.py",
+    "OBVGGT/experiments/configs/obcache_*.json"
+  ],
+  "notes": "Code+configs done 2026-03-24. Next: deploy to server and run experiments.",
+  "meta": {}
+}

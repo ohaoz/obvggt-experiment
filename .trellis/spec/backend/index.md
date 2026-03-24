@@ -38,7 +38,7 @@ Read these docs after:
 
 The main production path in this workspace is:
 
-`config JSON -> quick_run.sh -> adapter dry-run payload -> repo-local command(s) -> eval artifacts -> run record -> analysis tables -> human docs`
+`config JSON -> quick_run.sh -> adapter dry-run payload -> repo-local command(s) -> eval artifacts -> run record -> generated docs -> human review`
 
 If you change any node in that chain, you are changing a **contract**, not just a file.
 
@@ -48,6 +48,7 @@ If you change any node in that chain, you are changing a **contract**, not just 
 
 - `OBVGGT/experiments/quick_run.sh`
 - `OBVGGT/experiments/scripts/run_record.py`
+- `OBVGGT/experiments/scripts/render_experiment_docs.py`
 - `OBVGGT/experiments/scripts/adapter_utils.py`
 - `OBVGGT/experiments/scripts/run_streamvggt.py`
 - `OBVGGT/experiments/scripts/compare_variants.py`

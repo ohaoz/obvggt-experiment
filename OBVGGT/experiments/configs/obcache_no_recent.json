@@ -1,0 +1,31 @@
+{
+  "variant": "obcache_no_recent",
+  "description": "Ablation: No recent window (recent=0, heavy=6)",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Ablation: No recent window, all budget to heavy hitters.",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 2,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 0,
+    "num_heavy_frames": 6,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

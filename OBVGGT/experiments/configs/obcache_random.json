@@ -1,0 +1,29 @@
+{
+  "variant": "obcache_random",
+  "description": "Ablation: Random eviction baseline",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Ablation: Random eviction (no scoring).",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "random",
+    "num_sink_frames": 1,
+    "num_recent_frames": 2,
+    "num_heavy_frames": 4,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}
