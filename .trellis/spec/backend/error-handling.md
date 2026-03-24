@@ -89,6 +89,27 @@ If a run fails or partially succeeds, preserve:
 - missing artifact list
 - next-action note in `record.md`
 
+### Run Status Contract
+
+For the controller path under `OBVGGT/experiments/`, status is resolved from both
+the subprocess exit code and the artifact contract:
+
+- adapter dry-run payload must expose `expected_artifacts`
+- `quick_run.sh` must persist that list into `manifest.json`
+- `run_record.py finalize` must compare discovered artifacts against that list
+
+Status resolution rule:
+
+- `DONE`: exit code is zero and all expected artifacts exist
+- `PARTIAL_DONE`: at least one expected artifact is missing, but some expected
+  outputs exist or the subprocess itself exited zero
+- `FAILED`: subprocess exited nonzero and no expected outputs were produced
+
+Batch watcher rule:
+
+- helper scripts may continue to the next run after one child fails
+- but the batch script itself must exit nonzero if any child returned nonzero
+
 ---
 
 ## CLI Error Surface

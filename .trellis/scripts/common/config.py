@@ -52,6 +52,15 @@ def get_max_journal_lines(repo_root: Path | None = None) -> int:
         return DEFAULT_MAX_JOURNAL_LINES
 
 
+def get_experiment_ops_config(repo_root: Path | None = None) -> dict:
+    """Get experiment operations config block."""
+    config = _load_config(repo_root)
+    value = config.get("experiment_ops")
+    if isinstance(value, dict):
+        return value
+    return {}
+
+
 def get_hooks(event: str, repo_root: Path | None = None) -> list[str]:
     """Get hook commands for a lifecycle event.
 

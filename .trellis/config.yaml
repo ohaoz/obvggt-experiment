@@ -15,6 +15,61 @@ session_commit_message: "chore: record journal"
 max_journal_lines: 2000
 
 #-------------------------------------------------------------------------------
+# Experiment Operations Context
+#-------------------------------------------------------------------------------
+
+# Trellis-owned preflight context for experiment work.
+# Keep this limited to stable, non-secret operational facts.
+experiment_ops:
+  enabled: true
+  servers:
+    default:
+      name: amd_server
+      host: 192.168.166.137
+      port: 2222
+      purpose: Default execution server for current OBVGGT runs
+      remote_root: /mnt/data5/OBVGGT
+      code_root: /mnt/data5/OBVGGT/code/OBVGGT
+      data_root: /mnt/data5/OBVGGT/data
+      runs_root: /mnt/data5/OBVGGT/runs
+    historical:
+      name: msi_server
+      host: 192.168.166.9
+      port: 2222
+      purpose: Historical results and migration source
+  required_before_run:
+    - Activate conda env obvggt on the server before running experiment commands.
+    - Export STREAMVGGT_CODE, STREAMVGGT_DATA, STREAMVGGT_RUNS, SWANLAB_LOG_DIR, and SWANLAB_CACHE_DIR.
+    - Run nvidia-smi before claiming a GPU.
+    - Run df -h and confirm the target disk has enough free space.
+    - Verify data, checkpoints, and eval_results point to big-disk targets.
+    - Create or update the Markdown run record before starting heavy jobs.
+  forbidden:
+    - Never use sudo on shared servers.
+    - Never store datasets, eval outputs, or SwanLab/W&B caches on the system disk.
+    - Never commit or log passwords, SWANLAB_API_KEY, WANDB_API_KEY, or other secrets.
+    - Never run destructive commands such as rm -rf, mkfs, dd, or chmod -R on shared mounts.
+  docs_to_sync:
+    - PROJECT_BRIEF.md
+    - agents.md
+    - OBVGGT/experiments/README.md
+    - OBVGGT/experiments/EXPERIMENTS.md
+    - OBVGGT/experiments/analysis/SUMMARY.md
+  docs_generation:
+    source_of_truth:
+      - OBVGGT/experiments/runs/<run_id>/manifest.json
+      - OBVGGT/experiments/runs/<run_id>/artifacts.json
+      - OBVGGT/experiments/runs/<run_id>/record.md
+    generated_docs:
+      - OBVGGT/experiments/EXPERIMENTS.md
+      - OBVGGT/experiments/analysis/SUMMARY.md
+    render_command: python OBVGGT/experiments/scripts/render_experiment_docs.py --experiments-root OBVGGT/experiments
+    local_refresh_command: pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
+  benchmark_stance:
+    - Treat video_depth and mv_recon as the KV-sensitive benchmark pair.
+    - Treat monodepth as regression-only unless the stance is intentionally changed everywhere.
+
+#-------------------------------------------------------------------------------
 # Task Lifecycle Hooks
 #-------------------------------------------------------------------------------
 

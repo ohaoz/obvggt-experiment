@@ -1,0 +1,9 @@
+agents.md
+AGENTS.md
+.venv/
+**/__pycache__/
+*.pyc
+.DS_Store
+temp_plan.json
+transfer_logs/
+reports_backup_*.tar.gz

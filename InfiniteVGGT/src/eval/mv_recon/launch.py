@@ -62,21 +62,21 @@ def main(args):
     datasets_all = {
         "7scenes": SevenScenes(
             split="test",
-            ROOT="/home/ma-user/work/dataset/3D_Reconstruction/7scenes",
+            ROOT="../data/eval/7scenes",
             resolution=resolution,
             num_seq=1,
             full_video=True,
-            kf_every=2,
+            kf_every=200,
             # max_frames=args.max_frames,
-        ),  # 20),
-        # "NRGBD": NRGBD(
-        #     split="test",
-        #     ROOT="/home/ma-user/work/dataset/3D_Reconstruction/neural_rgbd_data",
-        #     resolution=resolution,
-        #     num_seq=1,
-        #     full_video=True,
-        #     kf_every=500,
-        # ),
+        ),
+        "NRGBD": NRGBD(
+            split="test",
+            ROOT="../data/eval/neural_rgbd",
+            resolution=resolution,
+            num_seq=1,
+            full_video=True,
+            kf_every=500,
+        ),
     }
 
     accelerator = Accelerator()
@@ -114,12 +114,17 @@ def main(args):
     os.makedirs(args.output_dir, exist_ok=True)
 
     criterion = Regr3D_t_ScaleShiftInv(L21, norm_mode=False, gt_scale=True)
+    all_scene_records = []
+    dataset_summaries = []
 
     with torch.no_grad():
         for name_data, dataset in datasets_all.items():
             save_path = osp.join(args.output_dir, name_data)
             os.makedirs(save_path, exist_ok=True)
             log_file = osp.join(save_path, f"logs_{accelerator.process_index}.txt")
+            system_log_path = osp.join(save_path, f"_system_metrics_{accelerator.process_index}.jsonl")
+            if osp.exists(system_log_path):
+                os.remove(system_log_path)
 
             acc_all = 0
             acc_all_med = 0
@@ -199,30 +204,42 @@ def main(args):
                                 for view in batch:
                                     view["img"] = (view["img"] + 1.0) / 2.0
 
+                        if device.type == "cuda":
+                            torch.cuda.synchronize(device)
+                            torch.cuda.reset_peak_memory_stats(device)
+                        start = time.perf_counter()
                         with torch.cuda.amp.autocast(dtype=dtype):
                             with torch.no_grad():
                                 results = model.inference(batch)
+                        if device.type == "cuda":
+                            torch.cuda.synchronize(device)
+                        end = time.perf_counter()
 
-                            preds, batch = results.ress, results.views 
+                        preds, batch = results.ress, results.views
+                        kv_stats = getattr(results, "kv_cache_stats", {}) or {}
+                        elapsed_sec = max(end - start, 1e-8)
+                        num_frames = len(preds)
+                        peak_allocated_mb = float(torch.cuda.max_memory_allocated(device) / (1024**2)) if device.type == "cuda" else 0.0
+                        peak_reserved_mb = float(torch.cuda.max_memory_reserved(device) / (1024**2)) if device.type == "cuda" else 0.0
 
-                            if args.use_proj:
-                                pose_enc = torch.stack([preds[s]["camera_pose"] for s in range(len(preds))], dim=1)
-                                depth_map = torch.stack([preds[s]["depth"] for s in range(len(preds))], dim=1)
-                                depth_conf = torch.stack([preds[s]["depth_conf"] for s in range(len(preds))], dim=1)
-                                extrinsic, intrinsic = pose_encoding_to_extri_intri(pose_enc,
-                                                                                    batch[0]["img"].shape[-2:])
+                        if args.use_proj:
+                            pose_enc = torch.stack([preds[s]["camera_pose"] for s in range(len(preds))], dim=1)
+                            depth_map = torch.stack([preds[s]["depth"] for s in range(len(preds))], dim=1)
+                            depth_conf = torch.stack([preds[s]["depth_conf"] for s in range(len(preds))], dim=1)
+                            extrinsic, intrinsic = pose_encoding_to_extri_intri(pose_enc,
+                                                                                batch[0]["img"].shape[-2:])
 
-                                if "DTU" in name_data:
-                                    depth_map = depth_map * 1000.0
-                                    extrinsic[..., :3, 3] *= 1000.0
+                            if "DTU" in name_data:
+                                depth_map = depth_map * 1000.0
+                                extrinsic[..., :3, 3] *= 1000.0
 
-                                point_map_by_unprojection = unproject_depth_map_to_point_map(depth_map.squeeze(0),
-                                                                                                extrinsic.squeeze(0),
-                                                                                                intrinsic.squeeze(0))
-                            valid_length = len(preds) // args.revisit
-                            if args.revisit > 1:
-                                preds = preds[-valid_length:]
-                                batch = batch[-valid_length:]
+                            point_map_by_unprojection = unproject_depth_map_to_point_map(depth_map.squeeze(0),
+                                                                                            extrinsic.squeeze(0),
+                                                                                            intrinsic.squeeze(0))
+                        valid_length = len(preds) // args.revisit
+                        if args.revisit > 1:
+                            preds = preds[-valid_length:]
+                            batch = batch[-valid_length:]
                                 
 
                         # Evaluation
@@ -412,6 +429,27 @@ def main(args):
                         f"Idx: {scene_id}, Acc: {acc}, Comp: {comp}, NC1: {nc1}, NC2: {nc2} - Acc_med: {acc_med}, Compc_med: {comp_med}, NC1c_med: {nc1_med}, NC2c_med: {nc2_med}",
                         file=open(log_file, "a"),
                     )
+                    record_payload = {
+                        "dataset": name_data,
+                        "scene_id": scene_id,
+                        "status": "ok",
+                        "num_frames": int(num_frames),
+                        "elapsed_sec": float(elapsed_sec),
+                        "fps": float(num_frames / elapsed_sec) if elapsed_sec > 0 else 0.0,
+                        "latency_ms_per_frame": float(1000.0 * elapsed_sec / num_frames)
+                        if num_frames > 0
+                        else 0.0,
+                        "peak_allocated_mb": peak_allocated_mb,
+                        "peak_reserved_mb": peak_reserved_mb,
+                    }
+                    if isinstance(kv_stats, dict):
+                        for key, value in kv_stats.items():
+                            try:
+                                record_payload[f"kv_{key}"] = float(value)
+                            except (TypeError, ValueError):
+                                continue
+                    with open(system_log_path, "a", encoding="utf-8") as f_sys:
+                        f_sys.write(json.dumps(record_payload, ensure_ascii=False) + "\n")
 
                     acc_all += acc
                     comp_all += comp
@@ -429,6 +467,20 @@ def main(args):
             accelerator.wait_for_everyone()
             # Get depth from pcd and run TSDFusion
             if accelerator.is_main_process:
+                merged_records = []
+                for proc_idx in range(accelerator.num_processes):
+                    proc_path = osp.join(save_path, f"_system_metrics_{proc_idx}.jsonl")
+                    if not osp.exists(proc_path):
+                        continue
+                    with open(proc_path, "r", encoding="utf-8") as f_proc:
+                        for line in f_proc:
+                            line = line.strip()
+                            if not line:
+                                continue
+                            try:
+                                merged_records.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                continue
                 to_write = ""
                 # Copy the error log from each process to the main error log
                 for i in range(8):
@@ -444,16 +496,22 @@ def main(args):
                         match = regex.match(line)
                         if match:
                             data = match.groupdict()
+                            scene_record = {"dataset": name_data, "scene_id": data["scene_id"]}
                             # Exclude 'scene_id' from metrics as it's an identifier
                             for key, value in data.items():
                                 if key != "scene_id":
-                                    metrics[key].append(float(value))
+                                    numeric_value = float(value)
+                                    metrics[key].append(numeric_value)
+                                    scene_record[key] = numeric_value
                             metrics["nc"].append(
                                 (float(data["nc1"]) + float(data["nc2"])) / 2
                             )
                             metrics["nc_med"].append(
                                 (float(data["nc1_med"]) + float(data["nc2_med"])) / 2
                             )
+                            scene_record["nc"] = (float(data["nc1"]) + float(data["nc2"])) / 2
+                            scene_record["nc_med"] = (float(data["nc1_med"]) + float(data["nc2_med"])) / 2
+                            all_scene_records.append(scene_record)
                     mean_metrics = {
                         metric: sum(values) / len(values)
                         for metric, values in metrics.items()
@@ -466,6 +524,89 @@ def main(args):
                         print_str = print_str + f"{m_name}: {print_num:.3f} | "
                     print_str = print_str + "\n"
                     f.write(to_write + print_str)
+
+                summary_path = osp.join(save_path, "summary_metrics.json")
+                with open(summary_path, "w", encoding="utf-8") as summary_file:
+                    json.dump(mean_metrics, summary_file, ensure_ascii=False, indent=2)
+                dataset_summaries.append({"dataset": name_data, **mean_metrics})
+
+                valid_records = [
+                    record
+                    for record in merged_records
+                    if record.get("status") == "ok" and ("elapsed_sec" in record) and ("num_frames" in record)
+                ]
+                system_summary = {
+                    "num_scenes_total": int(len(merged_records)),
+                    "num_scenes_ok": int(len(valid_records)),
+                }
+                if valid_records:
+                    total_frames = int(sum(int(record.get("num_frames", 0)) for record in valid_records))
+                    total_elapsed = float(sum(float(record.get("elapsed_sec", 0.0)) for record in valid_records))
+                    system_summary.update(
+                        {
+                            "total_frames": total_frames,
+                            "total_elapsed_sec": total_elapsed,
+                            "overall_fps": float(total_frames / total_elapsed) if total_elapsed > 0 else 0.0,
+                            "avg_latency_ms_per_frame": float(1000.0 * total_elapsed / total_frames)
+                            if total_frames > 0
+                            else 0.0,
+                            "max_peak_allocated_mb": float(
+                                max(float(record.get("peak_allocated_mb", 0.0)) for record in valid_records)
+                            ),
+                            "max_peak_reserved_mb": float(
+                                max(float(record.get("peak_reserved_mb", 0.0)) for record in valid_records)
+                            ),
+                        }
+                    )
+                    kv_evicted_total = float(sum(float(record.get("kv_evicted_tokens_total", 0.0)) for record in valid_records))
+                    kv_evict_calls_total = float(sum(float(record.get("kv_evict_calls", 0.0)) for record in valid_records))
+                    kv_appended_total = float(sum(float(record.get("kv_appended_tokens_total", 0.0)) for record in valid_records))
+                    kv_reused_total = float(sum(float(record.get("kv_reused_tokens_total", 0.0)) for record in valid_records))
+                    kv_denom = kv_appended_total + kv_reused_total
+                    system_summary.update(
+                        {
+                            "kv_evicted_tokens_total": kv_evicted_total,
+                            "kv_evict_calls_total": kv_evict_calls_total,
+                            "kv_appended_tokens_total": kv_appended_total,
+                            "kv_reused_tokens_total": kv_reused_total,
+                            "kv_cache_hit_rate": float(kv_reused_total / kv_denom) if kv_denom > 0 else 0.0,
+                        }
+                    )
+                system_metrics_path = osp.join(save_path, "system_metrics.json")
+                with open(system_metrics_path, "w", encoding="utf-8") as system_file:
+                    json.dump(
+                        {"summary": system_summary, "per_scene": merged_records},
+                        system_file,
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+
+    if accelerator.is_main_process and dataset_summaries:
+        aggregate_metrics = defaultdict(list)
+        for scene_record in all_scene_records:
+            for key, value in scene_record.items():
+                if key in {"dataset", "scene_id"}:
+                    continue
+                aggregate_metrics[key].append(float(value))
+        root_summary = {
+            key: sum(values) / len(values)
+            for key, values in aggregate_metrics.items()
+            if values
+        }
+        with open(osp.join(args.output_dir, "summary_metrics.json"), "w", encoding="utf-8") as summary_file:
+            json.dump(root_summary, summary_file, ensure_ascii=False, indent=2)
+        root_system = {
+            "summary": {
+                "num_datasets_total": int(len(dataset_summaries)),
+                "num_datasets_ok": int(len(dataset_summaries)),
+                "num_scenes_total": int(len(all_scene_records)),
+                "num_scenes_ok": int(len(all_scene_records)),
+            },
+            "per_dataset": dataset_summaries,
+            "per_scene": all_scene_records,
+        }
+        with open(osp.join(args.output_dir, "system_metrics.json"), "w", encoding="utf-8") as system_file:
+            json.dump(root_system, system_file, ensure_ascii=False, indent=2)
 
 
 

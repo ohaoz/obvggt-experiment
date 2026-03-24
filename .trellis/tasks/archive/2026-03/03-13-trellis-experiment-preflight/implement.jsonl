@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "This change affects config, startup output, and operator docs together"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Production-safe defaults and forbidden patterns for experiment ops"}
+{"file": ".trellis/spec/backend/logging-guidelines.md", "reason": "Logging rules for startup/preflight output and secrets handling"}
+{"file": ".trellis/spec/backend/experiment-operations.md", "reason": "Server targets, preflight rules, and forbidden operations for experiment work"}

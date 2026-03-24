@@ -18,6 +18,28 @@
 | `InfiniteVGGT` | Runnable baseline | 可运行 | `../../InfiniteVGGT` | 是 | 通过统一 adapter 分发到 repo-local 入口。 |
 | `IncVGGT` | Literature-only | 不作为 runnable repo | N/A | 否 | 当前无公开代码口径，不纳入待下载后即可跑列表。 |
 
+### 消融变体（2026-03-24 新增）
+
+15 个消融配置均基于 `obcache.json` 修改，仅改变单一维度，通过 `bash quick_run.sh obcache_<ablation> video_depth` 运行。
+
+| Group | Config 标签 | 消融维度 | 关键参数差异 |
+|---|---|---|---|
+| A: 评分方法 | `obcache_v_only` | scoring | method=obcv |
+| A | `obcache_k_only` | scoring | method=obck |
+| A | `obcache_random` | scoring | method=random（RandomEvictionTracker） |
+| B: 预算分配 | `obcache_budget_tight` | budget | sink=1/recent=1/heavy=2 |
+| B | `obcache_budget_small` | budget | sink=1/recent=1/heavy=3 |
+| B | `obcache_budget_medium` | budget | sink=1/recent=3/heavy=6 |
+| B | `obcache_budget_large` | budget | sink=1/recent=4/heavy=8 |
+| C: 组件 | `obcache_no_sink` | component | num_sink_frames=0, heavy=5 |
+| C | `obcache_no_recent` | component | num_recent_frames=0, heavy=6 |
+| C | `obcache_no_vnorm` | component | use_vnorm=false |
+| C | `obcache_p1` | component | p=1 |
+| D: Probe | `obcache_probe2` | probe | num_patch_probes=2 |
+| D | `obcache_probe32` | probe | num_patch_probes=32 |
+| D | `obcache_probe_full` | probe | probe_mode=false（全量） |
+| E: 滑动窗口 | `obcache_sliding_window` | baseline | method=sliding_window, recent=7, heavy=0, sink=0 |
+
 ## 3. 如何解释历史标签
 - `baseline`：历史上在本目录中表示 `StreamVGGT` 基线线。
 - `obcache`：历史上在本目录中表示当前 `OBVGGT` 线，而不是“继续新增一个独立 OBCache baseline”。

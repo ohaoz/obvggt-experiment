@@ -28,6 +28,7 @@ from .paths import (
     get_repo_root,
     get_tasks_dir,
 )
+from .experiment_ops import get_experiment_preflight, get_experiment_preflight_lines
 
 # =============================================================================
 # Helper Functions
@@ -133,6 +134,7 @@ def get_context_json(repo_root: Path | None = None) -> dict:
 
     return {
         "developer": developer or "",
+        "experimentPreflight": get_experiment_preflight(repo_root),
         "git": {
             "branch": branch,
             "isClean": is_clean,
@@ -196,6 +198,11 @@ def get_context_text(repo_root: Path | None = None) -> str:
 
     lines.append(f"Name: {developer}")
     lines.append("")
+
+    preflight_lines = get_experiment_preflight_lines(repo_root)
+    if preflight_lines:
+        lines.extend(preflight_lines)
+        lines.append("")
 
     # Git status
     lines.append("## GIT STATUS")

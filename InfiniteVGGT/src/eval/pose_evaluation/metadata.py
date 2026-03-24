@@ -134,8 +134,8 @@ dataset_metadata = {
         "process_func": None,
     },
     "sintel": {
-        "img_path": "/home/ma-user/work/dataset/3D_Reconstruction/sintel/training/final",
-        "anno_path": "/home/ma-user/work/dataset/3D_Reconstruction/sintel/training/camdata_left",
+        "img_path": "../data/eval/sintel/training/final",
+        "anno_path": "../data/eval/sintel/training/camdata_left",
         "mask_path": None,
         "dir_path_func": lambda img_path, seq: os.path.join(img_path, seq),
         "gt_traj_func": lambda img_path, anno_path, seq: os.path.join(anno_path, seq),
@@ -187,7 +187,7 @@ dataset_metadata.update(scannet_configs)
 tum_numbers = [50, 90, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
 tum_configs = {
     f"tum_{num}": {
-        "img_path": "/home/ma-user/work/dataset/3D_Reconstruction/long_tum",
+        "img_path": "../data/eval/long_tum",
         "mask_path": None,
         "dir_path_func": lambda img_path, seq, num=num: os.path.join(img_path, seq, f"rgb_{num}"),
         "gt_traj_func": lambda img_path, anno_path, seq, num=num: os.path.join(

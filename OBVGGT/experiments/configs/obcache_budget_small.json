@@ -1,0 +1,31 @@
+{
+  "variant": "obcache_budget_small",
+  "description": "Ablation: Small budget (sink=1, recent=1, heavy=3)",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Ablation: Small token budget (1+1+3 frames).",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 2,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 1,
+    "num_heavy_frames": 3,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

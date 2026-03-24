@@ -57,6 +57,8 @@ def _resolve_mode_flags(method: str) -> Tuple[bool, bool, bool]:
         return False, True, False
     if m in {"joint", "vk", "obcvk"}:
         return True, True, True
+    if m == "random":
+        return False, False, False
     raise ValueError(f"Unknown OBC scoring method: {method}")
 
 
@@ -94,8 +96,14 @@ def resolve_token_budgets(cfg: Dict[str, Any], tokens_per_frame: int) -> Tuple[i
     return num_sink_tokens, num_recent_tokens, num_heavy_tokens
 
 
-def build_tracker_from_cfg(cfg: Dict[str, Any], num_sink_tokens: int) -> "StreamOBCScoreTracker":
-    use_v_score, use_k_score, use_cross = _resolve_mode_flags(cfg.get("method", "joint"))
+def build_tracker_from_cfg(
+    cfg: Dict[str, Any], num_sink_tokens: int
+) -> "StreamOBCScoreTracker":
+    method = (cfg.get("method", "joint")).lower()
+    if method == "random":
+        return RandomEvictionTracker(num_sink=num_sink_tokens)
+
+    use_v_score, use_k_score, use_cross = _resolve_mode_flags(method)
 
     p = int(cfg.get("p", 1 if (use_v_score and not use_k_score) else 2))
     use_vnorm_default = False if (use_v_score and not use_k_score) else True
@@ -181,17 +189,25 @@ class StreamOBCacheLayerState:
             return None
         return int(self.num_recent_tokens + self.num_heavy_tokens)
 
-    def append(self, k_new: Tensor, v_new: Tensor) -> None:
-        old_len = self.seq_len
-        self.k = torch.cat([self.k, k_new], dim=-2)
-        self.v = torch.cat([self.v, v_new], dim=-2)
-        self.frame_count += 1
-        self.reused_tokens_total += int(old_len)
-        self.appended_tokens_total += int(k_new.size(-2))
-        self.max_seq_len_seen = max(self.max_seq_len_seen, int(self.k.size(-2)))
-
     def maybe_evict(self, num_coming: int = 0) -> None:
         if self.tracker is None:
+            # Sliding window: truncate to budget without scoring.
+            n_recent, n_heavy = _budget_is_defined(self.num_recent_tokens, self.num_heavy_tokens)
+            max_cache = n_recent + n_heavy
+            if self.seq_len + num_coming <= max_cache:
+                return
+            before_len = int(self.seq_len)
+            self.max_seq_len_seen = max(self.max_seq_len_seen, before_len)
+            keep = max(max_cache - num_coming, 0)
+            if keep > 0:
+                self.k = self.k[..., -keep:, :]
+                self.v = self.v[..., -keep:, :]
+            else:
+                self.k = self.k[..., :0, :]
+                self.v = self.v[..., :0, :]
+            after_len = int(self.seq_len)
+            self.evict_calls += 1
+            self.evicted_tokens_total += max(before_len - after_len, 0)
             return
 
         n_recent, n_heavy = _budget_is_defined(self.num_recent_tokens, self.num_heavy_tokens)
@@ -228,6 +244,75 @@ class StreamOBCacheLayerState:
             "reused_tokens_total": float(self.reused_tokens_total),
             "cache_reuse_ratio": reuse_ratio,
         }
+
+
+class RandomEvictionTracker:
+    """Random eviction baseline: selects heavy tokens randomly from history."""
+
+    def __init__(self, num_sink: int = 0) -> None:
+        self.num_sink = int(num_sink)
+        self._shape: Optional[Tuple[int, int, int]] = None  # (B, H, L)
+        self._device: torch.device = torch.device("cpu")
+
+    @torch.no_grad()
+    def update(
+        self,
+        A: Optional[Tensor] = None,
+        V: Optional[Tensor] = None,
+        qK: Optional[Tensor] = None,
+        O: Optional[Tensor] = None,
+        num_new_tokens: int = 0,
+        layer_idx: int = 0,
+        Q: Optional[Tensor] = None,
+        K: Optional[Tensor] = None,
+    ) -> None:
+        if V is not None:
+            self._shape = (V.size(0), V.size(1), V.size(-2))
+            self._device = V.device
+
+    @torch.no_grad()
+    def evict(
+        self,
+        num_recent_tokens: int,
+        num_heavy_tokens: int,
+        num_coming: int,
+        layer_idx: int,
+    ) -> Tensor:
+        if self._shape is None:
+            raise RuntimeError("RandomEvictionTracker.evict() called before update().")
+        B, H, seq_len = self._shape
+
+        if num_coming >= num_recent_tokens:
+            num_heavy_tokens -= num_coming - num_recent_tokens
+            num_heavy_tokens = max(num_heavy_tokens, 0)
+
+        recent_cutoff = seq_len - num_recent_tokens + num_coming
+        topk = min(int(num_heavy_tokens), int(recent_cutoff))
+
+        if topk <= 0:
+            return torch.empty(B, H, 0, device=self._device, dtype=torch.long)
+
+        sink_end = min(self.num_sink, recent_cutoff)
+
+        if topk <= sink_end:
+            idx = torch.arange(topk, device=self._device, dtype=torch.long)
+            return idx.unsqueeze(0).unsqueeze(0).expand(B, H, -1)
+
+        # Always keep sink tokens; randomly select the rest from non-sink history.
+        candidates = recent_cutoff - sink_end
+        num_to_select = min(topk - sink_end, candidates)
+
+        rand_scores = torch.rand(B, H, candidates, device=self._device)
+        _, random_idx = rand_scores.topk(num_to_select, dim=-1)
+        random_idx = random_idx + sink_end  # offset past sink region
+
+        sink_idx = torch.arange(sink_end, device=self._device, dtype=torch.long)
+        sink_idx = sink_idx.unsqueeze(0).unsqueeze(0).expand(B, H, -1)
+        idx = torch.cat([sink_idx, random_idx], dim=-1)
+        return idx.sort(dim=-1).values
+
+    def reset(self) -> None:
+        self._shape = None
 
 
 class StreamOBCScoreTracker:

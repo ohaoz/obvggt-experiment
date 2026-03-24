@@ -49,7 +49,7 @@ $STREAMVGGT_RUNS/eval_results/
 - `experiments/analysis/SUMMARY.md`：看“已经整理过的结论”
 - `experiments/scripts/render_experiment_docs.py`：把 `runs/*` 的机器真相重建成文档
 
-## 3. 当前状态（2026-03-19）
+## 3. 当前状态（2026-03-24）
 - ✅ `video_depth`：baseline vs obcache 对比已完成（含系统指标）。
 - ✅ `monodepth`：obcache 已完成 5 个数据集（缺 baseline 对照；仅作为 regression check）。
 - ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 现已补齐统一中台 rerun。
@@ -57,8 +57,9 @@ $STREAMVGGT_RUNS/eval_results/
 - ✅ `InfiniteVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
 - ⚠️ `StreamVGGT video_depth`：2026-03-19 重跑已补到 `system=2/3`，但仍因原始 `eval_depth.py` 后处理报错处于 `PARTIAL_DONE`。
 - ⚠️ `pose_co3d`：已执行但注释缺失，未生成 `pose_summary.json`。
+- 🆕 **消融实验准备就绪**（2026-03-24）：15 个 `obcache_*` 消融配置已创建；代码已支持 `random` 驱逐和 `sliding_window` 模式。待跑 P0（7 runs）+ P1（8 runs）。
 - 当前工作区内可运行的 baseline repo 是：`StreamVGGT`、`OBVGGT`、`XStreamVGGT`、`InfiniteVGGT`。
-- `IncVGGT` 当前只保留论文参考位，不应在本工作区文档里写成“可直接运行”。
+- `IncVGGT` 当前只保留论文参考位，不应在本工作区文档里写成”可直接运行”。
 
 ## 4. 变体 / repo 命名约定（2026-03-12 起）
 - 历史标签 `baseline` = `StreamVGGT`。
@@ -116,8 +117,9 @@ pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
 - `runs/<run_id>/manifest.json` / `artifacts.json` / `record.md` = 真相来源
 
 ## 8. 下一步优先级
-1. 修复并补齐 `StreamVGGT video_depth` 的最后一个缺口（当前 `result=1/3, system=2/3`）。
-2. 补跑 `StreamVGGT` 线的 `monodepth` regression（历史标签：`baseline_monodepth_full`）。
-3. 汇总 `StreamVGGT / OBVGGT / XStreamVGGT / InfiniteVGGT` 的统一效率对比表并用于组会/报告。
-4. 补齐 CO3D 注释后重跑 `pose_co3d`。
-5. 继续做 KV 配置消融和长序列验证。
+1. 🔴 **跑消融实验 P0 批次**（评分方法 + 预算分配消融，7 runs via `quick_run.sh obcache_<ablation> video_depth`）。
+2. 🔴 跑消融实验 P1 批次（组件 + Probe + 滑动窗口消融，8 runs）。
+3. 跑完后执行 `python render_experiment_docs.py` 重建文档。
+4. 修复并补齐 `StreamVGGT video_depth` 的最后一个缺口（当前 `result=1/3, system=2/3`）。
+5. 补跑 `StreamVGGT` 线的 `monodepth` regression（历史标签：`baseline_monodepth_full`）。
+6. 汇总 `StreamVGGT / OBVGGT / XStreamVGGT / InfiniteVGGT` 的统一效率对比表 + 消融结论，用于论文/报告。

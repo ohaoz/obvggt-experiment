@@ -6,7 +6,7 @@ workdir='..'
 model_names=('StreamVGGT') 
 
 ckpt_name='checkpoints'
-model_weights="/home/ma-user/modelarts/user-job-dir/ys/project/InfiniteVGGT/checkpoints.pth"
+model_weights="${workdir}/ckpt/${ckpt_name}.pth"
 
 
 # datasets=('sintel')

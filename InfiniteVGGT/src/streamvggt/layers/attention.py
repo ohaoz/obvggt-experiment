@@ -41,6 +41,7 @@ class Attention(nn.Module):
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
         self.num_anchor_tokens = 0
+        self.last_cache_event = None
 
     def _reset_cache_state(self):
         self.num_anchor_tokens = 0
@@ -101,6 +102,7 @@ class Attention(nn.Module):
         cache_budget = None
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, Tuple]]:
         B, N, C = x.shape
+        self.last_cache_event = None
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, self.head_dim).permute(2, 0, 3, 1, 4)
         q, k, v = qkv.unbind(0)
         scores = None
@@ -114,14 +116,26 @@ class Attention(nn.Module):
             self.num_anchor_tokens = k.shape[2] 
 
         if use_cache:
+            old_tokens = 0
             if past_key_values is not None:
                 past_k, past_v = past_key_values
+                old_tokens = int(past_k.shape[2])
                 k = torch.cat([past_k, k], dim=2)
                 v = torch.cat([past_v, v], dim=2)
             if cache_budget is not None and k.shape[2] > cache_budget:
                 k, v, scores = self.eviction(k, v, cache_budget, self.num_anchor_tokens)
 
             new_kv = (k, v)
+            new_tokens = int(new_kv[0].shape[2])
+            evicted_tokens = max(old_tokens + N - new_tokens, 0)
+            self.last_cache_event = {
+                "old_tokens": float(old_tokens),
+                "appended_tokens": float(N),
+                "reused_tokens": float(old_tokens),
+                "evicted_tokens": float(evicted_tokens),
+                "evict_calls": float(1 if evicted_tokens > 0 else 0),
+                "cache_tokens": float(new_tokens),
+            }
 
         if self.fused_attn:
             x = F.scaled_dot_product_attention(

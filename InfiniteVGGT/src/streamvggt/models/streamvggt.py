@@ -7,13 +7,14 @@ from streamvggt.heads.camera_head import CameraHead
 from streamvggt.heads.dpt_head import DPTHead
 from streamvggt.heads.track_head import TrackHead
 from transformers.file_utils import ModelOutput
-from typing import Optional, Tuple, List, Any, Callable
+from typing import Optional, Tuple, List, Any, Callable, Dict
 from dataclasses import dataclass
 
 @dataclass
 class StreamVGGTOutput(ModelOutput):
     ress: Optional[List[dict]] = None
     views: Optional[torch.Tensor] = None
+    kv_cache_stats: Optional[Dict[str, float]] = None
 
 class StreamVGGT(nn.Module, PyTorchModelHubMixin):
     def __init__(self, img_size=518, patch_size=14, embed_dim=1024, total_budget=1200000):
@@ -26,7 +27,62 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         self.track_head = TrackHead(dim_in=2 * embed_dim, patch_size=patch_size)
         self.total_budget = total_budget
     
+    @staticmethod
+    def _cache_tokens_from_layer_cache(layer_cache) -> int:
+        if layer_cache is None:
+            return 0
+        if isinstance(layer_cache, (tuple, list)) and len(layer_cache) >= 1 and torch.is_tensor(layer_cache[0]):
+            k = layer_cache[0]
+            if k.dim() >= 5:
+                return int(k.shape[-3] * k.shape[-2])
+            if k.dim() >= 4:
+                return int(k.shape[-2])
+        return 0
 
+    def _collect_frame_kv_cache_stats(self) -> Dict[str, float]:
+        events = [
+            getattr(block.attn, "last_cache_event", None)
+            for block in self.aggregator.global_blocks
+        ]
+        events = [event for event in events if event]
+        if not events:
+            return {}
+        cache_lengths = [float(event.get("cache_tokens", 0.0)) for event in events]
+        return {
+            "reused_tokens_total": float(sum(float(event.get("reused_tokens", 0.0)) for event in events)),
+            "appended_tokens_total": float(sum(float(event.get("appended_tokens", 0.0)) for event in events)),
+            "evicted_tokens_total": float(sum(float(event.get("evicted_tokens", 0.0)) for event in events)),
+            "evict_calls": float(sum(float(event.get("evict_calls", 0.0)) for event in events)),
+            "cache_tokens_mean": float(sum(cache_lengths) / len(cache_lengths)) if cache_lengths else 0.0,
+            "cache_tokens_min": float(min(cache_lengths)) if cache_lengths else 0.0,
+            "cache_tokens_max": float(max(cache_lengths)) if cache_lengths else 0.0,
+        }
+
+    def _finalize_kv_cache_stats(self, past_key_values, accum: Dict[str, float]) -> Dict[str, float]:
+        layer_lengths = [
+            float(self._cache_tokens_from_layer_cache(layer_cache))
+            for layer_cache in (past_key_values or [])
+            if layer_cache is not None
+        ]
+        total_layers = int(len(past_key_values or []))
+        reused_tokens_total = float(accum.get("reused_tokens_total", 0.0))
+        appended_tokens_total = float(accum.get("appended_tokens_total", 0.0))
+        evicted_tokens_total = float(accum.get("evicted_tokens_total", 0.0))
+        denom = reused_tokens_total + appended_tokens_total
+        return {
+            "total_layers": float(total_layers),
+            "tracked_layers": float(len(layer_lengths)),
+            "cache_tokens_mean": float(sum(layer_lengths) / len(layer_lengths)) if layer_lengths else 0.0,
+            "cache_tokens_min": float(min(layer_lengths)) if layer_lengths else 0.0,
+            "cache_tokens_max": float(max(layer_lengths)) if layer_lengths else 0.0,
+            "max_seq_len_seen": float(max(float(accum.get("max_seq_len_seen", 0.0)), max(layer_lengths) if layer_lengths else 0.0)),
+            "evict_calls": float(accum.get("evict_calls", 0.0)),
+            "evicted_tokens_total": evicted_tokens_total,
+            "appended_tokens_total": appended_tokens_total,
+            "reused_tokens_total": reused_tokens_total,
+            "cache_hit_rate": float(reused_tokens_total / denom) if denom > 0 else 0.0,
+        }
+    
 
     def forward(
         self,
@@ -115,6 +171,13 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         past_key_values = [None] * self.aggregator.depth
         past_key_values_camera = [None] * self.camera_head.trunk_depth
         total_budget = self.total_budget
+        kv_stats_accum: Dict[str, float] = {
+            "reused_tokens_total": 0.0,
+            "appended_tokens_total": 0.0,
+            "evicted_tokens_total": 0.0,
+            "evict_calls": 0.0,
+            "max_seq_len_seen": 0.0,
+        }
         
         all_ress = []
         processed_frames = [] 
@@ -135,6 +198,14 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                 aggregated_tokens, patch_start_idx, past_key_values = aggregator_output
             else:
                 aggregated_tokens, patch_start_idx = aggregator_output        
+            frame_kv_stats = self._collect_frame_kv_cache_stats()
+            if frame_kv_stats:
+                for key in ("reused_tokens_total", "appended_tokens_total", "evicted_tokens_total", "evict_calls"):
+                    kv_stats_accum[key] += float(frame_kv_stats.get(key, 0.0))
+                kv_stats_accum["max_seq_len_seen"] = max(
+                    kv_stats_accum["max_seq_len_seen"],
+                    float(frame_kv_stats.get("cache_tokens_max", 0.0)),
+                )
             
             with torch.cuda.amp.autocast(enabled=False):
                 if self.camera_head is not None:
@@ -197,4 +268,5 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         return StreamVGGTOutput(
             ress=all_ress if cache_results else None,
             views=processed_frames if cache_results else None,
+            kv_cache_stats=self._finalize_kv_cache_stats(past_key_values, kv_stats_accum),
         )

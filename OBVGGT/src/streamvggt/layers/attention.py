@@ -54,7 +54,11 @@ class Attention(nn.Module):
         num_sink_tokens, num_recent_tokens, num_heavy_tokens = resolve_token_budgets(
             obcache_cfg, tokens_per_frame=num_new_tokens
         )
-        tracker = build_tracker_from_cfg(obcache_cfg, num_sink_tokens=num_sink_tokens)
+        method = (obcache_cfg.get("method", "joint")).lower()
+        if method == "sliding_window":
+            tracker = None
+        else:
+            tracker = build_tracker_from_cfg(obcache_cfg, num_sink_tokens=num_sink_tokens)
         state = StreamOBCacheLayerState(
             k=k_all,
             v=v_all,
@@ -91,6 +95,11 @@ class Attention(nn.Module):
         `num_new_tokens=P` to tracker.update() so accumulation boundaries are
         aligned with appended KV tokens rather than probe count.
         """
+        if state.tracker is None:
+            # Sliding window: no scoring, just evict by truncation.
+            state.maybe_evict(num_coming=0)
+            return
+
         with torch.no_grad():
             probe_idx = select_probe_indices(
                 num_tokens=q.size(-2),

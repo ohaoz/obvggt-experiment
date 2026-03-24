@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import torch
 import argparse
+import json
 
 from copy import deepcopy
 from eval.video_depth.metadata import dataset_metadata
@@ -95,10 +96,14 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
 
     if save_dir is None:
         save_dir = args.output_dir
+    os.makedirs(save_dir, exist_ok=True)
 
     distributed_state = PartialState()
     model.to(distributed_state.device)
     device = distributed_state.device
+    system_log_path = f"{save_dir}/_system_metrics_{distributed_state.process_index}.jsonl"
+    if os.path.exists(system_log_path):
+        os.remove(system_log_path)
 
     with distributed_state.split_between_processes(seq_list) as seqs:
         ate_list = []
@@ -136,10 +141,43 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 )
                 for view in views:
                     view["img"] = (view["img"] + 1.0) / 2.0
-                start = time.time()
+                num_frames = len(filelist)
+                if num_frames == 0:
+                    continue
+                if device.type == "cuda":
+                    torch.cuda.synchronize(device)
+                    torch.cuda.reset_peak_memory_stats(device)
+                start = time.perf_counter()
                 outputs = loss_of_one_batch(views, model, None, None, inference=True)
-                end = time.time()
-                # fps = len(filelist) / (end - start)
+                if device.type == "cuda":
+                    torch.cuda.synchronize(device)
+                end = time.perf_counter()
+                elapsed_sec = max(end - start, 1e-8)
+                if device.type == "cuda":
+                    peak_allocated_mb = float(torch.cuda.max_memory_allocated(device) / (1024**2))
+                    peak_reserved_mb = float(torch.cuda.max_memory_reserved(device) / (1024**2))
+                else:
+                    peak_allocated_mb = 0.0
+                    peak_reserved_mb = 0.0
+                seq_stats = {
+                    "sequence": seq,
+                    "status": "ok",
+                    "num_frames": int(num_frames),
+                    "elapsed_sec": float(elapsed_sec),
+                    "fps": float(num_frames / elapsed_sec),
+                    "latency_ms_per_frame": float(1000.0 * elapsed_sec / num_frames),
+                    "peak_allocated_mb": float(peak_allocated_mb),
+                    "peak_reserved_mb": float(peak_reserved_mb),
+                }
+                kv_stats = outputs.get("kv_cache_stats", {}) if isinstance(outputs, dict) else {}
+                if isinstance(kv_stats, dict):
+                    for key, value in kv_stats.items():
+                        try:
+                            seq_stats[f"kv_{key}"] = float(value)
+                        except (TypeError, ValueError):
+                            continue
+                with open(system_log_path, "a", encoding="utf-8") as f_sys:
+                    f_sys.write(json.dumps(seq_stats, ensure_ascii=False) + "\n")
                 with torch.cuda.amp.autocast(dtype=torch.float32):
                     (
                         pts3ds_self,
@@ -157,6 +195,8 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                         f.write(
                             f"OOM error in sequence {seq}, skipping this sequence.\n"
                         )
+                    with open(system_log_path, "a", encoding="utf-8") as f_sys:
+                        f_sys.write(json.dumps({"sequence": seq, "status": "oom_skip"}, ensure_ascii=False) + "\n")
                     print(f"OOM error in sequence {seq}, skipping...")
                 elif "Degenerate covariance rank" in str(
                     e
@@ -164,9 +204,86 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     # Handle Degenerate covariance rank exception and Eigenvalues did not converge exception
                     with open(error_log_path, "a") as f:
                         f.write(f"Exception in sequence {seq}: {str(e)}\n")
+                    with open(system_log_path, "a", encoding="utf-8") as f_sys:
+                        f_sys.write(
+                            json.dumps(
+                                {"sequence": seq, "status": "traj_eval_skip", "error": str(e)},
+                                ensure_ascii=False,
+                            )
+                            + "\n"
+                        )
                     print(f"Traj evaluation error in sequence {seq}, skipping.")
                 else:
                     raise e  # Rethrow if it's not an expected exception
+    distributed_state.wait_for_everyone()
+    if distributed_state.is_main_process:
+        merged_records = []
+        for proc_idx in range(distributed_state.num_processes):
+            proc_path = f"{save_dir}/_system_metrics_{proc_idx}.jsonl"
+            if not os.path.exists(proc_path):
+                continue
+            with open(proc_path, "r", encoding="utf-8") as f_proc:
+                for line in f_proc:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        merged_records.append(json.loads(line))
+                    except json.JSONDecodeError:
+                        continue
+
+        valid_records = [
+            r
+            for r in merged_records
+            if r.get("status") == "ok" and ("elapsed_sec" in r) and ("num_frames" in r)
+        ]
+        summary = {
+            "num_sequences_total": int(len(merged_records)),
+            "num_sequences_ok": int(len(valid_records)),
+            "num_sequences_oom_skip": int(sum(1 for r in merged_records if r.get("status") == "oom_skip")),
+            "num_sequences_other_skip": int(
+                sum(1 for r in merged_records if r.get("status") not in {"ok", "oom_skip"})
+            ),
+        }
+
+        if valid_records:
+            total_frames = int(sum(int(r.get("num_frames", 0)) for r in valid_records))
+            total_elapsed = float(sum(float(r.get("elapsed_sec", 0.0)) for r in valid_records))
+            summary.update(
+                {
+                    "total_frames": total_frames,
+                    "total_elapsed_sec": total_elapsed,
+                    "overall_fps": float(total_frames / total_elapsed) if total_elapsed > 0 else 0.0,
+                    "avg_latency_ms_per_frame": float(1000.0 * total_elapsed / total_frames)
+                    if total_frames > 0
+                    else 0.0,
+                    "max_peak_allocated_mb": float(
+                        max(float(r.get("peak_allocated_mb", 0.0)) for r in valid_records)
+                    ),
+                    "max_peak_reserved_mb": float(
+                        max(float(r.get("peak_reserved_mb", 0.0)) for r in valid_records)
+                    ),
+                }
+            )
+            kv_evicted_total = float(sum(float(r.get("kv_evicted_tokens_total", 0.0)) for r in valid_records))
+            kv_evict_calls_total = float(sum(float(r.get("kv_evict_calls", 0.0)) for r in valid_records))
+            kv_appended_total = float(sum(float(r.get("kv_appended_tokens_total", 0.0)) for r in valid_records))
+            kv_reused_total = float(sum(float(r.get("kv_reused_tokens_total", 0.0)) for r in valid_records))
+            kv_denom = kv_appended_total + kv_reused_total
+            summary.update(
+                {
+                    "kv_evicted_tokens_total": kv_evicted_total,
+                    "kv_evict_calls_total": kv_evict_calls_total,
+                    "kv_appended_tokens_total": kv_appended_total,
+                    "kv_reused_tokens_total": kv_reused_total,
+                    "kv_cache_hit_rate": float(kv_reused_total / kv_denom) if kv_denom > 0 else 0.0,
+                }
+            )
+
+        system_metrics_path = os.path.join(save_dir, "system_metrics.json")
+        with open(system_metrics_path, "w", encoding="utf-8") as f_out:
+            json.dump({"summary": summary, "per_sequence": merged_records}, f_out, ensure_ascii=False, indent=2)
+        print(f"[system_metrics] saved: {system_metrics_path}")
     return None, None, None
 
 

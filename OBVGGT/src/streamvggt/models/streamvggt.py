@@ -80,9 +80,6 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         views,
         query_points: torch.Tensor = None,
         history_info: Optional[dict] = None,
-        past_key_values=None,
-        use_cache=False,
-        past_frame_idx=0
     ):
         images = torch.stack(
             [view["img"] for view in views], dim=0
@@ -208,20 +205,20 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                     vis = vis[:, 0]
                     track_conf = conf[:, 0]
 
-            all_ress.append({
+            res = {
                 'pts3d_in_other_view': pts3d,
                 'conf': pts3d_conf,
                 'depth': depth,
                 'depth_conf': depth_conf,
                 'camera_pose': camera_pose,
-                **({'valid_mask': frame["valid_mask"]}
-                    if 'valid_mask' in frame else {}),  
-
-                **({'track': track, 
-                    'vis': vis,  
-                    'track_conf': track_conf}
-                if query_points is not None else {})
-            })
+            }
+            if 'valid_mask' in frame:
+                res['valid_mask'] = frame["valid_mask"]
+            if self.track_head is not None and query_points is not None:
+                res['track'] = track
+                res['vis'] = vis
+                res['track_conf'] = track_conf
+            all_ress.append(res)
             processed_frames.append(frame)
         
         kv_cache_stats = self._collect_kv_cache_stats(past_key_values)
