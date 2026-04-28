@@ -12,6 +12,18 @@ MONODEPTH_DATASETS = ["sintel", "bonn", "kitti", "nyu", "scannet"]
 VIDEO_DEPTH_DATASETS = ["sintel", "bonn", "kitti"]
 
 
+def resolve_dataset_filter(default_datasets: List[str], filter_raw: str) -> List[str]:
+    if not filter_raw:
+        return list(default_datasets)
+    requested = [item.strip() for item in str(filter_raw).split(",") if item.strip()]
+    datasets = [dataset for dataset in default_datasets if dataset in requested]
+    if not datasets:
+        raise ValueError(
+            f"--dataset-filter={filter_raw!r} did not match any supported datasets {default_datasets}"
+        )
+    return datasets
+
+
 def repo_root_from(path_str: str) -> Path:
     obvggt_root = Path(__file__).resolve().parents[2]
     repo_path = Path(path_str)
@@ -78,6 +90,7 @@ def common_parser() -> argparse.ArgumentParser:
     parser.add_argument("--pose-co3d-anno-dir", default="")
     parser.add_argument("--input-dir", default="")
     parser.add_argument("--frame-cache-dir", default="")
+    parser.add_argument("--dataset-filter", default="")
     parser.add_argument("--extra-arg", action="append", default=[])
     parser.add_argument("--dry-run", action="store_true")
     return parser
@@ -102,11 +115,19 @@ def build_payload(
     }
 
 
-def metric_path_for_task(task: str, output_root: Path, result_tag: str) -> List[Path]:
+def metric_path_for_task(
+    task: str,
+    output_root: Path,
+    result_tag: str,
+    *,
+    dataset_filter: str = "",
+) -> List[Path]:
     if task == "monodepth":
-        return [output_root / f"{dataset}_{result_tag}" / "metric.json" for dataset in MONODEPTH_DATASETS]
+        datasets = resolve_dataset_filter(MONODEPTH_DATASETS, dataset_filter)
+        return [output_root / f"{dataset}_{result_tag}" / "metric.json" for dataset in datasets]
     if task == "video_depth":
-        return [output_root / f"{dataset}_{result_tag}" / "result_scale.json" for dataset in VIDEO_DEPTH_DATASETS]
+        datasets = resolve_dataset_filter(VIDEO_DEPTH_DATASETS, dataset_filter)
+        return [output_root / f"{dataset}_{result_tag}" / "result_scale.json" for dataset in datasets]
     if task == "mv_recon":
         return [output_root / result_tag / "summary_metrics.json", output_root / result_tag / "system_metrics.json"]
     if task == "pose_co3d":

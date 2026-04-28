@@ -9,6 +9,7 @@ from adapter_utils import (
     common_parser,
     ensure_task_supported,
     metric_path_for_task,
+    resolve_dataset_filter,
     print_dry_run,
     repo_root_from,
     run_shell_commands,
@@ -17,7 +18,6 @@ from adapter_utils import (
 
 
 SUPPORTED_TASKS = ["monodepth", "video_depth", "mv_recon", "pose_co3d"]
-
 
 def build_commands(args):
     repo_root = repo_root_from(args.repo_path)
@@ -29,7 +29,8 @@ def build_commands(args):
     commands = []
     src_root = repo_root / "src"
     if args.task == "monodepth":
-        for dataset in MONODEPTH_DATASETS:
+        datasets = resolve_dataset_filter(MONODEPTH_DATASETS, args.dataset_filter)
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -46,7 +47,7 @@ def build_commands(args):
                     ]
                 )
             )
-        for dataset in MONODEPTH_DATASETS:
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -61,7 +62,8 @@ def build_commands(args):
                 )
             )
     elif args.task == "video_depth":
-        for dataset in VIDEO_DEPTH_DATASETS:
+        datasets = resolve_dataset_filter(VIDEO_DEPTH_DATASETS, args.dataset_filter)
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -162,7 +164,15 @@ def main():
         supported_tasks=SUPPORTED_TASKS,
         commands=commands,
     )
-    payload["expected_artifacts"] = [str(path) for path in metric_path_for_task(args.task, Path(args.output_root), args.result_tag)]
+    payload["expected_artifacts"] = [
+        str(path)
+        for path in metric_path_for_task(
+            args.task,
+            Path(args.output_root),
+            args.result_tag,
+            dataset_filter=args.dataset_filter,
+        )
+    ]
     if args.dry_run:
         print_dry_run(payload)
         return

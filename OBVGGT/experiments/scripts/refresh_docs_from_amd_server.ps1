@@ -1,17 +1,16 @@
 $ErrorActionPreference = "Stop"
 
-$root = "C:\Users\zgg20\Documents\trae_projects\vggt"
-$localExperiments = Join-Path $root "OBVGGT\experiments"
-$remoteHost = "szw@192.168.166.137"
-$remoteExperiments = "/mnt/data5/OBVGGT/code/OBVGGT/experiments"
+throw @"
+[refresh-docs] Deprecated.
 
-Write-Host "[refresh-docs] rendering docs on amd_server..."
-ssh -p 2222 $remoteHost "python $remoteExperiments/scripts/render_experiment_docs.py --experiments-root $remoteExperiments"
+不要用脚本获取远端服务器文档，因为结果可能写入不及时。
 
-Write-Host "[refresh-docs] pulling EXPERIMENTS.md..."
-scp -P 2222 "${remoteHost}:${remoteExperiments}/EXPERIMENTS.md" "$localExperiments/EXPERIMENTS.md"
+请改用跳板机人工核对 `amd_server` 上的真实状态：
+  - /mnt/data5/OBVGGT/code/OBVGGT/experiments/runs/<run_id>/manifest.json
+  - /mnt/data5/OBVGGT/code/OBVGGT/experiments/runs/<run_id>/artifacts.json
+  - /mnt/data5/OBVGGT/code/OBVGGT/experiments/runs/<run_id>/record.md
+  - /mnt/data5/OBVGGT/code/OBVGGT/experiments/EXPERIMENTS.md
+  - /mnt/data5/OBVGGT/code/OBVGGT/experiments/analysis/SUMMARY.md
 
-Write-Host "[refresh-docs] pulling analysis/SUMMARY.md..."
-scp -P 2222 "${remoteHost}:${remoteExperiments}/analysis/SUMMARY.md" "$localExperiments/analysis/SUMMARY.md"
-
-Write-Host "[refresh-docs] done."
+如果需要同步到本地，请在确认远端 run 已 finalize 后，再通过跳板机手工复制目标文件。
+"@

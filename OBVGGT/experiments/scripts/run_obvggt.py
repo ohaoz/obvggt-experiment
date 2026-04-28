@@ -9,6 +9,7 @@ from adapter_utils import (
     common_parser,
     ensure_task_supported,
     metric_path_for_task,
+    resolve_dataset_filter,
     normalize_bool,
     parse_json_arg,
     print_dry_run,
@@ -30,7 +31,6 @@ def kv_args(args):
         options.extend(["--kv_cache_cfg_json", args.kv_cache_cfg_json])
     return options
 
-
 def build_commands(args):
     repo_root = repo_root_from(args.repo_path)
     ckpt = checkpoint_path(repo_root, args.checkpoint)
@@ -42,7 +42,8 @@ def build_commands(args):
     commands = []
     src_root = repo_root / "src"
     if args.task == "monodepth":
-        for dataset in MONODEPTH_DATASETS:
+        datasets = resolve_dataset_filter(MONODEPTH_DATASETS, args.dataset_filter)
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -60,7 +61,7 @@ def build_commands(args):
                     ]
                 )
             )
-        for dataset in MONODEPTH_DATASETS:
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -75,7 +76,8 @@ def build_commands(args):
                 )
             )
     elif args.task == "video_depth":
-        for dataset in VIDEO_DEPTH_DATASETS:
+        datasets = resolve_dataset_filter(VIDEO_DEPTH_DATASETS, args.dataset_filter)
+        for dataset in datasets:
             out_dir = output_root / f"{dataset}_{result_tag}"
             commands.append(
                 shell_join(
@@ -179,7 +181,15 @@ def main():
         supported_tasks=SUPPORTED_TASKS,
         commands=commands,
     )
-    payload["expected_artifacts"] = [str(path) for path in metric_path_for_task(args.task, Path(args.output_root), args.result_tag)]
+    payload["expected_artifacts"] = [
+        str(path)
+        for path in metric_path_for_task(
+            args.task,
+            Path(args.output_root),
+            args.result_tag,
+            dataset_filter=args.dataset_filter,
+        )
+    ]
     if args.dry_run:
         print_dry_run(payload)
         return

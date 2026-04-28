@@ -1,0 +1,35 @@
+{
+  "variant": "obcache_p1_small_s3",
+  "description": "Supplemental: p=1 + small budget (s1r1h3) with seed 3 for stability estimation",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Supplemental: p=1 + small budget (seed 3).",
+  "default_args": [
+    "--seed",
+    "3"
+  ],
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 1,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 1,
+    "num_heavy_frames": 3,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

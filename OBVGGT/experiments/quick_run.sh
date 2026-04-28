@@ -76,6 +76,13 @@ model_family = cfg.get("model_family", model_name)
 kv_enabled = bool(cfg.get("kv_cache_enable", False))
 kv_cfg = cfg.get("kv_cache_cfg") or {}
 kv_summary = cfg.get("kv_policy_summary", "")
+config_default_args = cfg.get("default_args", [])
+task_args = (cfg.get("task_args") or {}).get(task, [])
+if not isinstance(config_default_args, list) or not isinstance(task_args, list):
+    print("ERROR")
+    print(f"Variant `{variant}` has invalid default_args/task_args; both must be JSON arrays of strings.")
+    sys.exit(0)
+config_args = [str(x) for x in [*config_default_args, *task_args]]
 method = str(kv_cfg.get("method", "disabled")).lower() if kv_enabled else "disabled"
 canonical = {
     "obcvk": "joint",
@@ -114,6 +121,7 @@ for value in (
     json.dumps(kv_cfg, ensure_ascii=False, separators=(",", ":")) if kv_cfg else "",
     kv_summary,
     result_tag,
+    json.dumps(config_args, ensure_ascii=False, separators=(",", ":")),
 ):
     print(value)
 PY
@@ -135,6 +143,18 @@ KV_CACHE_ENABLE="${CONFIG_VALUES[8]}"
 KV_CACHE_CFG_JSON="${CONFIG_VALUES[9]}"
 KV_POLICY_SUMMARY="${CONFIG_VALUES[10]}"
 RESULT_TAG="${CONFIG_VALUES[11]}"
+CONFIG_EXTRA_ARGS_JSON="${CONFIG_VALUES[12]}"
+
+mapfile -t CONFIG_EXTRA_ARGS < <(
+    python - "${CONFIG_EXTRA_ARGS_JSON}" <<'PY'
+import json
+import sys
+
+payload = json.loads(sys.argv[1]) if sys.argv[1] else []
+for value in payload:
+    print(str(value))
+PY
+)
 
 ADAPTER_SCRIPT="${SCRIPTS_DIR}/${ADAPTER}"
 if [[ ! -f "${ADAPTER_SCRIPT}" ]]; then
@@ -182,6 +202,9 @@ ADAPTER_ARGS=(
     --kv-cache-enable "${KV_CACHE_ENABLE}"
     --kv-cache-cfg-json "${KV_CACHE_CFG_JSON}"
 )
+if (( ${#CONFIG_EXTRA_ARGS[@]} > 0 )); then
+    ADAPTER_ARGS+=("${CONFIG_EXTRA_ARGS[@]}")
+fi
 if (( ${#EXTRA_ARGS[@]} > 0 )); then
     ADAPTER_ARGS+=("${EXTRA_ARGS[@]}")
 fi
@@ -246,6 +269,7 @@ chmod +x "${COMMAND_FILE}"
     echo "KV_CACHE_ENABLE=${KV_CACHE_ENABLE}"
     echo "KV_CACHE_CFG_JSON=${KV_CACHE_CFG_JSON}"
     echo "KV_POLICY_SUMMARY=${KV_POLICY_SUMMARY}"
+    echo "CONFIG_EXTRA_ARGS_JSON=${CONFIG_EXTRA_ARGS_JSON}"
     echo "TARGET_GIT_BRANCH=${TARGET_GIT_BRANCH}"
     echo "TARGET_GIT_COMMIT=${TARGET_GIT_COMMIT}"
     echo "CONTROLLER_GIT_BRANCH=${CONTROLLER_GIT_BRANCH}"
@@ -305,6 +329,9 @@ fi
 echo "KV cache enabled: ${KV_CACHE_ENABLE}"
 if [[ -n "${KV_CACHE_CFG_JSON}" ]]; then
     echo "KV cache cfg: ${KV_CACHE_CFG_JSON}"
+fi
+if (( ${#CONFIG_EXTRA_ARGS[@]} > 0 )); then
+    echo "Config extra args: ${CONFIG_EXTRA_ARGS[*]}"
 fi
 echo "KV policy: ${KV_POLICY_SUMMARY}"
 echo "Run dir: ${RUN_DIR}"

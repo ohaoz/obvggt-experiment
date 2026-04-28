@@ -8,6 +8,7 @@ import numpy as np
 import torch
 import argparse
 import json
+import random
 
 from copy import deepcopy
 from eval.video_depth.metadata import dataset_metadata
@@ -16,6 +17,15 @@ from accelerate import PartialState
 from add_ckpt_path import add_path_to_dust3r
 import time
 from tqdm import tqdm
+
+
+def _set_random_seeds(seed: int) -> None:
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
 
 
 def get_args_parser():
@@ -62,6 +72,18 @@ def get_args_parser():
         default=None,
         help="list of sequences for pose evaluation",
     )
+    parser.add_argument(
+        "--max_frames",
+        type=int,
+        default=0,
+        help="If > 0, evaluate only the first N frames from each selected sequence.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed for reproducible prefix-eval and repeated baseline runs.",
+    )
     return parser
 
 
@@ -100,6 +122,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
     os.makedirs(save_dir, exist_ok=True)
 
     distributed_state = PartialState()
+    _set_random_seeds(int(args.seed))
     model.to(distributed_state.device)
     device = distributed_state.device
     system_log_path = f"{save_dir}/_system_metrics_{distributed_state.process_index}.jsonl"
@@ -133,6 +156,8 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 ]
                 filelist.sort()
                 filelist = filelist[:: args.pose_eval_stride]
+                if args.max_frames and args.max_frames > 0:
+                    filelist = filelist[: args.max_frames]
 
                 views = prepare_input(
                     filelist,
@@ -420,7 +445,8 @@ if __name__ == "__main__":
         )
 
     model = StreamVGGT()
-    ckpt = torch.load(args.weights, map_location=args.device)
+    # Load checkpoint weights on CPU first to avoid CUDA OOM during deserialization.
+    ckpt = torch.load(args.weights, map_location=lambda storage, _loc: storage.cpu())
     model.load_state_dict(ckpt, strict=True)
     model.eval()
     model = model.to("cuda")

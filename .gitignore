@@ -7,3 +7,5 @@ AGENTS.md
 temp_plan.json
 transfer_logs/
 reports_backup_*.tar.gz
+.tmp_remote_check/
+.tmp_test_render_experiment_docs*/

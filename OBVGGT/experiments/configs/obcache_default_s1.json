@@ -1,9 +1,7 @@
 {
-  "variant": "obcache_v_only",
-  "description": "DEPRECATED: Use obcache_v_only_clean instead. This config has confounding: changed p=1 and vnorm=false alongside method=obcv.",
-  "deprecated": true,
-  "deprecated_reason": "Confounded ablation: changes method, p, and vnorm simultaneously. Superseded by obcache_v_only_clean (method=obcv, p=2, vnorm=true).",
-  "runnable": false,
+  "variant": "obcache_default_s1",
+  "description": "Supplemental: default OBVGGT config with seed 1 for stability estimation",
+  "runnable": true,
   "repo_path": ".",
   "model_family": "OBVGGT",
   "model_name": "StreamVGGT",
@@ -15,13 +13,17 @@
     "mv_recon",
     "pose_co3d"
   ],
-  "kv_policy_summary": "Ablation: V-score only eviction.",
+  "kv_policy_summary": "Supplemental: default OBVGGT config (seed 1).",
+  "default_args": [
+    "--seed",
+    "1"
+  ],
   "kv_cache_enable": true,
   "kv_cache_cfg": {
     "enable": true,
-    "method": "obcv",
-    "p": 1,
-    "use_vnorm": false,
+    "method": "obcvk",
+    "p": 2,
+    "use_vnorm": true,
     "num_sink_frames": 1,
     "num_recent_frames": 2,
     "num_heavy_frames": 4,
