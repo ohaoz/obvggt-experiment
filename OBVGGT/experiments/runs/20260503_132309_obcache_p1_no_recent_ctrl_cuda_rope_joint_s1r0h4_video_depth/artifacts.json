@@ -1,0 +1,18 @@
+{
+  "status": "FAILED",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope/bonn_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope/bonn_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4/result_scale.json"
+  ],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope/bonn_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 21292
+    }
+  ],
+  "updated_at": "2026-05-03T13:23:47+08:00"
+}

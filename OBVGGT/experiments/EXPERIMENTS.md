@@ -12,6 +12,8 @@
 
 | Run ID | Variant | Task | Date | Status | Run Record | 关键指标 |
 |--------|---------|------|------|--------|------------|----------|
+| `20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_cuda_rope` | `video_depth` | `2026-05-03` | `FAILED` | `experiments/runs/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/record.md` | result=0/3, system=1/3 |
+| `20260503_131951_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_cuda_rope` | `video_depth` | `2026-05-03` | `FAILED` | `experiments/runs/20260503_131951_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/record.md` | result=0/3, system=0/3 |
 | `20260503_131047_full_cache_depth_only_video_depth` | `full_cache_depth_only` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_131047_full_cache_depth_only_video_depth/record.md` | result=1/3, system=1/3 |
 | `20260503_130529_obcache_p1_no_recent_ctrl_depth_only_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_depth_only` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_130529_obcache_p1_no_recent_ctrl_depth_only_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
 | `20260503_130432_obcache_p1_no_recent_ctrl_depth_only_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_depth_only` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_130432_obcache_p1_no_recent_ctrl_depth_only_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |

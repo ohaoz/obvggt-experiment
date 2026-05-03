@@ -166,6 +166,18 @@ class RotaryPositionEmbedding2D(nn.Module):
         backend_request = os.environ.get("OBVGGT_ROPE2D_BACKEND", "pytorch").strip().lower()
         if backend_request not in {"pytorch", "auto", "cuda"}:
             raise ValueError(f"Unsupported OBVGGT_ROPE2D_BACKEND={backend_request!r}")
+        unsafe_curope_allowed = os.environ.get("OBVGGT_ALLOW_UNSAFE_CUROPE", "0").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+        }
+        if backend_request in {"auto", "cuda"} and not unsafe_curope_allowed:
+            if backend_request == "cuda":
+                raise RuntimeError(
+                    "cuRoPE2D is disabled for full-model inference because smoke runs hit "
+                    "a process-exit invalid free. Set OBVGGT_ALLOW_UNSAFE_CUROPE=1 only for isolated microbenchmarks."
+                )
+            backend_request = "pytorch"
 
         if backend_request in {"auto", "cuda"} and self._can_use_cuda_rope(tokens, positions):
             record_rope2d_call(tokens, positions, backend="cuda_curope", module=__name__)

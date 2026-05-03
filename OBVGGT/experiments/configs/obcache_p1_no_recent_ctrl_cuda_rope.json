@@ -1,7 +1,7 @@
 {
   "variant": "obcache_p1_no_recent_ctrl_cuda_rope",
-  "description": "Runtime experiment: p1_no_recent_ctrl with StreamVGGT RoPE2D forced to compiled croco cuRoPE2D when eligible.",
-  "runnable": true,
+  "description": "Diagnostic-only config. Full-model cuRoPE2D smoke runs hit process-exit invalid free/SIGABRT, so this is intentionally not runnable through quick_run.",
+  "runnable": false,
   "repo_path": ".",
   "model_family": "OBVGGT",
   "model_name": "StreamVGGT",

@@ -1,0 +1,44 @@
+{
+  "run_id": "20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth",
+  "status": "FAILED",
+  "variant": "obcache_p1_no_recent_ctrl_cuda_rope",
+  "task": "video_depth",
+  "benchmark_role": "streaming_benchmark",
+  "model_name": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "result_tag": "obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4",
+  "repo_path": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "run_dir": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope",
+  "log_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/stdout.log",
+  "command_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/command.sh",
+  "config_snapshot_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/config_snapshot.json",
+  "git": {
+    "branch": "exp/2026-0503-infra-runtime-accel",
+    "commit": "c6c7821588fa51d7733447687c52624240eb4c56"
+  },
+  "kv_cache": {
+    "enabled": true,
+    "config": {
+      "enable": true,
+      "method": "obcvk",
+      "p": 1,
+      "use_vnorm": true,
+      "num_sink_frames": 1,
+      "num_recent_frames": 0,
+      "num_heavy_frames": 4,
+      "probe_mode": true,
+      "num_patch_probes": 8
+    }
+  },
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_cuda_rope/bonn_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4/result_scale.json"
+  ],
+  "timestamps": {
+    "start": "2026-05-03T13:23:10+08:00",
+    "end": "2026-05-03T13:23:47+08:00"
+  },
+  "exit_code": 1
+}
