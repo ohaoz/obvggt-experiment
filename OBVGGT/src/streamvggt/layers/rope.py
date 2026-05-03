@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Dict, Tuple
 
+from streamvggt.utils.runtime_diagnostics import record_rope2d_call
+
 
 class PositionGetter:
     """Generates and caches 2D spatial positions for patches in a grid.
@@ -150,6 +152,8 @@ class RotaryPositionEmbedding2D(nn.Module):
         Raises:
             AssertionError: If input dimensions are invalid or positions are malformed.
         """
+        record_rope2d_call(tokens, positions, backend="pytorch_python", module=__name__)
+
         # Validate inputs
         assert tokens.size(-1) % 2 == 0, "Feature dimension must be even"
         assert positions.ndim == 3 and positions.shape[-1] == 2, "Positions must have shape (batch_size, n_tokens, 2)"

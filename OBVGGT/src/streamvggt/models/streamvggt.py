@@ -7,6 +7,7 @@ from streamvggt.utils.obcache_kv import StreamOBCacheLayerState
 from streamvggt.heads.camera_head import CameraHead
 from streamvggt.heads.dpt_head import DPTHead
 from streamvggt.heads.track_head import TrackHead
+from streamvggt.utils.runtime_diagnostics import snapshot_runtime_diagnostics
 from transformers.file_utils import ModelOutput
 from typing import Optional, Tuple, List, Any, Dict
 from dataclasses import dataclass
@@ -16,6 +17,7 @@ class StreamVGGTOutput(ModelOutput):
     ress: Optional[List[dict]] = None
     views: Optional[torch.Tensor] = None
     kv_cache_stats: Optional[Dict[str, float]] = None
+    runtime_diagnostics: Optional[Dict[str, Any]] = None
 
 class StreamVGGT(nn.Module, PyTorchModelHubMixin):
     def __init__(self, img_size=518, patch_size=14, embed_dim=1024):
@@ -222,5 +224,10 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
             processed_frames.append(frame)
         
         kv_cache_stats = self._collect_kv_cache_stats(past_key_values)
-        output = StreamVGGTOutput(ress=all_ress, views=processed_frames, kv_cache_stats=kv_cache_stats)
+        output = StreamVGGTOutput(
+            ress=all_ress,
+            views=processed_frames,
+            kv_cache_stats=kv_cache_stats,
+            runtime_diagnostics=snapshot_runtime_diagnostics(),
+        )
         return output

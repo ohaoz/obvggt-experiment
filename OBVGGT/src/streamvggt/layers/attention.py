@@ -11,6 +11,7 @@ from streamvggt.utils.obcache_kv import (
     resolve_token_budgets,
     select_probe_indices,
 )
+from streamvggt.utils.runtime_diagnostics import record_sdpa_call
 
 XFORMERS_AVAILABLE = False
 
@@ -166,12 +167,14 @@ class Attention(nn.Module):
             k_all, v_all = k_new, v_new
 
         if self.fused_attn:
+            dropout_p = self.attn_drop.p if self.training else 0.0
+            record_sdpa_call(q, k_all, v_all, attn_mask=attn_mask, dropout_p=dropout_p)
             out = F.scaled_dot_product_attention(
                 q,
                 k_all,
                 v_all,
                 attn_mask=attn_mask,
-                dropout_p=self.attn_drop.p if self.training else 0.0,
+                dropout_p=dropout_p,
             )
         else:
             q_scaled = q * self.scale

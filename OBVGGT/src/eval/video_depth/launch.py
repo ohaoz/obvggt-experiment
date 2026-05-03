@@ -228,6 +228,18 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                             seq_stats[f"kv_{key}"] = float(value)
                         except (TypeError, ValueError):
                             continue
+                runtime_diagnostics = outputs.get("runtime_diagnostics", {}) if isinstance(outputs, dict) else {}
+                if isinstance(runtime_diagnostics, dict) and runtime_diagnostics:
+                    seq_stats["runtime_diagnostics"] = runtime_diagnostics
+                    rope2d = runtime_diagnostics.get("rope2d", {})
+                    sdpa = runtime_diagnostics.get("sdpa", {})
+                    if isinstance(rope2d, dict):
+                        seq_stats["runtime_rope2d_backend"] = str(rope2d.get("backend", ""))
+                    if isinstance(sdpa, dict):
+                        seq_stats["runtime_sdpa_backend_request"] = str(sdpa.get("backend_request", ""))
+                        seq_stats["runtime_sdpa_likely_fused_candidate"] = bool(
+                            sdpa.get("likely_fused_candidate", False)
+                        )
                 with open(system_log_path, "a", encoding="utf-8") as f_sys:
                     f_sys.write(json.dumps(seq_stats, ensure_ascii=False) + "\n")
 
@@ -334,6 +346,13 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     "kv_cache_hit_rate": float(kv_reused_total / kv_denom) if kv_denom > 0 else 0.0,
                 }
             )
+            runtime_samples = [
+                r.get("runtime_diagnostics")
+                for r in valid_records
+                if isinstance(r.get("runtime_diagnostics"), dict) and r.get("runtime_diagnostics")
+            ]
+            if runtime_samples:
+                summary["runtime_diagnostics_sample"] = runtime_samples[0]
 
         system_metrics_path = os.path.join(save_dir, "system_metrics.json")
         with open(system_metrics_path, "w", encoding="utf-8") as f_out:

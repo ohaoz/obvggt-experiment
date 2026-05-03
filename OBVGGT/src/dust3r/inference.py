@@ -98,6 +98,9 @@ def loss_of_one_batch(
                 kv_cache_stats = getattr(output, "kv_cache_stats", None)
                 if kv_cache_stats is not None:
                     result["kv_cache_stats"] = kv_cache_stats
+                runtime_diagnostics = getattr(output, "runtime_diagnostics", None)
+                if runtime_diagnostics is not None:
+                    result["runtime_diagnostics"] = runtime_diagnostics
                 return result[ret] if ret else result
         else:
             output = model(batch, query_pts)
