@@ -1,0 +1,26 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_phase_profile",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_phase_profile/bonn_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_phase_profile/bonn_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4/profile_summary.json",
+      "name": "profile_summary.json",
+      "size_bytes": 2896
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_phase_profile/bonn_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 258
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_phase_profile/bonn_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 33971
+    }
+  ],
+  "updated_at": "2026-05-04T01:22:15+08:00"
+}

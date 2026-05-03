@@ -1,0 +1,94 @@
+{
+  "profile_run": true,
+  "not_for_formal_fps": true,
+  "profiled_sequences": 5,
+  "phase_totals_ms": {
+    "head_camera": 2649.1474248468876,
+    "head_depth": 1793.1835260242224,
+    "head_points": 1550.6383161991835,
+    "heads_total": 6001.895306631923,
+    "launch_model_total": 40683.29505994916,
+    "launch_prepare_output": 328.3545132726431,
+    "launch_save_depth_maps": 31598.00305776298,
+    "sdpa_total": 2878.136468976736,
+    "rope2d_total": 10565.23387992382,
+    "obcache_cache_append": 2365.6987344026566,
+    "obcache_probe_select": 273.5862466939725,
+    "obcache_probe_qk": 641.7386577799916,
+    "obcache_probe_softmax_value": 941.1543054133654,
+    "obcache_tracker_update": 3797.154143691063,
+    "obcache_evict": 2722.636546112597,
+    "obcache_score_total": 8894.754251003265,
+    "aggregator_total": 33547.7869720459
+  },
+  "phase_means": {
+    "head_camera": {
+      "mean_ms_per_profiled_sequence": 529.8294849693775,
+      "calls_total": 200.0
+    },
+    "head_depth": {
+      "mean_ms_per_profiled_sequence": 358.6367052048445,
+      "calls_total": 200.0
+    },
+    "head_points": {
+      "mean_ms_per_profiled_sequence": 310.1276632398367,
+      "calls_total": 200.0
+    },
+    "heads_total": {
+      "mean_ms_per_profiled_sequence": 1200.3790613263845,
+      "calls_total": 200.0
+    },
+    "launch_model_total": {
+      "mean_ms_per_profiled_sequence": 8136.659011989832,
+      "calls_total": 5.0
+    },
+    "launch_prepare_output": {
+      "mean_ms_per_profiled_sequence": 65.67090265452862,
+      "calls_total": 5.0
+    },
+    "launch_save_depth_maps": {
+      "mean_ms_per_profiled_sequence": 6319.600611552596,
+      "calls_total": 5.0
+    },
+    "sdpa_total": {
+      "mean_ms_per_profiled_sequence": 575.6272937953472,
+      "calls_total": 17600.0
+    },
+    "rope2d_total": {
+      "mean_ms_per_profiled_sequence": 2113.0467759847643,
+      "calls_total": 19200.0
+    },
+    "obcache_cache_append": {
+      "mean_ms_per_profiled_sequence": 473.13974688053133,
+      "calls_total": 4800.0
+    },
+    "obcache_probe_select": {
+      "mean_ms_per_profiled_sequence": 54.7172493387945,
+      "calls_total": 4800.0
+    },
+    "obcache_probe_qk": {
+      "mean_ms_per_profiled_sequence": 128.34773155599834,
+      "calls_total": 4800.0
+    },
+    "obcache_probe_softmax_value": {
+      "mean_ms_per_profiled_sequence": 188.23086108267307,
+      "calls_total": 4800.0
+    },
+    "obcache_tracker_update": {
+      "mean_ms_per_profiled_sequence": 759.4308287382125,
+      "calls_total": 4800.0
+    },
+    "obcache_evict": {
+      "mean_ms_per_profiled_sequence": 544.5273092225194,
+      "calls_total": 4800.0
+    },
+    "obcache_score_total": {
+      "mean_ms_per_profiled_sequence": 1778.9508502006531,
+      "calls_total": 4800.0
+    },
+    "aggregator_total": {
+      "mean_ms_per_profiled_sequence": 6709.557394409179,
+      "calls_total": 200.0
+    }
+  }
+}
