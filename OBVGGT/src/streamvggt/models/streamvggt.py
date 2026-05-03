@@ -41,6 +41,7 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         total_appended_tokens = 0
         total_reused_tokens = 0
         max_seq_len_seen = 0
+        profile_totals: Dict[str, float] = {}
 
         for layer_cache in past_key_values:
             if layer_cache is None:
@@ -55,6 +56,9 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                 total_appended_tokens += int(snap.get("appended_tokens_total", 0))
                 total_reused_tokens += int(snap.get("reused_tokens_total", 0))
                 max_seq_len_seen = max(max_seq_len_seen, int(snap.get("max_seq_len_seen", 0)))
+                for key, value in snap.items():
+                    if key.startswith("profile_"):
+                        profile_totals[key] = profile_totals.get(key, 0.0) + float(value)
             elif isinstance(layer_cache, (tuple, list)) and len(layer_cache) >= 1 and torch.is_tensor(layer_cache[0]):
                 layer_lengths.append(int(layer_cache[0].size(-2)))
 
@@ -73,6 +77,7 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
         }
         denom = total_appended_tokens + total_reused_tokens
         stats["cache_hit_rate"] = float(total_reused_tokens / denom) if denom > 0 else 0.0
+        stats.update(profile_totals)
         return stats
 
     def forward(
