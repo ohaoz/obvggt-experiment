@@ -51,4 +51,5 @@
 
 ## 6. Notes
 - 结束后请同步检查 `experiments/EXPERIMENTS.md`、`experiments/analysis/SUMMARY.md`、`experiments/README.md` 与 `AGENTS.md`。
+- Post-run sync completed on 2026-05-03: remote `manifest.json` / `artifacts.json` / `record.md` were mirrored locally, `EXPERIMENTS.md` / `analysis/SUMMARY.md` / `analysis/ALL_RESULTS.md` were rebuilt, and `experiments/README.md` / `AGENTS.md` were checked with no branch-level status update required because this was a failed setup attempt before the Bonn verification runs.
 - 当前状态已按必需产物 contract 自动降级；请优先检查缺失产物对应的数据集或汇总步骤。

@@ -50,3 +50,4 @@
 
 ## 6. Notes
 - 结束后请同步检查 `experiments/EXPERIMENTS.md`、`experiments/analysis/SUMMARY.md`、`experiments/README.md` 与 `AGENTS.md`。
+- Post-run sync completed on 2026-05-03: remote `manifest.json` / `artifacts.json` / `record.md` plus `result_scale.json` / `system_metrics.json` were mirrored locally, `EXPERIMENTS.md` / `analysis/SUMMARY.md` / `analysis/ALL_RESULTS.md` were rebuilt, and `experiments/README.md` / `AGENTS.md` were checked with no top-level status update required because this was a branch-local Bonn-only speed verification, not a finalized full benchmark.
