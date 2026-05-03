@@ -4,13 +4,21 @@
 
 ## 1. video_depth (obcache_p1_no_recent_ctrl_backend_probe) - 2026-05-03
 
+**Run ID**: `20260503_123103_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth`
+**状态**: `DONE`
+**结果摘要**: result=1/3, system=1/3
+
+**Run record**: `experiments/runs/20260503_123103_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/record.md`
+
+## 2. video_depth (obcache_p1_no_recent_ctrl_backend_probe) - 2026-05-03
+
 **Run ID**: `20260503_122825_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth`
 **状态**: `DONE`
 **结果摘要**: result=1/3, system=1/3
 
 **Run record**: `experiments/runs/20260503_122825_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/record.md`
 
-## 2. video_depth (obcache_p1_no_recent_ctrl_backend_probe) - 2026-05-03
+## 3. video_depth (obcache_p1_no_recent_ctrl_backend_probe) - 2026-05-03
 
 **Run ID**: `20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth`
 **状态**: `DONE`
@@ -18,7 +26,7 @@
 
 **Run record**: `experiments/runs/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/record.md`
 
-## 3. video_depth (obcache_p1_no_recent_interval2) - 2026-05-03
+## 4. video_depth (obcache_p1_no_recent_interval2) - 2026-05-03
 
 **Run ID**: `20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth`
 **状态**: `DONE`
@@ -26,7 +34,7 @@
 
 **Run record**: `experiments/runs/20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth/record.md`
 
-## 4. video_depth (obcache_p1_no_recent_probe4) - 2026-05-03
+## 5. video_depth (obcache_p1_no_recent_probe4) - 2026-05-03
 
 **Run ID**: `20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth`
 **状态**: `DONE`
@@ -34,7 +42,7 @@
 
 **Run record**: `experiments/runs/20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth/record.md`
 
-## 5. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
+## 6. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
 
 **Run ID**: `20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth`
 **状态**: `DONE`
@@ -42,7 +50,7 @@
 
 **Run record**: `experiments/runs/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md`
 
-## 6. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
+## 7. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
 
 **Run ID**: `20260503_105845_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth`
 **状态**: `FAILED`
@@ -50,7 +58,7 @@
 
 **Run record**: `experiments/runs/20260503_105845_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md`
 
-## 7. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
+## 8. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
 
 **Run ID**: `20260503_105741_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth`
 **状态**: `FAILED`
@@ -58,7 +66,7 @@
 
 **Run record**: `experiments/runs/20260503_105741_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md`
 
-## 8. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
+## 9. video_depth (obcache_p1_no_recent_ctrl) - 2026-05-03
 
 **Run ID**: `20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth`
 **状态**: `FAILED`
@@ -66,7 +74,7 @@
 
 **Run record**: `experiments/runs/20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md`
 
-## 9. video_depth (InfiniteVGGT) - 2026-03-19
+## 10. video_depth (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_151439_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `DONE`
@@ -80,7 +88,7 @@
 
 **Run record**: `experiments/runs/20260319_151439_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 10. video_depth (StreamVGGT) - 2026-03-19
+## 11. video_depth (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_145529_baseline_video_depth`
 **状态**: `DONE`
@@ -94,7 +102,7 @@
 
 **Run record**: `experiments/runs/20260319_145529_baseline_video_depth/record.md`
 
-## 11. video_depth (XStreamVGGT) - 2026-03-19
+## 12. video_depth (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_145531_xstreamvggt_xstream_cache2048_video_depth`
 **状态**: `DONE`
@@ -108,7 +116,7 @@
 
 **Run record**: `experiments/runs/20260319_145531_xstreamvggt_xstream_cache2048_video_depth/record.md`
 
-## 12. mv_recon (InfiniteVGGT) - 2026-03-19
+## 13. mv_recon (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_150141_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `DONE`
@@ -121,7 +129,7 @@
 
 **Run record**: `experiments/runs/20260319_150141_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 13. mv_recon (XStreamVGGT) - 2026-03-19
+## 14. mv_recon (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_145533_xstreamvggt_xstream_cache2048_mv_recon`
 **状态**: `DONE`
@@ -134,7 +142,7 @@
 
 **Run record**: `experiments/runs/20260319_145533_xstreamvggt_xstream_cache2048_mv_recon/record.md`
 
-## 14. mv_recon (StreamVGGT) - 2026-03-19
+## 15. mv_recon (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_145527_baseline_mv_recon`
 **状态**: `DONE`
@@ -147,7 +155,7 @@
 
 **Run record**: `experiments/runs/20260319_145527_baseline_mv_recon/record.md`
 
-## 15. video_depth (InfiniteVGGT) - 2026-03-19
+## 16. video_depth (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141428_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `DONE`
@@ -161,7 +169,7 @@
 
 **Run record**: `experiments/runs/20260319_141428_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 16. video_depth (XStreamVGGT) - 2026-03-19
+## 17. video_depth (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141428_xstreamvggt_xstream_cache2048_video_depth`
 **状态**: `DONE`
@@ -175,7 +183,7 @@
 
 **Run record**: `experiments/runs/20260319_141428_xstreamvggt_xstream_cache2048_video_depth/record.md`
 
-## 17. mv_recon (XStreamVGGT) - 2026-03-19
+## 18. mv_recon (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_142406_xstreamvggt_xstream_cache2048_mv_recon`
 **状态**: `DONE`
@@ -188,7 +196,7 @@
 
 **Run record**: `experiments/runs/20260319_142406_xstreamvggt_xstream_cache2048_mv_recon/record.md`
 
-## 18. mv_recon (InfiniteVGGT) - 2026-03-19
+## 19. mv_recon (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_142405_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `DONE`
@@ -201,7 +209,7 @@
 
 **Run record**: `experiments/runs/20260319_142405_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 19. video_depth (StreamVGGT) - 2026-03-19
+## 20. video_depth (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141428_baseline_video_depth`
 **状态**: `PARTIAL_DONE`
@@ -213,7 +221,7 @@
 
 **Run record**: `experiments/runs/20260319_141428_baseline_video_depth/record.md`
 
-## 20. mv_recon (InfiniteVGGT) - 2026-03-19
+## 21. mv_recon (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_142035_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `FAILED`
@@ -221,7 +229,7 @@
 
 **Run record**: `experiments/runs/20260319_142035_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 21. mv_recon (XStreamVGGT) - 2026-03-19
+## 22. mv_recon (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_142035_xstreamvggt_xstream_cache2048_mv_recon`
 **状态**: `FAILED`
@@ -229,7 +237,7 @@
 
 **Run record**: `experiments/runs/20260319_142035_xstreamvggt_xstream_cache2048_mv_recon/record.md`
 
-## 22. mv_recon (StreamVGGT) - 2026-03-19
+## 23. mv_recon (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141428_baseline_mv_recon`
 **状态**: `DONE`
@@ -242,7 +250,7 @@
 
 **Run record**: `experiments/runs/20260319_141428_baseline_mv_recon/record.md`
 
-## 23. mv_recon (StreamVGGT) - 2026-03-19
+## 24. mv_recon (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141334_baseline_mv_recon`
 **状态**: `FAILED`
@@ -250,7 +258,7 @@
 
 **Run record**: `experiments/runs/20260319_141334_baseline_mv_recon/record.md`
 
-## 24. video_depth (StreamVGGT) - 2026-03-19
+## 25. video_depth (StreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141334_baseline_video_depth`
 **状态**: `FAILED`
@@ -258,7 +266,7 @@
 
 **Run record**: `experiments/runs/20260319_141334_baseline_video_depth/record.md`
 
-## 25. video_depth (InfiniteVGGT) - 2026-03-19
+## 26. video_depth (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141334_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `FAILED`
@@ -266,7 +274,7 @@
 
 **Run record**: `experiments/runs/20260319_141334_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 26. video_depth (XStreamVGGT) - 2026-03-19
+## 27. video_depth (XStreamVGGT) - 2026-03-19
 
 **Run ID**: `20260319_141334_xstreamvggt_xstream_cache2048_video_depth`
 **状态**: `FAILED`
@@ -274,7 +282,7 @@
 
 **Run record**: `experiments/runs/20260319_141334_xstreamvggt_xstream_cache2048_video_depth/record.md`
 
-## 27. mv_recon (InfiniteVGGT) - 2026-03-19
+## 28. mv_recon (InfiniteVGGT) - 2026-03-19
 
 **Run ID**: `20260318_200314_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `DONE`
@@ -287,7 +295,7 @@
 
 **Run record**: `experiments/runs/20260318_200314_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 28. monodepth (InfiniteVGGT) - 2026-03-18
+## 29. monodepth (InfiniteVGGT) - 2026-03-18
 
 **Run ID**: `20260318_202918_infinitevggt_rolling_memory_budget1200000_monodepth`
 **状态**: `DONE`
@@ -303,7 +311,7 @@
 
 **Run record**: `experiments/runs/20260318_202918_infinitevggt_rolling_memory_budget1200000_monodepth/record.md`
 
-## 29. mv_recon (StreamVGGT) - 2026-03-18
+## 30. mv_recon (StreamVGGT) - 2026-03-18
 
 **Run ID**: `20260314_184640_baseline_mv_recon`
 **状态**: `DONE`
@@ -316,7 +324,7 @@
 
 **Run record**: `experiments/runs/20260314_184640_baseline_mv_recon/record.md`
 
-## 30. mv_recon (XStreamVGGT) - 2026-03-18
+## 31. mv_recon (XStreamVGGT) - 2026-03-18
 
 **Run ID**: `20260314_185714_xstreamvggt_xstream_cache2048_mv_recon`
 **状态**: `DONE`
@@ -329,7 +337,7 @@
 
 **Run record**: `experiments/runs/20260314_185714_xstreamvggt_xstream_cache2048_mv_recon/record.md`
 
-## 31. mv_recon (InfiniteVGGT) - 2026-03-18
+## 32. mv_recon (InfiniteVGGT) - 2026-03-18
 
 **Run ID**: `20260317_095707_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `PARTIAL_DONE`
@@ -341,7 +349,7 @@
 
 **Run record**: `experiments/runs/20260317_095707_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 32. mv_recon (InfiniteVGGT) - 2026-03-18
+## 33. mv_recon (InfiniteVGGT) - 2026-03-18
 
 **Run ID**: `20260318_200214_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `FAILED`
@@ -349,7 +357,7 @@
 
 **Run record**: `experiments/runs/20260318_200214_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 33. monodepth (XStreamVGGT) - 2026-03-17
+## 34. monodepth (XStreamVGGT) - 2026-03-17
 
 **Run ID**: `20260317_130019_xstreamvggt_xstream_cache2048_monodepth`
 **状态**: `DONE`
@@ -365,7 +373,7 @@
 
 **Run record**: `experiments/runs/20260317_130019_xstreamvggt_xstream_cache2048_monodepth/record.md`
 
-## 34. monodepth (StreamVGGT) - 2026-03-17
+## 35. monodepth (StreamVGGT) - 2026-03-17
 
 **Run ID**: `20260316_213618_baseline_monodepth`
 **状态**: `DONE`
@@ -381,7 +389,7 @@
 
 **Run record**: `experiments/runs/20260316_213618_baseline_monodepth/record.md`
 
-## 35. video_depth (OBVGGT) - 2026-03-17
+## 36. video_depth (OBVGGT) - 2026-03-17
 
 **Run ID**: `20260317_093954_obcache_joint_s1r2h4_video_depth`
 **状态**: `DONE`
@@ -395,7 +403,7 @@
 
 **Run record**: `experiments/runs/20260317_093954_obcache_joint_s1r2h4_video_depth/record.md`
 
-## 36. video_depth (StreamVGGT) - 2026-03-17
+## 37. video_depth (StreamVGGT) - 2026-03-17
 
 **Run ID**: `20260317_092152_baseline_video_depth`
 **状态**: `DONE`
@@ -409,7 +417,7 @@
 
 **Run record**: `experiments/runs/20260317_092152_baseline_video_depth/record.md`
 
-## 37. mv_recon (InfiniteVGGT) - 2026-03-15
+## 38. mv_recon (InfiniteVGGT) - 2026-03-15
 
 **Run ID**: `20260315_182931_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `FAILED`
@@ -417,7 +425,7 @@
 
 **Run record**: `experiments/runs/20260315_182931_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 38. video_depth (InfiniteVGGT) - 2026-03-15
+## 39. video_depth (InfiniteVGGT) - 2026-03-15
 
 **Run ID**: `20260315_180956_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `DONE`
@@ -431,7 +439,7 @@
 
 **Run record**: `experiments/runs/20260315_180956_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 39. mv_recon (OBVGGT) - 2026-03-14
+## 40. mv_recon (OBVGGT) - 2026-03-14
 
 **Run ID**: `20260314_191738_obcache_joint_s1r2h4_mv_recon`
 **状态**: `DONE`
@@ -444,7 +452,7 @@
 
 **Run record**: `experiments/runs/20260314_191738_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 40. video_depth (OBVGGT) - 2026-03-14
+## 41. video_depth (OBVGGT) - 2026-03-14
 
 **Run ID**: `20260314_191733_obcache_joint_s1r2h4_video_depth`
 **状态**: `FAILED`
@@ -452,7 +460,7 @@
 
 **Run record**: `experiments/runs/20260314_191733_obcache_joint_s1r2h4_video_depth/record.md`
 
-## 41. monodepth (OBVGGT) - 2026-03-14
+## 42. monodepth (OBVGGT) - 2026-03-14
 
 **Run ID**: `20260314_185310_obcache_joint_s1r2h4_monodepth`
 **状态**: `DONE`
@@ -468,7 +476,7 @@
 
 **Run record**: `experiments/runs/20260314_185310_obcache_joint_s1r2h4_monodepth/record.md`
 
-## 42. mv_recon (InfiniteVGGT) - 2026-03-14
+## 43. mv_recon (InfiniteVGGT) - 2026-03-14
 
 **Run ID**: `20260314_190418_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `FAILED`
@@ -476,7 +484,7 @@
 
 **Run record**: `experiments/runs/20260314_190418_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 43. video_depth (InfiniteVGGT) - 2026-03-14
+## 44. video_depth (InfiniteVGGT) - 2026-03-14
 
 **Run ID**: `20260314_190346_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `FAILED`
@@ -484,7 +492,7 @@
 
 **Run record**: `experiments/runs/20260314_190346_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 44. video_depth (XStreamVGGT) - 2026-03-14
+## 45. video_depth (XStreamVGGT) - 2026-03-14
 
 **Run ID**: `20260314_183922_xstreamvggt_xstream_cache2048_video_depth`
 **状态**: `DONE`
@@ -498,7 +506,7 @@
 
 **Run record**: `experiments/runs/20260314_183922_xstreamvggt_xstream_cache2048_video_depth/record.md`
 
-## 45. video_depth (StreamVGGT) - 2026-03-14
+## 46. video_depth (StreamVGGT) - 2026-03-14
 
 **Run ID**: `20260314_183922_baseline_video_depth`
 **状态**: `FAILED`
@@ -510,7 +518,7 @@
 
 **Run record**: `experiments/runs/20260314_183922_baseline_video_depth/record.md`
 
-## 46. monodepth (StreamVGGT) - 2026-03-14
+## 47. monodepth (StreamVGGT) - 2026-03-14
 
 **Run ID**: `20260314_181115_baseline_monodepth`
 **状态**: `FAILED`
@@ -525,7 +533,7 @@
 
 **Run record**: `experiments/runs/20260314_181115_baseline_monodepth/record.md`
 
-## 47. monodepth (XStreamVGGT) - 2026-03-14
+## 48. monodepth (XStreamVGGT) - 2026-03-14
 
 **Run ID**: `20260314_181115_xstreamvggt_xstream_cache2048_monodepth`
 **状态**: `FAILED`
@@ -540,7 +548,7 @@
 
 **Run record**: `experiments/runs/20260314_181115_xstreamvggt_xstream_cache2048_monodepth/record.md`
 
-## 48. monodepth (XStreamVGGT) - 2026-03-13
+## 49. monodepth (XStreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_125316_xstreamvggt_xstream_cache2048_monodepth`
 **状态**: `FAILED`
@@ -555,7 +563,7 @@
 
 **Run record**: `experiments/runs/20260313_125316_xstreamvggt_xstream_cache2048_monodepth/record.md`
 
-## 49. mv_recon (XStreamVGGT) - 2026-03-13
+## 50. mv_recon (XStreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_122743_xstreamvggt_xstream_cache2048_mv_recon`
 **状态**: `DONE`
@@ -563,7 +571,7 @@
 
 **Run record**: `experiments/runs/20260313_122743_xstreamvggt_xstream_cache2048_mv_recon/record.md`
 
-## 50. monodepth (XStreamVGGT) - 2026-03-13
+## 51. monodepth (XStreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_120427_xstreamvggt_xstream_cache2048_monodepth`
 **状态**: `FAILED`
@@ -578,7 +586,7 @@
 
 **Run record**: `experiments/runs/20260313_120427_xstreamvggt_xstream_cache2048_monodepth/record.md`
 
-## 51. video_depth (XStreamVGGT) - 2026-03-13
+## 52. video_depth (XStreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_114628_xstreamvggt_xstream_cache2048_video_depth`
 **状态**: `DONE`
@@ -592,7 +600,7 @@
 
 **Run record**: `experiments/runs/20260313_114628_xstreamvggt_xstream_cache2048_video_depth/record.md`
 
-## 52. mv_recon (InfiniteVGGT) - 2026-03-13
+## 53. mv_recon (InfiniteVGGT) - 2026-03-13
 
 **Run ID**: `20260313_115336_infinitevggt_rolling_memory_budget1200000_mv_recon`
 **状态**: `FAILED`
@@ -600,7 +608,7 @@
 
 **Run record**: `experiments/runs/20260313_115336_infinitevggt_rolling_memory_budget1200000_mv_recon/record.md`
 
-## 53. video_depth (InfiniteVGGT) - 2026-03-13
+## 54. video_depth (InfiniteVGGT) - 2026-03-13
 
 **Run ID**: `20260313_115304_infinitevggt_rolling_memory_budget1200000_video_depth`
 **状态**: `FAILED`
@@ -608,7 +616,7 @@
 
 **Run record**: `experiments/runs/20260313_115304_infinitevggt_rolling_memory_budget1200000_video_depth/record.md`
 
-## 54. monodepth (OBVGGT) - 2026-03-13
+## 55. monodepth (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_111924_obcache_joint_s1r2h4_monodepth`
 **状态**: `DONE`
@@ -624,7 +632,7 @@
 
 **Run record**: `experiments/runs/20260313_111924_obcache_joint_s1r2h4_monodepth/record.md`
 
-## 55. monodepth (StreamVGGT) - 2026-03-13
+## 56. monodepth (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_105533_baseline_monodepth`
 **状态**: `FAILED`
@@ -639,7 +647,7 @@
 
 **Run record**: `experiments/runs/20260313_105533_baseline_monodepth/record.md`
 
-## 56. video_depth (StreamVGGT) - 2026-03-13
+## 57. video_depth (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_104733_baseline_video_depth`
 **状态**: `FAILED`
@@ -651,7 +659,7 @@
 
 **Run record**: `experiments/runs/20260313_104733_baseline_video_depth/record.md`
 
-## 57. mv_recon (OBVGGT) - 2026-03-13
+## 58. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_104733_obcache_joint_s1r2h4_mv_recon`
 **状态**: `DONE`
@@ -664,7 +672,7 @@
 
 **Run record**: `experiments/runs/20260313_104733_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 58. mv_recon (OBVGGT) - 2026-03-13
+## 59. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_102849_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -672,7 +680,7 @@
 
 **Run record**: `experiments/runs/20260313_102849_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 59. mv_recon (StreamVGGT) - 2026-03-13
+## 60. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_102234_baseline_mv_recon`
 **状态**: `DONE`
@@ -680,7 +688,7 @@
 
 **Run record**: `experiments/runs/20260313_102234_baseline_mv_recon/record.md`
 
-## 60. monodepth (OBVGGT) - 2026-03-13
+## 61. monodepth (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_102302_obcache_joint_s1r2h4_monodepth`
 **状态**: `FAILED`
@@ -688,7 +696,7 @@
 
 **Run record**: `experiments/runs/20260313_102302_obcache_joint_s1r2h4_monodepth/record.md`
 
-## 61. monodepth (StreamVGGT) - 2026-03-13
+## 62. monodepth (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_095910_baseline_monodepth`
 **状态**: `FAILED`
@@ -703,7 +711,7 @@
 
 **Run record**: `experiments/runs/20260313_095910_baseline_monodepth/record.md`
 
-## 62. mv_recon (OBVGGT) - 2026-03-13
+## 63. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_102049_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -711,7 +719,7 @@
 
 **Run record**: `experiments/runs/20260313_102049_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 63. mv_recon (StreamVGGT) - 2026-03-13
+## 64. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_102041_baseline_mv_recon`
 **状态**: `FAILED`
@@ -719,7 +727,7 @@
 
 **Run record**: `experiments/runs/20260313_102041_baseline_mv_recon/record.md`
 
-## 64. mv_recon (OBVGGT) - 2026-03-13
+## 65. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_101834_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -727,7 +735,7 @@
 
 **Run record**: `experiments/runs/20260313_101834_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 65. mv_recon (StreamVGGT) - 2026-03-13
+## 66. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_101826_baseline_mv_recon`
 **状态**: `FAILED`
@@ -735,7 +743,7 @@
 
 **Run record**: `experiments/runs/20260313_101826_baseline_mv_recon/record.md`
 
-## 66. video_depth (OBVGGT) - 2026-03-13
+## 67. video_depth (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093759_obcache_joint_s1r2h4_video_depth`
 **状态**: `DONE`
@@ -749,7 +757,7 @@
 
 **Run record**: `experiments/runs/20260313_093759_obcache_joint_s1r2h4_video_depth/record.md`
 
-## 67. mv_recon (StreamVGGT) - 2026-03-13
+## 68. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093841_baseline_mv_recon`
 **状态**: `FAILED`
@@ -757,7 +765,7 @@
 
 **Run record**: `experiments/runs/20260313_093841_baseline_mv_recon/record.md`
 
-## 68. mv_recon (OBVGGT) - 2026-03-13
+## 69. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093841_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -765,7 +773,7 @@
 
 **Run record**: `experiments/runs/20260313_093841_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 69. video_depth (StreamVGGT) - 2026-03-13
+## 70. video_depth (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_092944_baseline_video_depth`
 **状态**: `FAILED`
@@ -777,7 +785,7 @@
 
 **Run record**: `experiments/runs/20260313_092944_baseline_video_depth/record.md`
 
-## 70. mv_recon (OBVGGT) - 2026-03-13
+## 71. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093702_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -785,7 +793,7 @@
 
 **Run record**: `experiments/runs/20260313_093702_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 71. mv_recon (StreamVGGT) - 2026-03-13
+## 72. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093658_baseline_mv_recon`
 **状态**: `FAILED`
@@ -793,7 +801,7 @@
 
 **Run record**: `experiments/runs/20260313_093658_baseline_mv_recon/record.md`
 
-## 72. mv_recon (OBVGGT) - 2026-03-13
+## 73. mv_recon (OBVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093028_obcache_joint_s1r2h4_mv_recon`
 **状态**: `FAILED`
@@ -801,7 +809,7 @@
 
 **Run record**: `experiments/runs/20260313_093028_obcache_joint_s1r2h4_mv_recon/record.md`
 
-## 73. mv_recon (StreamVGGT) - 2026-03-13
+## 74. mv_recon (StreamVGGT) - 2026-03-13
 
 **Run ID**: `20260313_093024_baseline_mv_recon`
 **状态**: `FAILED`
