@@ -1,0 +1,7 @@
+label,run_id,commit,dataset,total_frames,overall_fps,speedup_vs_before,max_peak_allocated_mb,cache_tokens_max,seq_max,evict_calls_total,cache_hit_rate,rope2d_calls,abs_rel,rmse,delta125,status
+before,20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,4999abd,sintel,1064,5.890621,,8039.032,2800,3360,22776,0.823812,4800,0.319331146,3.787306214,0.659783463,DONE
+after,20260504_052145_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,87e056a,sintel,1064,6.717935,1.140446,8039.306,2800,3360,22776,0.823812,4800,0.319331146,3.787306214,0.659783463,DONE
+before,20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,4999abd,bonn,550,5.760698,,10459.263,5020,6024,12600,0.829457,10560,0.051584164,0.251251988,0.971867478,DONE
+after,20260504_052145_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,87e056a,bonn,550,6.233475,1.082069,10454.886,5020,6024,12600,0.829457,10560,0.051584164,0.251251988,0.971867478,DONE
+before,20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,4999abd,kitti,1269,6.028912,,8150.735,2060,2472,28896,0.828953,6432,0.099060044,3.623655846,0.924700566,DONE
+after,20260504_052145_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,87e056a,kitti,1269,6.363865,1.055558,8154.062,2060,2472,28896,0.828953,6432,0.099060044,3.623655846,0.924700566,DONE

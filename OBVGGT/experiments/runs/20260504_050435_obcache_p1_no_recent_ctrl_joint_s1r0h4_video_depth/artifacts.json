@@ -1,0 +1,43 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/sintel_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/kitti_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 260
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 21502
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/kitti_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 257
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/kitti_obcache_p1_no_recent_ctrl_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 50968
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/sintel_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 256
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/sintel_obcache_p1_no_recent_ctrl_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 87200
+    }
+  ],
+  "updated_at": "2026-05-04T05:21:20+08:00"
+}

@@ -20,6 +20,7 @@ The intent is to keep cache policy and budget fixed unless explicitly marked as 
 | PyTorch RoPE2D fallback component cache | server-side CUDA microbench, `4999abd` vs `87e056a` | median `0.4869 -> 0.3794 ms/call` for `[1,16,1004,64]`, about `1.28x` faster; server unittest `test_rope/test_runtime_diagnostics/test_phase_profile` all pass | Safe microbench candidate; requires Bonn smoke/full rerun before any end-to-end FPS claim |
 | PyTorch RoPE2D fallback component cache, Bonn smoke | `20260504_043337...` (`4999abd`) vs `20260504_043719...` (`87e056a`) | Bonn 40-frame `5.6036 -> 6.0259 FPS`, `+7.54%`; `cache_max=5020`, `seq_max=6024`, evict calls/hit rate/AbsRel/RMSE/delta unchanged | Passes same-budget smoke gate; next gate is paired Bonn full |
 | PyTorch RoPE2D fallback component cache, Bonn full | `20260504_044550...` (`4999abd`) vs `20260504_045003...` (`87e056a`) | Bonn full `5.5147 -> 6.1978 FPS`, `+12.39%`; `cache_max=5020`, `seq_max=6024`, evict calls/hit rate/AbsRel/RMSE/delta unchanged | Passes same-budget Bonn full gate; promote to paired `sintel/bonn/kitti` full-matrix gate |
+| PyTorch RoPE2D fallback component cache, full matrix | `20260504_050435...` (`4999abd`) vs `20260504_052145...` (`87e056a`) | FPS: Sintel `+14.04%`, Bonn `+8.21%`, KITTI `+5.56%`; all cache/seq/evict/hit-rate and AbsRel/RMSE/delta unchanged | Accepted as same-cache-budget infra runtime optimization |
 
 ## Interpretation
 
@@ -37,6 +38,8 @@ The first paired Bonn smoke rerun confirms the microbench signal at task level: 
 
 The paired Bonn full rerun confirms the same signal on the complete Bonn `video_depth` set: `87e056a` improves FPS by `+12.39%` over `4999abd` with identical `cache_max=5020`, `seq_max=6024`, `evict_calls_total=12600`, cache hit rate, and depth metrics. This is now strong enough to run the full `sintel/bonn/kitti` matrix, but it remains a Bonn-only result until that matrix is complete.
 
+The paired full matrix completes that gate. Relative to `4999abd`, `87e056a` improves `video_depth` FPS by `+14.04%` on Sintel, `+8.21%` on Bonn, and `+5.56%` on KITTI. Cache budget, maximum sequence length, evict calls, cache hit rate, and all depth metrics remain unchanged per dataset. Detailed values are in `analysis/tables/rope_fallback_full_matrix_20260504.csv`.
+
 The phase profiler confirms that the largest model-side time is still inside the aggregator stack. Within that stack, PyTorch RoPE2D fallback and OBCache scoring/bookkeeping are large enough to justify further infra work. The save-depth-maps phase is also large, but it is evaluation IO/output overhead and should be separated from model FPS claims.
 
 ## Current Recommendation
@@ -44,5 +47,5 @@ The phase profiler confirms that the largest model-side time is still inside the
 1. Treat `depth_only` as an accepted `video_depth` task-runtime candidate under the same OBCache cache budget.
 2. Keep SDPA backend logging in all future runs, but do not force Flash by default.
 3. Do not use `obcache_p1_no_recent_ctrl_cuda_rope` in quick_run; it is intentionally `runnable=false`.
-4. Promote PyTorch RoPE2D fallback component caching to a Bonn-full candidate, then gate it with a paired `sintel/bonn/kitti` full matrix before any cross-dataset conclusion.
+4. Accept PyTorch RoPE2D fallback component caching as a same-cache-budget infra runtime optimization for `video_depth`.
 5. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
