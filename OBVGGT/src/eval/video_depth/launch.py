@@ -99,6 +99,13 @@ def get_args_parser():
         choices=["default", "flash", "efficient", "math", "cudnn"],
         help="Force a PyTorch SDPA backend for backend-routing experiments. Default keeps PyTorch dispatch unchanged.",
     )
+    parser.add_argument(
+        "--head_mode",
+        type=str,
+        default="full",
+        choices=["full", "depth_only"],
+        help="When set to depth_only, StreamVGGT inference skips camera/point/track heads for video_depth.",
+    )
     return parser
 
 
@@ -200,9 +207,16 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     torch.cuda.synchronize(device)
                     torch.cuda.reset_peak_memory_stats(device)
 
+                inference_output_keys = ["depth"] if args.head_mode == "depth_only" else None
                 start = time.perf_counter()
                 outputs = loss_of_one_batch(
-                    views, model, None, None, inference=True, kv_cache_cfg=kv_cache_cfg
+                    views,
+                    model,
+                    None,
+                    None,
+                    inference=True,
+                    kv_cache_cfg=kv_cache_cfg,
+                    inference_output_keys=inference_output_keys,
                 )
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
@@ -221,6 +235,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 seq_stats = {
                     "sequence": seq,
                     "status": "ok",
+                    "head_mode": args.head_mode,
                     "num_frames": int(num_frames),
                     "elapsed_sec": float(elapsed_sec),
                     "fps": float(fps),
