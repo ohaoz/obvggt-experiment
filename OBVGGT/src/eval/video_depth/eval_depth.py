@@ -66,10 +66,14 @@ def _save_and_log_metrics(args, average_metrics, depth_log_path, swanlab_state):
     with open(depth_log_path, "w") as f:
         f.write(json.dumps(average_metrics))
     swanlab_metrics = {
-        f"video_depth/{args.eval_dataset}/{args.align}/{key}": float(value)
+        f"video_depth/{args.eval_dataset}/{args.align}/{_swanlab_metric_key(key)}": float(value)
         for key, value in average_metrics.items()
     }
     log_swanlab(swanlab_state, swanlab_metrics)
+
+
+def _swanlab_metric_key(key):
+    return str(key).strip().strip("./")
 
 
 def main(args):
