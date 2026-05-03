@@ -1,0 +1,21 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 260
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 4386
+    }
+  ],
+  "updated_at": "2026-05-03T11:03:54+08:00"
+}

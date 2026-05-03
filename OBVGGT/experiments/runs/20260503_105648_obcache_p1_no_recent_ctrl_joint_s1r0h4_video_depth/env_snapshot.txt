@@ -1,0 +1,23 @@
+STREAMVGGT_CODE=/mnt/data5/OBVGGT/code/branches/2026-0503-fps-verify
+RUN_ID=20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth
+RUN_DIR=/mnt/data5/OBVGGT/code/branches/2026-0503-fps-verify/experiments/runs/20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth
+OUTPUT_BASE=/mnt/data3/OBVGGT/fps_verify_20260503/eval_results
+TASK_OUTPUT_ROOT=/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl
+REPO_ROOT=/mnt/data5/OBVGGT/code/branches/2026-0503-fps-verify
+VARIANT=obcache_p1_no_recent_ctrl
+TASK=video_depth
+MODEL_NAME=StreamVGGT
+MODEL_FAMILY=OBVGGT
+CHECKPOINT=ckpt/checkpoints.pth
+ENV_NAME=obvggt
+CURRENT_CONDA_ENV=obvggt
+ENV_OVERRIDES_JSON={}
+EXPECTED_ARTIFACTS_JSON=["/mnt/data3/OBVGGT/fps_verify_20260503/eval_results/by_run/20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl/bonn_obcache_p1_no_recent_ctrl_joint_s1r0h4/result_scale.json"]
+KV_CACHE_ENABLE=true
+KV_CACHE_CFG_JSON={"enable":true,"method":"obcvk","p":1,"use_vnorm":true,"num_sink_frames":1,"num_recent_frames":0,"num_heavy_frames":4,"probe_mode":true,"num_patch_probes":8}
+KV_POLICY_SUMMARY=Supplemental: p=1 + no recent window, matched total budget (1+0+4 frames).
+CONFIG_EXTRA_ARGS_JSON=[]
+TARGET_GIT_BRANCH=exp/2026-0503-fps-verify
+TARGET_GIT_COMMIT=4b5dbdcb2c305ffac7d09f3c9284b962dc44c1de
+CONTROLLER_GIT_BRANCH=exp/2026-0503-fps-verify
+CONTROLLER_GIT_COMMIT=4b5dbdcb2c305ffac7d09f3c9284b962dc44c1de
