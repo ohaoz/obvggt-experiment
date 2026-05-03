@@ -12,6 +12,12 @@
 
 | Run ID | Variant | Task | Date | Status | Run Record | 关键指标 |
 |--------|---------|------|------|--------|------------|----------|
+| `20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_interval2` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
+| `20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_probe4` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
+| `20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_110013_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
+| `20260503_105845_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-03` | `FAILED` | `experiments/runs/20260503_105845_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=0/3, system=0/3 |
+| `20260503_105741_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-03` | `FAILED` | `experiments/runs/20260503_105741_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=0/3, system=0/3 |
+| `20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-03` | `FAILED` | `experiments/runs/20260503_105648_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=0/3, system=0/3 |
 | `20260319_151439_infinitevggt_rolling_memory_budget1200000_video_depth` | `InfiniteVGGT` | `video_depth` | `2026-03-19` | `DONE` | `experiments/runs/20260319_151439_infinitevggt_rolling_memory_budget1200000_video_depth/record.md` | result=3/3, system=3/3 |
 | `20260319_145529_baseline_video_depth` | `StreamVGGT` | `video_depth` | `2026-03-19` | `DONE` | `experiments/runs/20260319_145529_baseline_video_depth/record.md` | result=3/3, system=3/3 |
 | `20260319_145531_xstreamvggt_xstream_cache2048_video_depth` | `XStreamVGGT` | `video_depth` | `2026-03-19` | `DONE` | `experiments/runs/20260319_145531_xstreamvggt_xstream_cache2048_video_depth/record.md` | result=3/3, system=3/3 |
@@ -88,6 +94,6 @@
 ## 维护规范
 
 1. `experiments/runs/<run_id>/manifest.json` 和 `artifacts.json` 是唯一机器可读真相。
-2. `EXPERIMENTS.md` 与 `analysis/SUMMARY.md` 一律由生成器重建，不手工编辑。
+2. `EXPERIMENTS.md`、`analysis/SUMMARY.md` 与 `analysis/ALL_RESULTS.md` 一律由生成器重建，不手工编辑。
 3. 每次 run 结束后，应重新执行生成器；若在服务器上运行，优先更新服务器上的 docs。
-4. 本地 docs 需要时通过 refresh 脚本从默认服务器重新拉取。
+4. 本地 docs 如需对照服务器状态，请通过跳板机人工核对远端文档；不要依赖自动 refresh 脚本。

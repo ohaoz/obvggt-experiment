@@ -1,4 +1,5 @@
 import math
+import time
 from typing import Any, Dict, Optional, Tuple, Union
 
 import torch
@@ -14,6 +15,33 @@ from streamvggt.utils.obcache_kv import (
 from streamvggt.utils.runtime_diagnostics import record_sdpa_call
 
 XFORMERS_AVAILABLE = False
+
+
+def _obcache_profile_enabled(obcache_cfg: Optional[Dict[str, Any]]) -> bool:
+    if not obcache_cfg:
+        return False
+    return bool(obcache_cfg.get("profile", False) or obcache_cfg.get("profile_obcache", False))
+
+
+def _profile_start(enabled: bool, reference: Tensor) -> Optional[float]:
+    if not enabled:
+        return None
+    if reference.is_cuda:
+        torch.cuda.synchronize(reference.device)
+    return time.perf_counter()
+
+
+def _profile_end(
+    state: StreamOBCacheLayerState,
+    name: str,
+    start: Optional[float],
+    reference: Tensor,
+) -> None:
+    if start is None:
+        return
+    if reference.is_cuda:
+        torch.cuda.synchronize(reference.device)
+    state.record_profile_event(name, (time.perf_counter() - start) * 1000.0)
 
 
 class Attention(nn.Module):
@@ -44,6 +72,41 @@ class Attention(nn.Module):
         self.proj = nn.Linear(dim, dim, bias=proj_bias)
         self.proj_drop = nn.Dropout(proj_drop)
         self.rope = rope
+        self._probe_index_cache: Dict[Tuple[int, int, bool, int, str, Optional[int]], Tensor] = {}
+
+    def _select_probe_indices_cached(
+        self,
+        num_tokens: int,
+        patch_start_idx: int,
+        obcache_cfg: Dict[str, Any],
+        device: torch.device,
+    ) -> Tensor:
+        if not bool(obcache_cfg.get("cache_probe_indices", True)):
+            return select_probe_indices(
+                num_tokens=num_tokens,
+                patch_start_idx=patch_start_idx,
+                cfg=obcache_cfg,
+                device=device,
+            )
+
+        key = (
+            int(num_tokens),
+            int(patch_start_idx),
+            bool(obcache_cfg.get("probe_mode", True)),
+            int(obcache_cfg.get("num_patch_probes", 8)),
+            device.type,
+            device.index,
+        )
+        probe_idx = self._probe_index_cache.get(key)
+        if probe_idx is None:
+            probe_idx = select_probe_indices(
+                num_tokens=num_tokens,
+                patch_start_idx=patch_start_idx,
+                cfg=obcache_cfg,
+                device=device,
+            )
+            self._probe_index_cache[key] = probe_idx
+        return probe_idx
 
     def _init_obcache_state(
         self,
@@ -74,6 +137,15 @@ class Attention(nn.Module):
         state.max_seq_len_seen = int(k_all.size(-2))
         return state
 
+    @staticmethod
+    def _score_interval_due(state: StreamOBCacheLayerState, obcache_cfg: Dict[str, Any]) -> bool:
+        interval = max(1, int(obcache_cfg.get("score_interval", 1)))
+        if interval <= 1:
+            return True
+        if state.scored_frame_count <= 0:
+            return True
+        return (int(state.frame_count) - int(state.scored_frame_count)) >= interval
+
     def _update_scores_and_maybe_evict(
         self,
         state: StreamOBCacheLayerState,
@@ -96,38 +168,65 @@ class Attention(nn.Module):
         `num_new_tokens=P` to tracker.update() so accumulation boundaries are
         aligned with appended KV tokens rather than probe count.
         """
+        profile_enabled = _obcache_profile_enabled(obcache_cfg)
+        total_start = _profile_start(profile_enabled, q)
         if state.tracker is None:
             # Sliding window: no scoring, just evict by truncation.
+            evict_start = _profile_start(profile_enabled, q)
             state.maybe_evict(num_coming=0)
+            _profile_end(state, "evict", evict_start, q)
+            _profile_end(state, "score_total", total_start, q)
+            return
+
+        if not self._score_interval_due(state, obcache_cfg):
+            if profile_enabled:
+                state.record_profile_event("score_skipped", 0.0)
+            _profile_end(state, "score_total", total_start, q)
             return
 
         with torch.no_grad():
-            probe_idx = select_probe_indices(
+            num_score_new_tokens = max(int(state.seq_len) - int(state.scored_seq_len), int(num_new_tokens))
+            probe_start = _profile_start(profile_enabled, q)
+            probe_idx = self._select_probe_indices_cached(
                 num_tokens=q.size(-2),
                 patch_start_idx=patch_start_idx,
-                cfg=obcache_cfg,
+                obcache_cfg=obcache_cfg,
                 device=q.device,
             )
             q_probe = q.index_select(dim=-2, index=probe_idx)  # [B,H,Q_probe,D]
+            _profile_end(state, "probe_select", probe_start, q)
 
+            qk_start = _profile_start(profile_enabled, q)
             qk_probe = torch.matmul(q_probe.float(), state.k.transpose(-2, -1).float()) / math.sqrt(self.head_dim)
             if attn_mask is not None:
                 mask_probe = attn_mask[..., probe_idx, : state.k.size(-2)]
                 qk_probe = qk_probe + mask_probe.float()
+            _profile_end(state, "probe_qk", qk_start, q)
 
             # Float32 softmax for numerical stability.
+            softmax_start = _profile_start(profile_enabled, q)
+            v_float = state.v.float()
             A_probe = torch.softmax(qk_probe, dim=-1, dtype=torch.float32)
-            O_probe = torch.matmul(A_probe, state.v.float())
+            O_probe = torch.matmul(A_probe, v_float)
+            _profile_end(state, "probe_softmax_value", softmax_start, q)
 
+            update_start = _profile_start(profile_enabled, q)
             state.tracker.update(
                 A=A_probe,
-                V=state.v.float(),
+                V=v_float,
                 qK=qk_probe,
                 O=O_probe,
-                num_new_tokens=num_new_tokens,
+                num_new_tokens=num_score_new_tokens,
                 layer_idx=0,
             )
+            _profile_end(state, "tracker_update", update_start, q)
+
+            evict_start = _profile_start(profile_enabled, q)
             state.maybe_evict(num_coming=0)
+            _profile_end(state, "evict", evict_start, q)
+            state.scored_seq_len = int(state.seq_len)
+            state.scored_frame_count = int(state.frame_count)
+            _profile_end(state, "score_total", total_start, q)
 
     def forward(
         self,
@@ -153,6 +252,8 @@ class Attention(nn.Module):
 
         state: Optional[StreamOBCacheLayerState] = None
         if use_cache:
+            profile_enabled = _obcache_profile_enabled(obcache_cfg)
+            cache_append_start = _profile_start(profile_enabled, x)
             if isinstance(past_key_values, StreamOBCacheLayerState):
                 state = past_key_values
                 k_all = torch.cat([state.k, k_new], dim=-2)
@@ -214,6 +315,7 @@ class Attention(nn.Module):
             state.appended_tokens_total += int(N)
             state.max_seq_len_seen = max(state.max_seq_len_seen, int(k_all.size(-2)))
 
+        _profile_end(state, "cache_append", cache_append_start, x)
         self._update_scores_and_maybe_evict(
             state=state,
             q=q,

@@ -106,6 +106,11 @@ def add_kv_cache_args(parser: argparse.ArgumentParser, use_env_defaults: bool = 
         type=int,
         default=env_int("OBVGGT_KV_NUM_HEAVY_TOKENS") if use_env_defaults else None,
     )
+    parser.add_argument(
+        "--kv_cache_score_interval",
+        type=int,
+        default=env_int("OBVGGT_KV_SCORE_INTERVAL") if use_env_defaults else None,
+    )
     return parser
 
 
@@ -135,6 +140,7 @@ def build_kv_cache_cfg(args) -> Optional[Dict[str, Any]]:
         "num_sink_tokens": getattr(args, "kv_cache_num_sink_tokens", None),
         "num_recent_tokens": getattr(args, "kv_cache_num_recent_tokens", None),
         "num_heavy_tokens": getattr(args, "kv_cache_num_heavy_tokens", None),
+        "score_interval": getattr(args, "kv_cache_score_interval", None),
     }
     for key, value in overrides.items():
         if value is not None:
@@ -190,6 +196,10 @@ def kv_cache_metadata(kv_cache_cfg: Optional[Dict[str, Any]], extra: Optional[Di
         "num_sink_tokens",
         "num_recent_tokens",
         "num_heavy_tokens",
+        "score_interval",
+        "cache_probe_indices",
+        "profile",
+        "profile_obcache",
     ):
         if key in cfg:
             metadata[f"kv_{key}"] = cfg[key]

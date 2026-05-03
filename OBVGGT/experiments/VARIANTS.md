@@ -13,7 +13,7 @@
 | Repo / Label | 类型 | 当前状态 | 工作区路径 | 是否已接入 `OBVGGT/experiments/quick_run.sh` | 备注 |
 |---|---|---|---|---|---|
 | `StreamVGGT` | Runnable baseline | 可运行 | `../../StreamVGGT` | 是，历史标签为 `baseline` | 当前 canonical baseline。 |
-| `OBVGGT` | Runnable baseline / 主实验 repo | 可运行 | `..` | 是，历史标签为 `obcache` | 当前实验中台和主要记录入口。 |
+| `OBVGGT` | Runnable method / 主实验 repo | 可运行 | `..` | 是，历史标签为 `obcache` | 用户改进方法，当前实验中台和主要记录入口。 |
 | `XStreamVGGT` | Runnable baseline | 可运行 | `../../XStreamVGGT` | 是 | 通过统一 adapter 分发到 repo-local 入口。 |
 | `InfiniteVGGT` | Runnable baseline | 可运行 | `../../InfiniteVGGT` | 是 | 通过统一 adapter 分发到 repo-local 入口。 |
 | `IncVGGT` | Literature-only | 不作为 runnable repo | N/A | 否 | 当前无公开代码口径，不纳入待下载后即可跑列表。 |
@@ -39,6 +39,20 @@
 | D | `obcache_probe32` | probe | num_patch_probes=32 |
 | D | `obcache_probe_full` | probe | probe_mode=false（全量） |
 | E: 滑动窗口 | `obcache_sliding_window` | baseline | method=sliding_window, recent=7, heavy=0, sink=0 |
+
+### FPS 调试候选（未验证，Bonn 优先）
+
+以下配置用于 `video_depth` Bonn 上定位/提升 OBVGGT 绝对 FPS。它们不替代论文主线 `obcache_p1_no_recent_ctrl`，也不应在完成同口径质量/FPS 验证前写入结论表。
+
+| Config 标签 | 用途 | 关键参数差异 |
+|---|---|---|
+| `obcache_p1_no_recent_ctrl_profile` | profiling only | 与 `obcache_p1_no_recent_ctrl` 同策略，但 `kv_cache_cfg.profile=true`，会引入同步计时开销 |
+| `obcache_p1_no_recent_probe4` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4` |
+| `obcache_p1_no_recent_probe6` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=6` |
+| `obcache_p1_no_recent_v_only_probe4` | FPS candidate | method=obcv, p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4` |
+| `obcache_p1_no_recent_interval2` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `score_interval=2` |
+| `obcache_p1_no_recent_interval3` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `score_interval=3` |
+| `obcache_p1_no_recent_v_only_interval2` | FPS candidate | method=obcv, p=1, sink=1/recent=0/heavy=4, `score_interval=2` |
 
 ## 3. 如何解释历史标签
 - `baseline`：历史上在本目录中表示 `StreamVGGT` 基线线。

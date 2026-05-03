@@ -46,6 +46,8 @@ def take_gather(buf: Tensor, keep_topk_idx: Tensor, recent_cutoff: int, gather_d
         raise ValueError(f"Unsupported gather_dim={gather_dim}")
 
     selected = torch.gather(select_buf, dim=gather_dim, index=keep_topk_idx)
+    if keep_recent.size(gather_dim) == 0:
+        return selected
     return torch.cat([selected, keep_recent], dim=gather_dim)
 
 
@@ -178,6 +180,10 @@ class StreamOBCacheLayerState:
     appended_tokens_total: int = 0
     reused_tokens_total: int = 0
     max_seq_len_seen: int = 0
+    scored_seq_len: int = 0
+    scored_frame_count: int = 0
+    profile_times_ms: Optional[Dict[str, float]] = None
+    profile_counts: Optional[Dict[str, int]] = None
 
     @property
     def seq_len(self) -> int:
@@ -231,10 +237,21 @@ class StreamOBCacheLayerState:
         self.evict_calls += 1
         self.evicted_tokens_total += max(before_len - after_len, 0)
 
+    def record_profile_event(self, name: str, elapsed_ms: float) -> None:
+        safe_name = "".join(ch if ch.isalnum() else "_" for ch in str(name).strip().lower()).strip("_")
+        if not safe_name:
+            return
+        if self.profile_times_ms is None:
+            self.profile_times_ms = {}
+        if self.profile_counts is None:
+            self.profile_counts = {}
+        self.profile_times_ms[safe_name] = self.profile_times_ms.get(safe_name, 0.0) + float(elapsed_ms)
+        self.profile_counts[safe_name] = self.profile_counts.get(safe_name, 0) + 1
+
     def snapshot(self) -> Dict[str, float]:
         denom = self.reused_tokens_total + self.appended_tokens_total
         reuse_ratio = float(self.reused_tokens_total / denom) if denom > 0 else 0.0
-        return {
+        snap = {
             "frame_count": float(self.frame_count),
             "seq_len": float(self.seq_len),
             "max_seq_len_seen": float(self.max_seq_len_seen),
@@ -243,7 +260,14 @@ class StreamOBCacheLayerState:
             "appended_tokens_total": float(self.appended_tokens_total),
             "reused_tokens_total": float(self.reused_tokens_total),
             "cache_reuse_ratio": reuse_ratio,
+            "scored_seq_len": float(self.scored_seq_len),
+            "scored_frame_count": float(self.scored_frame_count),
         }
+        if self.profile_times_ms:
+            for name, elapsed_ms in self.profile_times_ms.items():
+                snap[f"profile_{name}_ms"] = float(elapsed_ms)
+                snap[f"profile_{name}_calls"] = float((self.profile_counts or {}).get(name, 0))
+        return snap
 
 
 class RandomEvictionTracker:
