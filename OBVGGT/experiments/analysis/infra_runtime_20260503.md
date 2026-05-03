@@ -49,3 +49,22 @@ The phase profiler confirms that the largest model-side time is still inside the
 3. Do not use `obcache_p1_no_recent_ctrl_cuda_rope` in quick_run; it is intentionally `runnable=false`.
 4. Accept PyTorch RoPE2D fallback component caching as a same-cache-budget infra runtime optimization for `video_depth`.
 5. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
+
+## Validation
+
+Server-side tests on `amd_server`, conda env `obvggt`, Torch `2.3.1+cu121`:
+
+```text
+python -m unittest experiments.scripts.tests.test_rope experiments.scripts.tests.test_runtime_diagnostics experiments.scripts.tests.test_phase_profile
+Ran 12 tests in 0.555s
+OK
+```
+
+The accepted RoPE fallback optimization is supported by three paired gates: isolated CUDA-event microbench, Bonn smoke, Bonn full, and full `sintel/bonn/kitti` rerun. The formal full-matrix conclusion is limited to OBVGGT `video_depth` with the same OBCache budget. It is not a cross-baseline paper main-table conclusion against StreamVGGT, XStreamVGGT, or InfiniteVGGT, because those baselines were not rerun in this branch/window.
+
+## Remaining Limits
+
+- The compiled cuRoPE2D path remains rejected for full-model use because the smoke run exited with `free(): invalid pointer` / SIGABRT after writing metrics.
+- SDPA forced Flash did not beat default dispatch in the tested Bonn smoke; efficient/cuDNN backend claims were not promoted without evidence.
+- OBCache scoring/bookkeeping and allocation remain plausible next infra targets based on the phase profile, but no preallocated-KV implementation is accepted in this branch.
+- `depth_only` is accepted only as a `video_depth` task-runtime mode. It must be applied to all compared video_depth baselines before being used in a cross-model fairness table.
