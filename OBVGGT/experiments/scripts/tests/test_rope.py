@@ -81,6 +81,21 @@ class RopeTests(unittest.TestCase):
         self.assertTrue(torch.allclose(second_output, reference))
         self.assertEqual(len(rope.position_component_cache), 1)
 
+    @unittest.skipUnless(torch.cuda.is_available(), "CUDA is required for server-side RoPE cache coverage")
+    def test_rope_cuda_reuses_position_components(self):
+        rope = RotaryPositionEmbedding2D().cuda()
+        device = torch.device("cuda:0")
+        tokens = torch.randn(2, 4, 16, 32, device=device, dtype=torch.float32)
+        positions = PositionGetter()(batch_size=2, height=4, width=4, device=device)
+
+        first = rope(tokens, positions)
+        second = rope(tokens, positions)
+        torch.cuda.synchronize(device)
+
+        self.assertEqual(first.device.type, "cuda")
+        self.assertTrue(torch.allclose(first, second))
+        self.assertEqual(len(rope.position_component_cache), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
