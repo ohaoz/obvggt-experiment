@@ -100,6 +100,13 @@ def get_args_parser():
         help="Force a PyTorch SDPA backend for backend-routing experiments. Default keeps PyTorch dispatch unchanged.",
     )
     parser.add_argument(
+        "--rope2d_backend",
+        type=str,
+        default=os.environ.get("OBVGGT_ROPE2D_BACKEND", "pytorch"),
+        choices=["pytorch", "auto", "cuda"],
+        help="Select StreamVGGT RoPE2D backend. Default keeps the PyTorch implementation; cuda requires compiled cuRoPE2D.",
+    )
+    parser.add_argument(
         "--head_mode",
         type=str,
         default="full",
@@ -388,6 +395,7 @@ if __name__ == "__main__":
     args = get_args_parser()
     args = args.parse_args()
     os.environ["OBVGGT_SDPA_BACKEND"] = args.sdpa_backend
+    os.environ["OBVGGT_ROPE2D_BACKEND"] = args.rope2d_backend
     add_path_to_dust3r(args.weights)
     from dust3r.utils.image import load_images_for_eval as load_images
     from dust3r.post_process import estimate_focal_knowing_depth

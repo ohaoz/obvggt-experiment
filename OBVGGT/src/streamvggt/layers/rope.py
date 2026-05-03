@@ -1,10 +1,16 @@
 import numpy as np
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from typing import Dict, Tuple
 
 from streamvggt.utils.runtime_diagnostics import record_rope2d_call
+
+try:
+    from croco.models.curope import cuRoPE2D
+except Exception:
+    cuRoPE2D = None
 
 
 class PositionGetter:
@@ -68,6 +74,7 @@ class RotaryPositionEmbedding2D(nn.Module):
         self.base_frequency = frequency
         self.scaling_factor = scaling_factor
         self.frequency_cache: Dict[Tuple, Tuple[torch.Tensor, torch.Tensor]] = {}
+        self.cuda_rope = cuRoPE2D(freq=frequency, F0=scaling_factor) if cuRoPE2D is not None else None
 
     def _compute_frequency_components(
         self, dim: int, seq_len: int, device: torch.device, dtype: torch.dtype
@@ -152,11 +159,21 @@ class RotaryPositionEmbedding2D(nn.Module):
         Raises:
             AssertionError: If input dimensions are invalid or positions are malformed.
         """
-        record_rope2d_call(tokens, positions, backend="pytorch_python", module=__name__)
-
         # Validate inputs
         assert tokens.size(-1) % 2 == 0, "Feature dimension must be even"
         assert positions.ndim == 3 and positions.shape[-1] == 2, "Positions must have shape (batch_size, n_tokens, 2)"
+
+        backend_request = os.environ.get("OBVGGT_ROPE2D_BACKEND", "pytorch").strip().lower()
+        if backend_request not in {"pytorch", "auto", "cuda"}:
+            raise ValueError(f"Unsupported OBVGGT_ROPE2D_BACKEND={backend_request!r}")
+
+        if backend_request in {"auto", "cuda"} and self._can_use_cuda_rope(tokens, positions):
+            record_rope2d_call(tokens, positions, backend="cuda_curope", module=__name__)
+            return self.cuda_rope(tokens, positions.contiguous())
+        if backend_request == "cuda":
+            raise RuntimeError("OBVGGT_ROPE2D_BACKEND=cuda requested, but cuRoPE2D is unavailable or inputs are ineligible.")
+
+        record_rope2d_call(tokens, positions, backend="pytorch_python", module=__name__)
 
         # Compute feature dimension for each spatial direction
         feature_dim = tokens.size(-1) // 2
@@ -174,3 +191,18 @@ class RotaryPositionEmbedding2D(nn.Module):
 
         # Combine processed features
         return torch.cat((vertical_features, horizontal_features), dim=-1)
+
+    def _can_use_cuda_rope(self, tokens: torch.Tensor, positions: torch.Tensor) -> bool:
+        if self.cuda_rope is None:
+            return False
+        if not tokens.is_cuda or not positions.is_cuda:
+            return False
+        if tokens.dtype not in {torch.float16, torch.float32}:
+            return False
+        if tokens.ndim != 4 or positions.ndim != 3:
+            return False
+        if tokens.size(0) != positions.size(0) or tokens.size(2) != positions.size(1):
+            return False
+        if tokens.size(-1) % 4 != 0:
+            return False
+        return tokens.stride(-1) == 1 and tokens.stride(1) == tokens.size(-1)
