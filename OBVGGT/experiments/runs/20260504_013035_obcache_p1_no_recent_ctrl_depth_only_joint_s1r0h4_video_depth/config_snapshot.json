@@ -1,0 +1,32 @@
+{
+  "variant": "obcache_p1_no_recent_ctrl_depth_only",
+  "description": "Runtime experiment: p1_no_recent_ctrl with video_depth depth-only head gating. OBCache policy and cache budget are unchanged.",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "video_depth"
+  ],
+  "default_args": [
+    "--head_mode",
+    "depth_only"
+  ],
+  "kv_policy_summary": "Same as p1_no_recent_ctrl; only video_depth inference skips camera/point/track heads.",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 1,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 0,
+    "num_heavy_frames": 4,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}
