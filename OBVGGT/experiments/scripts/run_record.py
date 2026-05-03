@@ -13,6 +13,7 @@ ARTIFACT_FILENAMES = {
     "result_metric.json",
     "summary_metrics.json",
     "system_metrics.json",
+    "profile_summary.json",
     "pose_summary.json",
     "kv_eval_config.json",
 }

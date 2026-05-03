@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import Dict, Tuple
 
+from streamvggt.utils.phase_profile import phase_profile_end, phase_profile_start
 from streamvggt.utils.runtime_diagnostics import record_rope2d_call
 
 try:
@@ -159,50 +160,54 @@ class RotaryPositionEmbedding2D(nn.Module):
         Raises:
             AssertionError: If input dimensions are invalid or positions are malformed.
         """
-        # Validate inputs
-        assert tokens.size(-1) % 2 == 0, "Feature dimension must be even"
-        assert positions.ndim == 3 and positions.shape[-1] == 2, "Positions must have shape (batch_size, n_tokens, 2)"
+        phase_handle = phase_profile_start("rope2d_total", tokens)
+        try:
+            # Validate inputs
+            assert tokens.size(-1) % 2 == 0, "Feature dimension must be even"
+            assert positions.ndim == 3 and positions.shape[-1] == 2, "Positions must have shape (batch_size, n_tokens, 2)"
 
-        backend_request = os.environ.get("OBVGGT_ROPE2D_BACKEND", "pytorch").strip().lower()
-        if backend_request not in {"pytorch", "auto", "cuda"}:
-            raise ValueError(f"Unsupported OBVGGT_ROPE2D_BACKEND={backend_request!r}")
-        unsafe_curope_allowed = os.environ.get("OBVGGT_ALLOW_UNSAFE_CUROPE", "0").strip().lower() in {
-            "1",
-            "true",
-            "yes",
-        }
-        if backend_request in {"auto", "cuda"} and not unsafe_curope_allowed:
+            backend_request = os.environ.get("OBVGGT_ROPE2D_BACKEND", "pytorch").strip().lower()
+            if backend_request not in {"pytorch", "auto", "cuda"}:
+                raise ValueError(f"Unsupported OBVGGT_ROPE2D_BACKEND={backend_request!r}")
+            unsafe_curope_allowed = os.environ.get("OBVGGT_ALLOW_UNSAFE_CUROPE", "0").strip().lower() in {
+                "1",
+                "true",
+                "yes",
+            }
+            if backend_request in {"auto", "cuda"} and not unsafe_curope_allowed:
+                if backend_request == "cuda":
+                    raise RuntimeError(
+                        "cuRoPE2D is disabled for full-model inference because smoke runs hit "
+                        "a process-exit invalid free. Set OBVGGT_ALLOW_UNSAFE_CUROPE=1 only for isolated microbenchmarks."
+                    )
+                backend_request = "pytorch"
+
+            if backend_request in {"auto", "cuda"} and self._can_use_cuda_rope(tokens, positions):
+                record_rope2d_call(tokens, positions, backend="cuda_curope", module=__name__)
+                return self._apply_cuda_rope(tokens, positions)
             if backend_request == "cuda":
-                raise RuntimeError(
-                    "cuRoPE2D is disabled for full-model inference because smoke runs hit "
-                    "a process-exit invalid free. Set OBVGGT_ALLOW_UNSAFE_CUROPE=1 only for isolated microbenchmarks."
-                )
-            backend_request = "pytorch"
+                raise RuntimeError("OBVGGT_ROPE2D_BACKEND=cuda requested, but cuRoPE2D is unavailable or inputs are ineligible.")
 
-        if backend_request in {"auto", "cuda"} and self._can_use_cuda_rope(tokens, positions):
-            record_rope2d_call(tokens, positions, backend="cuda_curope", module=__name__)
-            return self._apply_cuda_rope(tokens, positions)
-        if backend_request == "cuda":
-            raise RuntimeError("OBVGGT_ROPE2D_BACKEND=cuda requested, but cuRoPE2D is unavailable or inputs are ineligible.")
+            record_rope2d_call(tokens, positions, backend="pytorch_python", module=__name__)
 
-        record_rope2d_call(tokens, positions, backend="pytorch_python", module=__name__)
+            # Compute feature dimension for each spatial direction
+            feature_dim = tokens.size(-1) // 2
 
-        # Compute feature dimension for each spatial direction
-        feature_dim = tokens.size(-1) // 2
+            # Get frequency components
+            max_position = int(positions.max()) + 1
+            cos_comp, sin_comp = self._compute_frequency_components(feature_dim, max_position, tokens.device, tokens.dtype)
 
-        # Get frequency components
-        max_position = int(positions.max()) + 1
-        cos_comp, sin_comp = self._compute_frequency_components(feature_dim, max_position, tokens.device, tokens.dtype)
+            # Split features for vertical and horizontal processing
+            vertical_features, horizontal_features = tokens.chunk(2, dim=-1)
 
-        # Split features for vertical and horizontal processing
-        vertical_features, horizontal_features = tokens.chunk(2, dim=-1)
+            # Apply RoPE separately for each dimension
+            vertical_features = self._apply_1d_rope(vertical_features, positions[..., 0], cos_comp, sin_comp)
+            horizontal_features = self._apply_1d_rope(horizontal_features, positions[..., 1], cos_comp, sin_comp)
 
-        # Apply RoPE separately for each dimension
-        vertical_features = self._apply_1d_rope(vertical_features, positions[..., 0], cos_comp, sin_comp)
-        horizontal_features = self._apply_1d_rope(horizontal_features, positions[..., 1], cos_comp, sin_comp)
-
-        # Combine processed features
-        return torch.cat((vertical_features, horizontal_features), dim=-1)
+            # Combine processed features
+            return torch.cat((vertical_features, horizontal_features), dim=-1)
+        finally:
+            phase_profile_end(phase_handle, tokens)
 
     def _can_use_cuda_rope(self, tokens: torch.Tensor, positions: torch.Tensor) -> bool:
         if self.cuda_rope_kernel is None:

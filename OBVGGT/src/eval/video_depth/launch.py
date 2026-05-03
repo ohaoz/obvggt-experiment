@@ -15,6 +15,12 @@ from eval.video_depth.metadata import dataset_metadata
 from eval.video_depth.utils import save_depth_maps
 from accelerate import PartialState
 from add_ckpt_path import add_path_to_dust3r
+from streamvggt.utils.phase_profile import (
+    phase_profile_end,
+    phase_profile_start,
+    reset_phase_profile,
+    snapshot_phase_profile,
+)
 import time
 from tqdm import tqdm
 
@@ -113,6 +119,12 @@ def get_args_parser():
         choices=["full", "depth_only"],
         help="When set to depth_only, StreamVGGT inference skips camera/point/track heads for video_depth.",
     )
+    parser.add_argument(
+        "--phase_profile",
+        type=_str2bool,
+        default=False,
+        help="Enable phase-level timing for profile-only runs. These runs should not be treated as formal FPS.",
+    )
     return parser
 
 
@@ -128,6 +140,43 @@ def build_kv_cache_cfg(args):
         return None
     cfg["enable"] = True
     return cfg
+
+
+def _aggregate_phase_profiles(records):
+    totals = {}
+    profiled = 0
+    for record in records:
+        phase_profile = record.get("phase_profile")
+        if not isinstance(phase_profile, dict):
+            continue
+        phases = phase_profile.get("phases", {})
+        if not isinstance(phases, dict) or not phases:
+            continue
+        profiled += 1
+        for name, stats in phases.items():
+            if not isinstance(stats, dict):
+                continue
+            slot = totals.setdefault(str(name), {"total_ms": 0.0, "calls": 0.0})
+            slot["total_ms"] += float(stats.get("total_ms", 0.0))
+            slot["calls"] += float(stats.get("calls", 0.0))
+
+    if profiled <= 0:
+        return None
+
+    means = {
+        name: {
+            "mean_ms_per_profiled_sequence": float(stats["total_ms"] / profiled),
+            "calls_total": float(stats["calls"]),
+        }
+        for name, stats in totals.items()
+    }
+    return {
+        "profile_run": True,
+        "not_for_formal_fps": True,
+        "profiled_sequences": int(profiled),
+        "phase_totals_ms": {name: float(stats["total_ms"]) for name, stats in totals.items()},
+        "phase_means": means,
+    }
 
 
 def eval_pose_estimation(args, model, save_dir=None, kv_cache_cfg=None):
@@ -210,11 +259,14 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 for view in views:
                     view["img"] = (view["img"] + 1.0) / 2.0
 
+                if args.phase_profile:
+                    reset_phase_profile()
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                     torch.cuda.reset_peak_memory_stats(device)
 
                 inference_output_keys = ["depth"] if args.head_mode == "depth_only" else None
+                model_phase = phase_profile_start("launch_model_total")
                 start = time.perf_counter()
                 outputs = loss_of_one_batch(
                     views,
@@ -228,6 +280,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 end = time.perf_counter()
+                phase_profile_end(model_phase)
 
                 elapsed_sec = max(end - start, 1e-8)
                 fps = float(num_frames / elapsed_sec)
@@ -274,13 +327,21 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     f_sys.write(json.dumps(seq_stats, ensure_ascii=False) + "\n")
 
                 with torch.cuda.amp.autocast(dtype=torch.float32):
+                    prepare_phase = phase_profile_start("launch_prepare_output")
                     (
                         pts3ds_self,
                         conf_self,
                     ) = prepare_output(outputs)
+                    phase_profile_end(prepare_phase)
 
                     os.makedirs(f"{save_dir}/{seq}", exist_ok=True)
+                    save_phase = phase_profile_start("launch_save_depth_maps")
                     save_depth_maps(pts3ds_self, f"{save_dir}/{seq}", conf_self=conf_self)
+                    phase_profile_end(save_phase)
+
+                if args.phase_profile:
+                    seq_stats["profile_run"] = True
+                    seq_stats["phase_profile"] = snapshot_phase_profile(reset=True)
 
             except Exception as e:
                 if "out of memory" in str(e):
@@ -359,6 +420,8 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     "max_peak_reserved_mb": float(
                         max(float(r.get("peak_reserved_mb", 0.0)) for r in valid_records)
                     ),
+                    "profile_run": bool(args.phase_profile),
+                    "formal_fps_valid": not bool(args.phase_profile),
                 }
             )
 
@@ -384,6 +447,17 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
             if runtime_samples:
                 summary["runtime_diagnostics_sample"] = runtime_samples[0]
 
+            profile_summary = _aggregate_phase_profiles(valid_records)
+            if profile_summary is not None:
+                summary["phase_profile_enabled"] = True
+                summary["phase_profile_sample"] = next(
+                    r.get("phase_profile") for r in valid_records if isinstance(r.get("phase_profile"), dict)
+                )
+                profile_summary_path = os.path.join(save_dir, "profile_summary.json")
+                with open(profile_summary_path, "w", encoding="utf-8") as f_profile:
+                    json.dump(profile_summary, f_profile, ensure_ascii=False, indent=2)
+                print(f"[profile_summary] saved: {profile_summary_path}")
+
         system_metrics_path = os.path.join(save_dir, "system_metrics.json")
         with open(system_metrics_path, "w", encoding="utf-8") as f_out:
             json.dump({"summary": summary, "per_sequence": merged_records}, f_out, ensure_ascii=False, indent=2)
@@ -396,6 +470,7 @@ if __name__ == "__main__":
     args = args.parse_args()
     os.environ["OBVGGT_SDPA_BACKEND"] = args.sdpa_backend
     os.environ["OBVGGT_ROPE2D_BACKEND"] = args.rope2d_backend
+    os.environ["OBVGGT_PHASE_PROFILE"] = "1" if args.phase_profile else "0"
     add_path_to_dust3r(args.weights)
     from dust3r.utils.image import load_images_for_eval as load_images
     from dust3r.post_process import estimate_focal_knowing_depth

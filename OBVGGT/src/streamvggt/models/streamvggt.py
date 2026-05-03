@@ -7,6 +7,7 @@ from streamvggt.utils.obcache_kv import StreamOBCacheLayerState
 from streamvggt.heads.camera_head import CameraHead
 from streamvggt.heads.dpt_head import DPTHead
 from streamvggt.heads.track_head import TrackHead
+from streamvggt.utils.phase_profile import phase_profile_end, phase_profile_start
 from streamvggt.utils.runtime_diagnostics import snapshot_runtime_diagnostics
 from transformers.file_utils import ModelOutput
 from typing import Optional, Tuple, List, Any, Dict
@@ -196,27 +197,35 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
             
             with torch.cuda.amp.autocast(enabled=False):
                 frame_outputs = {}
+                heads_total_phase = phase_profile_start("heads_total", aggregated_tokens)
 
                 if run_camera and self.camera_head is not None:
+                    camera_phase = phase_profile_start("head_camera", aggregated_tokens)
                     pose_enc, past_key_values_camera = self.camera_head(aggregated_tokens, past_key_values_camera=past_key_values_camera, use_cache=True)
                     pose_enc = pose_enc[-1]
                     frame_outputs['camera_pose'] = pose_enc[:, 0, :]
+                    phase_profile_end(camera_phase, aggregated_tokens)
 
                 if run_depth and self.depth_head is not None:
+                    depth_phase = phase_profile_start("head_depth", aggregated_tokens)
                     depth, depth_conf = self.depth_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx
                     )
                     frame_outputs['depth'] = depth[:, 0]
                     frame_outputs['depth_conf'] = depth_conf[:, 0]
+                    phase_profile_end(depth_phase, aggregated_tokens)
                 
                 if run_points and self.point_head is not None:
+                    points_phase = phase_profile_start("head_points", aggregated_tokens)
                     pts3d, pts3d_conf = self.point_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx
                     )
                     frame_outputs['pts3d_in_other_view'] = pts3d[:, 0]
                     frame_outputs['conf'] = pts3d_conf[:, 0]
+                    phase_profile_end(points_phase, aggregated_tokens)
 
                 if run_track and self.track_head is not None and query_points is not None:
+                    track_phase = phase_profile_start("head_track", aggregated_tokens)
                     track_list, vis, conf = self.track_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx, query_points=query_points
                 )
@@ -225,6 +234,8 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                     frame_outputs['track'] = track
                     frame_outputs['vis'] = vis[:, 0]
                     frame_outputs['track_conf'] = conf[:, 0]
+                    phase_profile_end(track_phase, aggregated_tokens)
+                phase_profile_end(heads_total_phase, aggregated_tokens)
 
             res = dict(frame_outputs)
             if 'valid_mask' in frame:

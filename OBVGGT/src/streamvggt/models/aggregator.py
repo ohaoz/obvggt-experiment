@@ -14,6 +14,7 @@ from streamvggt.layers import PatchEmbed
 from streamvggt.layers.block import Block
 from streamvggt.layers.rope import RotaryPositionEmbedding2D, PositionGetter
 from streamvggt.layers.vision_transformer import vit_small, vit_base, vit_large, vit_giant2
+from streamvggt.utils.phase_profile import phase_profile_end, phase_profile_start
 
 logger = logging.getLogger(__name__)
 
@@ -203,98 +204,102 @@ class Aggregator(nn.Module):
                 The list of outputs from the attention blocks,
                 and the patch_start_idx indicating where patch tokens begin.
         """
-        B, S, C_in, H, W = images.shape
+        phase_handle = phase_profile_start("aggregator_total", images)
+        try:
+            B, S, C_in, H, W = images.shape
 
-        if use_cache and past_key_values is None:
-            past_key_values = [None] * self.depth
+            if use_cache and past_key_values is None:
+                past_key_values = [None] * self.depth
 
-        if use_cache:
-            # With flattened KV cache [B,H,L,D], frame count should come from caller.
-            S_true = past_frame_idx + 1
-        else:
-            S_true = S
+            if use_cache:
+                # With flattened KV cache [B,H,L,D], frame count should come from caller.
+                S_true = past_frame_idx + 1
+            else:
+                S_true = S
         
-        if use_cache and S > 1:
-            print(f"Use KV cache expects S=1, got S={S}")
+            if use_cache and S > 1:
+                print(f"Use KV cache expects S=1, got S={S}")
 
-        if C_in != 3:
-            raise ValueError(f"Expected 3 input channels, got {C_in}")
+            if C_in != 3:
+                raise ValueError(f"Expected 3 input channels, got {C_in}")
 
         # Normalize images and reshape for patch embed
-        images = (images - self._resnet_mean.to(images.device)) / self._resnet_std.to(images.device)
+            images = (images - self._resnet_mean.to(images.device)) / self._resnet_std.to(images.device)
 
         # Reshape to [B*S, C, H, W] for patch embedding
-        images = images.reshape(B * S, C_in, H, W)
-        patch_tokens = self.patch_embed(images)
+            images = images.reshape(B * S, C_in, H, W)
+            patch_tokens = self.patch_embed(images)
 
-        if isinstance(patch_tokens, dict):
-            patch_tokens = patch_tokens["x_norm_patchtokens"]
+            if isinstance(patch_tokens, dict):
+                patch_tokens = patch_tokens["x_norm_patchtokens"]
 
-        _, P, C = patch_tokens.shape
+            _, P, C = patch_tokens.shape
 
-        if use_cache:
-            camera_token_full = slice_expand_and_flatten(self.camera_token, B, S_true)
-            camera_token = camera_token_full.reshape(B, S_true, -1, C)[:, -1]
-            
-            register_token_full = slice_expand_and_flatten(self.register_token, B, S_true)
-            register_token = register_token_full.reshape(B, S_true, -1, C)[:, -1]
-        else:
-            camera_token = slice_expand_and_flatten(self.camera_token, B, S)
-            register_token = slice_expand_and_flatten(self.register_token, B, S)
-        # Concatenate special tokens with patch tokens
-        tokens = torch.cat([camera_token, register_token, patch_tokens], dim=1)
+            if use_cache:
+                camera_token_full = slice_expand_and_flatten(self.camera_token, B, S_true)
+                camera_token = camera_token_full.reshape(B, S_true, -1, C)[:, -1]
+                
+                register_token_full = slice_expand_and_flatten(self.register_token, B, S_true)
+                register_token = register_token_full.reshape(B, S_true, -1, C)[:, -1]
+            else:
+                camera_token = slice_expand_and_flatten(self.camera_token, B, S)
+                register_token = slice_expand_and_flatten(self.register_token, B, S)
+            # Concatenate special tokens with patch tokens
+            tokens = torch.cat([camera_token, register_token, patch_tokens], dim=1)
 
-        pos = None
-        if self.rope is not None:
-            pos = self.position_getter(B * S, H // self.patch_size, W // self.patch_size, device=images.device)
+            pos = None
+            if self.rope is not None:
+                pos = self.position_getter(B * S, H // self.patch_size, W // self.patch_size, device=images.device)
 
-        if self.patch_start_idx > 0:
-            # do not use position embedding for special tokens (camera and register tokens)
-            # so set pos to 0 for the special tokens
-            pos = pos + 1
-            pos_special = torch.zeros(B * S, self.patch_start_idx, 2).to(images.device).to(pos.dtype)
-            pos = torch.cat([pos_special, pos], dim=1)
+            if self.patch_start_idx > 0:
+                # do not use position embedding for special tokens (camera and register tokens)
+                # so set pos to 0 for the special tokens
+                pos = pos + 1
+                pos_special = torch.zeros(B * S, self.patch_start_idx, 2).to(images.device).to(pos.dtype)
+                pos = torch.cat([pos_special, pos], dim=1)
 
         # update P because we added special tokens
-        _, P, C = tokens.shape
+            _, P, C = tokens.shape
 
-        frame_idx = 0
-        global_idx = 0
-        output_list = []
+            frame_idx = 0
+            global_idx = 0
+            output_list = []
 
-        for _ in range(self.aa_block_num):
-            for attn_type in self.aa_order:
-                if attn_type == "frame":
-                    tokens, frame_idx, frame_intermediates = self._process_frame_attention(
-                        tokens, B, S, P, C, frame_idx, pos=pos
-                    )
-                elif attn_type == "global":
-                    if use_cache:
-                        tokens, global_idx, global_intermediates, new_kv = self._process_global_attention(
-                            tokens, B, S, P, C, global_idx, pos=pos,
-                            past_key_values_block=past_key_values[global_idx] if past_key_values[global_idx] is not None else None,
-                            use_cache=True,
-                            past_frame_idx=past_frame_idx,
-                            obcache_cfg=obcache_cfg,
+            for _ in range(self.aa_block_num):
+                for attn_type in self.aa_order:
+                    if attn_type == "frame":
+                        tokens, frame_idx, frame_intermediates = self._process_frame_attention(
+                            tokens, B, S, P, C, frame_idx, pos=pos
                         )
-                        past_key_values[global_idx - 1] = new_kv
+                    elif attn_type == "global":
+                        if use_cache:
+                            tokens, global_idx, global_intermediates, new_kv = self._process_global_attention(
+                                tokens, B, S, P, C, global_idx, pos=pos,
+                                past_key_values_block=past_key_values[global_idx] if past_key_values[global_idx] is not None else None,
+                                use_cache=True,
+                                past_frame_idx=past_frame_idx,
+                                obcache_cfg=obcache_cfg,
+                            )
+                            past_key_values[global_idx - 1] = new_kv
+                        else: 
+                            tokens, global_idx, global_intermediates = self._process_global_attention(
+                                tokens, B, S, P, C, global_idx, pos=pos
+                            )
                     else: 
-                        tokens, global_idx, global_intermediates = self._process_global_attention(
-                            tokens, B, S, P, C, global_idx, pos=pos
-                        )
-                else:
-                    raise ValueError(f"Unknown attention type: {attn_type}")
-            for i in range(len(frame_intermediates)):
-                # concat frame and global intermediates, [B x S x P x 2C]
-                concat_inter = torch.cat([frame_intermediates[i], global_intermediates[i]], dim=-1)
-                output_list.append(concat_inter)
+                        raise ValueError(f"Unknown attention type: {attn_type}")
+                for i in range(len(frame_intermediates)):
+                    # concat frame and global intermediates, [B x S x P x 2C]
+                    concat_inter = torch.cat([frame_intermediates[i], global_intermediates[i]], dim=-1)
+                    output_list.append(concat_inter)
 
-        del concat_inter
-        del frame_intermediates
-        del global_intermediates
-        if use_cache:      
-            return output_list, self.patch_start_idx, past_key_values
-        return output_list, self.patch_start_idx
+            del concat_inter
+            del frame_intermediates
+            del global_intermediates
+            if use_cache:      
+                return output_list, self.patch_start_idx, past_key_values
+            return output_list, self.patch_start_idx
+        finally:
+            phase_profile_end(phase_handle, images)
 
     def _process_frame_attention(self, tokens, B, S, P, C, frame_idx, pos=None):
         """

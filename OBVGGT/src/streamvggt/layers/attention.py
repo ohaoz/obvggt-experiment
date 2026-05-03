@@ -12,6 +12,7 @@ from streamvggt.utils.obcache_kv import (
     resolve_token_budgets,
     select_probe_indices,
 )
+from streamvggt.utils.phase_profile import phase_profile_end, phase_profile_start
 from streamvggt.utils.runtime_diagnostics import (
     get_sdpa_backend_request,
     record_sdpa_call,
@@ -175,23 +176,29 @@ class Attention(nn.Module):
         """
         profile_enabled = _obcache_profile_enabled(obcache_cfg)
         total_start = _profile_start(profile_enabled, q)
+        total_phase = phase_profile_start("obcache_score_total", q)
         if state.tracker is None:
             # Sliding window: no scoring, just evict by truncation.
             evict_start = _profile_start(profile_enabled, q)
+            evict_phase = phase_profile_start("obcache_evict", q)
             state.maybe_evict(num_coming=0)
             _profile_end(state, "evict", evict_start, q)
+            phase_profile_end(evict_phase, q)
             _profile_end(state, "score_total", total_start, q)
+            phase_profile_end(total_phase, q)
             return
 
         if not self._score_interval_due(state, obcache_cfg):
             if profile_enabled:
                 state.record_profile_event("score_skipped", 0.0)
             _profile_end(state, "score_total", total_start, q)
+            phase_profile_end(total_phase, q)
             return
 
         with torch.no_grad():
             num_score_new_tokens = max(int(state.seq_len) - int(state.scored_seq_len), int(num_new_tokens))
             probe_start = _profile_start(profile_enabled, q)
+            probe_phase = phase_profile_start("obcache_probe_select", q)
             probe_idx = self._select_probe_indices_cached(
                 num_tokens=q.size(-2),
                 patch_start_idx=patch_start_idx,
@@ -200,22 +207,28 @@ class Attention(nn.Module):
             )
             q_probe = q.index_select(dim=-2, index=probe_idx)  # [B,H,Q_probe,D]
             _profile_end(state, "probe_select", probe_start, q)
+            phase_profile_end(probe_phase, q)
 
             qk_start = _profile_start(profile_enabled, q)
+            qk_phase = phase_profile_start("obcache_probe_qk", q)
             qk_probe = torch.matmul(q_probe.float(), state.k.transpose(-2, -1).float()) / math.sqrt(self.head_dim)
             if attn_mask is not None:
                 mask_probe = attn_mask[..., probe_idx, : state.k.size(-2)]
                 qk_probe = qk_probe + mask_probe.float()
             _profile_end(state, "probe_qk", qk_start, q)
+            phase_profile_end(qk_phase, q)
 
             # Float32 softmax for numerical stability.
             softmax_start = _profile_start(profile_enabled, q)
+            softmax_phase = phase_profile_start("obcache_probe_softmax_value", q)
             v_float = state.v.float()
             A_probe = torch.softmax(qk_probe, dim=-1, dtype=torch.float32)
             O_probe = torch.matmul(A_probe, v_float)
             _profile_end(state, "probe_softmax_value", softmax_start, q)
+            phase_profile_end(softmax_phase, q)
 
             update_start = _profile_start(profile_enabled, q)
+            update_phase = phase_profile_start("obcache_tracker_update", q)
             state.tracker.update(
                 A=A_probe,
                 V=v_float,
@@ -225,13 +238,17 @@ class Attention(nn.Module):
                 layer_idx=0,
             )
             _profile_end(state, "tracker_update", update_start, q)
+            phase_profile_end(update_phase, q)
 
             evict_start = _profile_start(profile_enabled, q)
+            evict_phase = phase_profile_start("obcache_evict", q)
             state.maybe_evict(num_coming=0)
             _profile_end(state, "evict", evict_start, q)
+            phase_profile_end(evict_phase, q)
             state.scored_seq_len = int(state.seq_len)
             state.scored_frame_count = int(state.frame_count)
             _profile_end(state, "score_total", total_start, q)
+            phase_profile_end(total_phase, q)
 
     def forward(
         self,
@@ -256,9 +273,11 @@ class Attention(nn.Module):
             k_new = self.rope(k_new, pos)
 
         state: Optional[StreamOBCacheLayerState] = None
+        obcache_enabled = bool(use_cache and obcache_cfg and obcache_cfg.get("enable", False))
         if use_cache:
             profile_enabled = _obcache_profile_enabled(obcache_cfg)
             cache_append_start = _profile_start(profile_enabled, x)
+            cache_append_phase = phase_profile_start("obcache_cache_append", x) if obcache_enabled else None
             if isinstance(past_key_values, StreamOBCacheLayerState):
                 state = past_key_values
                 k_all = torch.cat([state.k, k_new], dim=-2)
@@ -287,6 +306,7 @@ class Attention(nn.Module):
                 backend_request=sdpa_backend_request,
                 backend_effective=sdpa_backend_effective,
             )
+            sdpa_phase = phase_profile_start("sdpa_total", q)
             with sdpa_kernel_context(sdpa_backend_effective):
                 out = F.scaled_dot_product_attention(
                     q,
@@ -295,7 +315,9 @@ class Attention(nn.Module):
                     attn_mask=attn_mask,
                     dropout_p=dropout_p,
                 )
+            phase_profile_end(sdpa_phase, q)
         else:
+            fallback_phase = phase_profile_start("attention_fallback_total", q)
             q_scaled = q * self.scale
             attn = q_scaled @ k_all.transpose(-2, -1)
             if attn_mask is not None:
@@ -305,6 +327,7 @@ class Attention(nn.Module):
             attn = attn.softmax(dim=-1, dtype=torch.float32).to(q.dtype)
             attn = self.attn_drop(attn)
             out = attn @ v_all
+            phase_profile_end(fallback_phase, q)
 
         out = out.transpose(1, 2).reshape(B, N, C)
         out = self.proj(out)
@@ -313,7 +336,6 @@ class Attention(nn.Module):
         if not use_cache:
             return out
 
-        obcache_enabled = bool(obcache_cfg and obcache_cfg.get("enable", False))
         if not obcache_enabled:
             return out, (k_all, v_all)
 
@@ -334,6 +356,7 @@ class Attention(nn.Module):
             state.max_seq_len_seen = max(state.max_seq_len_seen, int(k_all.size(-2)))
 
         _profile_end(state, "cache_append", cache_append_start, x)
+        phase_profile_end(cache_append_phase, x)
         self._update_scores_and_maybe_evict(
             state=state,
             q=q,
