@@ -1,0 +1,21 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only/bonn_full_cache_depth_only/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only/bonn_full_cache_depth_only/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 260
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only/bonn_full_cache_depth_only/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 21235
+    }
+  ],
+  "updated_at": "2026-05-03T13:12:25+08:00"
+}

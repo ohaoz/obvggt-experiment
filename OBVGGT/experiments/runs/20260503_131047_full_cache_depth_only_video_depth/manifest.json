@@ -1,0 +1,34 @@
+{
+  "run_id": "20260503_131047_full_cache_depth_only_video_depth",
+  "status": "DONE",
+  "variant": "full_cache_depth_only",
+  "task": "video_depth",
+  "benchmark_role": "streaming_benchmark",
+  "model_name": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "result_tag": "full_cache_depth_only",
+  "repo_path": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "run_dir": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_131047_full_cache_depth_only_video_depth",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only",
+  "log_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_131047_full_cache_depth_only_video_depth/stdout.log",
+  "command_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_131047_full_cache_depth_only_video_depth/command.sh",
+  "config_snapshot_file": "/mnt/data5/OBVGGT/code/branches/2026-0503-infra-runtime-accel/OBVGGT/experiments/runs/20260503_131047_full_cache_depth_only_video_depth/config_snapshot.json",
+  "git": {
+    "branch": "exp/2026-0503-infra-runtime-accel",
+    "commit": "e4466545585ff63001e7637777699fc7fbf08488"
+  },
+  "kv_cache": {
+    "enabled": false,
+    "config": {}
+  },
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_131047_full_cache_depth_only_video_depth/video_depth/full_cache_depth_only/bonn_full_cache_depth_only/result_scale.json"
+  ],
+  "timestamps": {
+    "start": "2026-05-03T13:10:48+08:00",
+    "end": "2026-05-03T13:12:25+08:00"
+  },
+  "exit_code": 0
+}
