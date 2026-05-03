@@ -1,0 +1,3 @@
+label,run_id,commit,dataset,max_frames,total_frames,overall_fps,speedup_vs_before,max_peak_allocated_mb,cache_tokens_max,seq_max,evict_calls_total,cache_hit_rate,rope2d_calls,abs_rel,rmse,delta125,status
+before,20260504_043337_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,4999abd,bonn,40,200,5.603611,,8813.565,5020,6024,4200,0.822222,3840,0.058920637,0.252992375,0.969246337,DONE
+after,20260504_043719_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,87e056a,bonn,40,200,6.025936,1.07536,8814.055,5020,6024,4200,0.822222,3840,0.058920637,0.252992375,0.969246337,DONE
