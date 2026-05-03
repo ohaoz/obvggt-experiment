@@ -1,0 +1,21 @@
+{
+  "variant": "full_cache_depth_only",
+  "description": "Runtime control: StreamVGGT full-cache inference in this branch with video_depth depth-only head gating. No OBCache compression is enabled.",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "StreamVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "video_depth"
+  ],
+  "default_args": [
+    "--head_mode",
+    "depth_only"
+  ],
+  "kv_policy_summary": "Full-cache runtime control; no OBCache compression. Only video_depth inference skips camera/point/track heads.",
+  "kv_cache_enable": false,
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}
