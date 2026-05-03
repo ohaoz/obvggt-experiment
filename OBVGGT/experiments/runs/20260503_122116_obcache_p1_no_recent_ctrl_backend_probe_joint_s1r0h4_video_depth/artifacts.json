@@ -1,0 +1,21 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_backend_probe",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_backend_probe/bonn_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_backend_probe/bonn_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 259
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_backend_probe/bonn_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 20872
+    }
+  ],
+  "updated_at": "2026-05-03T12:21:51+08:00"
+}
