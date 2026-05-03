@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_124050_obcache_p1_no_recent_ctrl_sdpa_flash_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_sdpa_flash",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_124050_obcache_p1_no_recent_ctrl_sdpa_flash_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_sdpa_flash/bonn_obcache_p1_no_recent_ctrl_sdpa_flash_joint_s1r0h4/result_scale.json"
+  ],
+  "missing_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260503_124050_obcache_p1_no_recent_ctrl_sdpa_flash_joint_s1r0h4_video_depth/video_depth/obcache_p1_no_recent_ctrl_sdpa_flash/bonn_obcache_p1_no_recent_ctrl_sdpa_flash_joint_s1r0h4/result_scale.json"
+  ],
+  "artifacts": [],
+  "updated_at": "2026-05-03T12:41:20+08:00"
+}
