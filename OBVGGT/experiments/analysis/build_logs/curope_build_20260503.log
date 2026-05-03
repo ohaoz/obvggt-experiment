@@ -1,0 +1,124 @@
+running build_ext
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/utils/cpp_extension.py:499: UserWarning: Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+  warnings.warn(msg.format('we could not find ninja.'))
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/utils/cpp_extension.py:418: UserWarning: The detected CUDA version (12.4) has a minor version mismatch with the version that was used to compile PyTorch (12.1). Most likely this shouldn't be a problem.
+  warnings.warn(CUDA_MISMATCH_WARN.format(cuda_str_version, torch.version.cuda))
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/utils/cpp_extension.py:428: UserWarning: There are no g++ version bounds defined for CUDA version 12.4
+  warnings.warn(f'There are no {compiler_name} version bounds defined for CUDA version {cuda_str_version}')
+building 'curope' extension
+creating build/temp.linux-x86_64-cpython-311
+g++ -pthread -B /home/szw/.conda/envs/obvggt/compiler_compat -DNDEBUG -fwrapv -O2 -Wall -fPIC -O2 -isystem /home/szw/.conda/envs/obvggt/include -fPIC -O2 -isystem /home/szw/.conda/envs/obvggt/include -fPIC -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/TH -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/THC -I/usr/local/cuda-12.4/include -I/home/szw/.conda/envs/obvggt/include/python3.11 -c curope.cpp -o build/temp.linux-x86_64-cpython-311/curope.o -O3 -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -DTORCH_EXTENSION_NAME=curope -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++17
+/usr/local/cuda-12.4/bin/nvcc -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/torch/csrc/api/include -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/TH -I/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/THC -I/usr/local/cuda-12.4/include -I/home/szw/.conda/envs/obvggt/include/python3.11 -c kernels.cu -o build/temp.linux-x86_64-cpython-311/kernels.o -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options '-fPIC' -O3 --ptxas-options=-v --use_fast_math -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -DTORCH_EXTENSION_NAME=curope -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++17
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_50'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, 376 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_50'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 29 registers, 376 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_50'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 376 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_60'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, 376 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_60'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 29 registers, 376 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_60'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 28 registers, 376 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_70'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_70'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_70'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_75'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_75'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_75'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, 408 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_80'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 26 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_80'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_80'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem, 24 bytes cmem[4]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_86'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 27 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_86'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers, 408 bytes cmem[0]
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_86'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, 408 bytes cmem[0], 8 bytes cmem[2]
+ptxas info    : 3 bytes gmem
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff' for 'sm_90'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIN3c104HalfEEvN2at27GenericPackedTensorAccessorIT_Lm4ENS2_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 26 registers
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_90'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIfEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers
+ptxas info    : Compiling entry function '_Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff' for 'sm_90'
+ptxas info    : Function properties for _Z19rope_2d_cuda_kernelIdEvN2at27GenericPackedTensorAccessorIT_Lm4ENS0_17RestrictPtrTraitsEiEEPKlff
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 30 registers
+kernels.cu: In lambda function:
+kernels.cu:101:44: warning: ‘at::DeprecatedTypeProperties& at::Tensor::type() const’ is deprecated: Tensor.type() is deprecated. Instead use Tensor.options(), which in many cases (e.g. in a constructor) is a drop-in replacement. If you were using data from type(), that is now available from Tensor itself, so instead of tensor.type().scalar_type(), use tensor.scalar_type() instead and instead of tensor.type().backend() use tensor.device(). [-Wdeprecated-declarations]
+  101 |     AT_DISPATCH_FLOATING_TYPES_AND_HALF(tokens.type(), "rope_2d_cuda", ([&] {
+      |                                            ^
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/ATen/core/TensorBody.h:225:1: note: declared here
+  225 |   DeprecatedTypeProperties & type() const {
+      | ^ ~~
+kernels.cu:101:158: warning: ‘c10::ScalarType detail::scalar_type(const at::DeprecatedTypeProperties&)’ is deprecated: passing at::DeprecatedTypeProperties to an AT_DISPATCH macro is deprecated, pass an at::ScalarType instead [-Wdeprecated-declarations]
+  101 |     AT_DISPATCH_FLOATING_TYPES_AND_HALF(tokens.type(), "rope_2d_cuda", ([&] {
+      |                                                                                                                                                              ^
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/ATen/Dispatch.h:109:1: note: declared here
+  109 | inline at::ScalarType scalar_type(const at::DeprecatedTypeProperties& t) {
+      | ^~~~~~~~~~~
+kernels.cu:101:158: warning: ‘c10::ScalarType detail::scalar_type(const at::DeprecatedTypeProperties&)’ is deprecated: passing at::DeprecatedTypeProperties to an AT_DISPATCH macro is deprecated, pass an at::ScalarType instead [-Wdeprecated-declarations]
+  101 |     AT_DISPATCH_FLOATING_TYPES_AND_HALF(tokens.type(), "rope_2d_cuda", ([&] {
+      |                                                                                                                                                              ^
+/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/include/ATen/Dispatch.h:109:1: note: declared here
+  109 | inline at::ScalarType scalar_type(const at::DeprecatedTypeProperties& t) {
+      | ^~~~~~~~~~~
+creating build/lib.linux-x86_64-cpython-311
+g++ -pthread -B /home/szw/.conda/envs/obvggt/compiler_compat -DNDEBUG -fwrapv -O2 -Wall -fPIC -O2 -isystem /home/szw/.conda/envs/obvggt/include -fPIC -O2 -isystem /home/szw/.conda/envs/obvggt/include -shared build/temp.linux-x86_64-cpython-311/curope.o build/temp.linux-x86_64-cpython-311/kernels.o -L/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/torch/lib -L/usr/local/cuda-12.4/lib64 -lc10 -ltorch -ltorch_cpu -ltorch_python -lcudart -lc10_cuda -ltorch_cuda -o build/lib.linux-x86_64-cpython-311/curope.cpython-311-x86_64-linux-gnu.so
+copying build/lib.linux-x86_64-cpython-311/curope.cpython-311-x86_64-linux-gnu.so ->

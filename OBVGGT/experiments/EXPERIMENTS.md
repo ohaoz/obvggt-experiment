@@ -12,6 +12,7 @@
 
 | Run ID | Variant | Task | Date | Status | Run Record | 关键指标 |
 |--------|---------|------|------|--------|------------|----------|
+| `20260503_122825_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_backend_probe` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_122825_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
 | `20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl_backend_probe` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_122116_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
 | `20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_interval2` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_110746_obcache_p1_no_recent_interval2_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
 | `20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_probe4` | `video_depth` | `2026-05-03` | `DONE` | `experiments/runs/20260503_110407_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |
