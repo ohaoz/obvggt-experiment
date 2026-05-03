@@ -10,6 +10,7 @@ from __future__ import annotations
 import os
 import platform
 import sys
+from contextlib import nullcontext
 from typing import Any, Dict, Optional
 
 _STATE: Dict[str, Any] = {
@@ -18,6 +19,9 @@ _STATE: Dict[str, Any] = {
     "sdpa": None,
     "counters": {"rope2d_calls": 0, "sdpa_calls": 0},
 }
+
+_SDPA_BACKEND_ENV = "OBVGGT_SDPA_BACKEND"
+_SDPA_BACKENDS = {"default", "flash", "efficient", "math", "cudnn"}
 
 
 def _shape(value: Any) -> Optional[list[int]]:
@@ -47,6 +51,36 @@ def _safe_call(obj: Any, name: str) -> Optional[Any]:
     fn = getattr(obj, name, None)
     if fn is None:
         return None
+
+
+def get_sdpa_backend_request() -> str:
+    raw = os.environ.get(_SDPA_BACKEND_ENV, "default")
+    value = str(raw).strip().lower() or "default"
+    if value not in _SDPA_BACKENDS:
+        raise ValueError(
+            f"Invalid {_SDPA_BACKEND_ENV}={raw!r}; expected one of {sorted(_SDPA_BACKENDS)}"
+        )
+    return value
+
+
+def sdpa_kernel_context(backend_request: str):
+    backend = str(backend_request or "default").strip().lower()
+    if backend == "default":
+        return nullcontext()
+    if backend not in _SDPA_BACKENDS:
+        raise ValueError(f"Invalid SDPA backend request: {backend_request!r}")
+
+    try:
+        import torch
+
+        return torch.backends.cuda.sdp_kernel(
+            enable_flash=backend == "flash",
+            enable_mem_efficient=backend == "efficient",
+            enable_math=backend == "math",
+            enable_cudnn=backend == "cudnn",
+        )
+    except Exception as exc:
+        raise RuntimeError(f"Unable to configure SDPA backend {backend!r}: {exc}") from exc
     try:
         return fn()
     except Exception:
@@ -115,6 +149,7 @@ def record_sdpa_call(
     *,
     attn_mask: Any,
     dropout_p: float,
+    backend_request: str = "default",
     is_causal: bool = False,
 ) -> None:
     _STATE["counters"]["sdpa_calls"] += 1
@@ -124,7 +159,7 @@ def record_sdpa_call(
 
     payload: Dict[str, Any] = {
         "api": "torch.nn.functional.scaled_dot_product_attention",
-        "backend_request": "pytorch_default_dispatch",
+        "backend_request": backend_request or "default",
         "q_shape": _shape(q),
         "k_shape": _shape(k),
         "v_shape": _shape(v),

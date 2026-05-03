@@ -1,0 +1,32 @@
+{
+  "variant": "obcache_p1_no_recent_ctrl_sdpa_efficient",
+  "description": "SDPA backend experiment: p1_no_recent_ctrl with PyTorch SDPA forced to memory-efficient backend.",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "video_depth"
+  ],
+  "default_args": [
+    "--sdpa_backend",
+    "efficient"
+  ],
+  "kv_policy_summary": "Same as p1_no_recent_ctrl; SDPA backend forced to memory-efficient.",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 1,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 0,
+    "num_heavy_frames": 4,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

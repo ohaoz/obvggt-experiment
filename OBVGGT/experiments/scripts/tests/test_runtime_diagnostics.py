@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest import mock
 from pathlib import Path
 
 
@@ -44,14 +45,23 @@ class RuntimeDiagnosticsTest(unittest.TestCase):
         k = FakeTensor((1, 16, 5020, 64), (5020 * 64, 64, 64, 1))
         v = FakeTensor((1, 16, 5020, 64), (5020 * 64, 64, 64, 1))
 
-        diag.record_sdpa_call(q, k, v, attn_mask=None, dropout_p=0.0)
+        diag.record_sdpa_call(q, k, v, attn_mask=None, dropout_p=0.0, backend_request="flash")
         payload = diag.snapshot_runtime_diagnostics()
 
         self.assertEqual(payload["sdpa"]["api"], "torch.nn.functional.scaled_dot_product_attention")
-        self.assertEqual(payload["sdpa"]["backend_request"], "pytorch_default_dispatch")
+        self.assertEqual(payload["sdpa"]["backend_request"], "flash")
         self.assertEqual(payload["sdpa"]["q_shape"], [1, 16, 1004, 64])
         self.assertFalse(payload["sdpa"]["attn_mask_present"])
         self.assertEqual(payload["counters"]["sdpa_calls"], 1)
+
+    def test_sdpa_backend_request_reads_environment(self):
+        with mock.patch.dict("os.environ", {"OBVGGT_SDPA_BACKEND": "efficient"}):
+            self.assertEqual(diag.get_sdpa_backend_request(), "efficient")
+
+    def test_sdpa_backend_request_rejects_invalid_value(self):
+        with mock.patch.dict("os.environ", {"OBVGGT_SDPA_BACKEND": "not-a-backend"}):
+            with self.assertRaises(ValueError):
+                diag.get_sdpa_backend_request()
 
     def test_reset_clears_call_samples_and_counters(self):
         tokens = FakeTensor((1, 2, 3, 4), (24, 12, 4, 1))
