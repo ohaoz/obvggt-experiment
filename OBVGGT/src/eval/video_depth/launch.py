@@ -323,9 +323,6 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                         seq_stats["runtime_sdpa_likely_fused_candidate"] = bool(
                             sdpa.get("likely_fused_candidate", False)
                         )
-                with open(system_log_path, "a", encoding="utf-8") as f_sys:
-                    f_sys.write(json.dumps(seq_stats, ensure_ascii=False) + "\n")
-
                 with torch.cuda.amp.autocast(dtype=torch.float32):
                     prepare_phase = phase_profile_start("launch_prepare_output")
                     (
@@ -342,6 +339,9 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 if args.phase_profile:
                     seq_stats["profile_run"] = True
                     seq_stats["phase_profile"] = snapshot_phase_profile(reset=True)
+
+                with open(system_log_path, "a", encoding="utf-8") as f_sys:
+                    f_sys.write(json.dumps(seq_stats, ensure_ascii=False) + "\n")
 
             except Exception as e:
                 if "out of memory" in str(e):
