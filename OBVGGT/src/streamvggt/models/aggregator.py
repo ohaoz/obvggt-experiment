@@ -238,7 +238,7 @@ class Aggregator(nn.Module):
             if use_cache:
                 camera_token_full = slice_expand_and_flatten(self.camera_token, B, S_true)
                 camera_token = camera_token_full.reshape(B, S_true, -1, C)[:, -1]
-                
+
                 register_token_full = slice_expand_and_flatten(self.register_token, B, S_true)
                 register_token = register_token_full.reshape(B, S_true, -1, C)[:, -1]
             else:
@@ -281,7 +281,7 @@ class Aggregator(nn.Module):
                                 obcache_cfg=obcache_cfg,
                             )
                             past_key_values[global_idx - 1] = new_kv
-                        else: 
+                        else:
                             tokens, global_idx, global_intermediates = self._process_global_attention(
                                 tokens, B, S, P, C, global_idx, pos=pos
                             )
@@ -295,7 +295,7 @@ class Aggregator(nn.Module):
             del concat_inter
             del frame_intermediates
             del global_intermediates
-            if use_cache:      
+            if use_cache:
                 return output_list, self.patch_start_idx, past_key_values
             return output_list, self.patch_start_idx
         finally:
