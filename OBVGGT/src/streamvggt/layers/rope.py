@@ -1,4 +1,3 @@
-import numpy as np
 import os
 import torch
 import torch.nn as nn
@@ -27,7 +26,7 @@ class PositionGetter:
 
     def __init__(self):
         """Initializes the position generator with an empty cache."""
-        self.position_cache: Dict[Tuple[int, int], torch.Tensor] = {}
+        self.position_cache: Dict[Tuple[int, int, str, int], torch.Tensor] = {}
 
     def __call__(self, batch_size: int, height: int, width: int, device: torch.device) -> torch.Tensor:
         """Generates spatial positions for a batch of patches.
@@ -42,14 +41,15 @@ class PositionGetter:
             Tensor of shape (batch_size, height*width, 2) containing y,x coordinates
             for each position in the grid, repeated for each batch item.
         """
-        if (height, width) not in self.position_cache:
+        cache_key = (height, width, device.type, device.index if device.index is not None else -1)
+        if cache_key not in self.position_cache:
             y_coords = torch.arange(height, device=device)
             x_coords = torch.arange(width, device=device)
             positions = torch.cartesian_prod(y_coords, x_coords)
-            self.position_cache[height, width] = positions
+            self.position_cache[cache_key] = positions
 
-        cached_positions = self.position_cache[height, width]
-        return cached_positions.view(1, height * width, 2).expand(batch_size, -1, -1).clone()
+        cached_positions = self.position_cache[cache_key]
+        return cached_positions.view(1, height * width, 2).expand(batch_size, -1, -1)
 
 
 class RotaryPositionEmbedding2D(nn.Module):
@@ -75,6 +75,7 @@ class RotaryPositionEmbedding2D(nn.Module):
         self.base_frequency = frequency
         self.scaling_factor = scaling_factor
         self.frequency_cache: Dict[Tuple, Tuple[torch.Tensor, torch.Tensor]] = {}
+        self.position_component_cache: Dict[Tuple, Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]] = {}
         self.cuda_rope_kernel = _curope_kernels
 
     def _compute_frequency_components(
@@ -145,6 +146,38 @@ class RotaryPositionEmbedding2D(nn.Module):
         # Apply rotation
         return (tokens * cos) + (self._rotate_features(tokens) * sin)
 
+    def _position_components(
+        self,
+        positions: torch.Tensor,
+        cos_comp: torch.Tensor,
+        sin_comp: torch.Tensor,
+        dim: int,
+        dtype: torch.dtype,
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        cache_key = (
+            int(dim),
+            tuple(int(x) for x in positions.shape),
+            tuple(int(x) for x in positions.stride()),
+            positions.device.type,
+            positions.device.index if positions.device.index is not None else -1,
+            positions.dtype,
+            dtype,
+            int(positions.max()),
+            int(positions.min()),
+        )
+        cached = self.position_component_cache.get(cache_key)
+        if cached is None:
+            y_positions = positions[..., 0]
+            x_positions = positions[..., 1]
+            cached = (
+                F.embedding(y_positions, cos_comp)[:, None, :, :],
+                F.embedding(y_positions, sin_comp)[:, None, :, :],
+                F.embedding(x_positions, cos_comp)[:, None, :, :],
+                F.embedding(x_positions, sin_comp)[:, None, :, :],
+            )
+            self.position_component_cache[cache_key] = cached
+        return cached
+
     def forward(self, tokens: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
         """Applies 2D rotary position embeddings to input tokens.
 
@@ -197,12 +230,20 @@ class RotaryPositionEmbedding2D(nn.Module):
             max_position = int(positions.max()) + 1
             cos_comp, sin_comp = self._compute_frequency_components(feature_dim, max_position, tokens.device, tokens.dtype)
 
+            cos_y, sin_y, cos_x, sin_x = self._position_components(
+                positions,
+                cos_comp,
+                sin_comp,
+                feature_dim,
+                tokens.dtype,
+            )
+
             # Split features for vertical and horizontal processing
             vertical_features, horizontal_features = tokens.chunk(2, dim=-1)
 
             # Apply RoPE separately for each dimension
-            vertical_features = self._apply_1d_rope(vertical_features, positions[..., 0], cos_comp, sin_comp)
-            horizontal_features = self._apply_1d_rope(horizontal_features, positions[..., 1], cos_comp, sin_comp)
+            vertical_features = (vertical_features * cos_y) + (self._rotate_features(vertical_features) * sin_y)
+            horizontal_features = (horizontal_features * cos_x) + (self._rotate_features(horizontal_features) * sin_x)
 
             # Combine processed features
             return torch.cat((vertical_features, horizontal_features), dim=-1)
