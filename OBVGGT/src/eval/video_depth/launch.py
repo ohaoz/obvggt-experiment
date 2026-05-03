@@ -244,6 +244,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                         seq_stats["runtime_rope2d_backend"] = str(rope2d.get("backend", ""))
                     if isinstance(sdpa, dict):
                         seq_stats["runtime_sdpa_backend_request"] = str(sdpa.get("backend_request", ""))
+                        seq_stats["runtime_sdpa_backend_effective"] = str(sdpa.get("backend_effective", ""))
                         seq_stats["runtime_sdpa_likely_fused_candidate"] = bool(
                             sdpa.get("likely_fused_candidate", False)
                         )

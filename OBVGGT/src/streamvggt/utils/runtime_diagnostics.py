@@ -81,6 +81,29 @@ def sdpa_kernel_context(backend_request: str):
         )
     except Exception as exc:
         raise RuntimeError(f"Unable to configure SDPA backend {backend!r}: {exc}") from exc
+
+
+def resolve_sdpa_backend_for_call(backend_request: str, q: Any, k: Any, v: Any, attn_mask: Any) -> str:
+    backend = str(backend_request or "default").strip().lower()
+    if backend in {"default", "math"}:
+        return backend
+    if backend not in _SDPA_BACKENDS:
+        raise ValueError(f"Invalid SDPA backend request: {backend_request!r}")
+
+    try:
+        import torch
+
+        dtype_ok = getattr(q, "dtype", None) in {torch.float16, torch.bfloat16}
+    except Exception:
+        dtype_ok = False
+
+    cuda_ok = bool(getattr(q, "is_cuda", False) and getattr(k, "is_cuda", False) and getattr(v, "is_cuda", False))
+    # The current forced fused-backend experiments are only meaningful for the
+    # no-mask half/bfloat16 CUDA attention path. Float32 camera-head attention
+    # must keep PyTorch default dispatch instead of crashing the whole run.
+    if not (cuda_ok and dtype_ok and attn_mask is None):
+        return "default"
+    return backend
     try:
         return fn()
     except Exception:
@@ -150,6 +173,7 @@ def record_sdpa_call(
     attn_mask: Any,
     dropout_p: float,
     backend_request: str = "default",
+    backend_effective: str = "default",
     is_causal: bool = False,
 ) -> None:
     _STATE["counters"]["sdpa_calls"] += 1
@@ -160,6 +184,7 @@ def record_sdpa_call(
     payload: Dict[str, Any] = {
         "api": "torch.nn.functional.scaled_dot_product_attention",
         "backend_request": backend_request or "default",
+        "backend_effective": backend_effective or "default",
         "q_shape": _shape(q),
         "k_shape": _shape(k),
         "v_shape": _shape(v),

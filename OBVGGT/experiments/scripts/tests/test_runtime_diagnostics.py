@@ -45,11 +45,20 @@ class RuntimeDiagnosticsTest(unittest.TestCase):
         k = FakeTensor((1, 16, 5020, 64), (5020 * 64, 64, 64, 1))
         v = FakeTensor((1, 16, 5020, 64), (5020 * 64, 64, 64, 1))
 
-        diag.record_sdpa_call(q, k, v, attn_mask=None, dropout_p=0.0, backend_request="flash")
+        diag.record_sdpa_call(
+            q,
+            k,
+            v,
+            attn_mask=None,
+            dropout_p=0.0,
+            backend_request="flash",
+            backend_effective="flash",
+        )
         payload = diag.snapshot_runtime_diagnostics()
 
         self.assertEqual(payload["sdpa"]["api"], "torch.nn.functional.scaled_dot_product_attention")
         self.assertEqual(payload["sdpa"]["backend_request"], "flash")
+        self.assertEqual(payload["sdpa"]["backend_effective"], "flash")
         self.assertEqual(payload["sdpa"]["q_shape"], [1, 16, 1004, 64])
         self.assertFalse(payload["sdpa"]["attn_mask_present"])
         self.assertEqual(payload["counters"]["sdpa_calls"], 1)
@@ -62,6 +71,14 @@ class RuntimeDiagnosticsTest(unittest.TestCase):
         with mock.patch.dict("os.environ", {"OBVGGT_SDPA_BACKEND": "not-a-backend"}):
             with self.assertRaises(ValueError):
                 diag.get_sdpa_backend_request()
+
+    def test_resolve_sdpa_backend_falls_back_for_float32_fused_request(self):
+        q = FakeTensor((1, 16, 2, 64), (2048, 128, 64, 1), dtype="fake.float32")
+        k = FakeTensor((1, 16, 2, 64), (2048, 128, 64, 1), dtype="fake.float32")
+        v = FakeTensor((1, 16, 2, 64), (2048, 128, 64, 1), dtype="fake.float32")
+
+        self.assertEqual(diag.resolve_sdpa_backend_for_call("flash", q, k, v, None), "default")
+        self.assertEqual(diag.resolve_sdpa_backend_for_call("math", q, k, v, None), "math")
 
     def test_reset_clears_call_samples_and_counters(self):
         tokens = FakeTensor((1, 2, 3, 4), (24, 12, 4, 1))

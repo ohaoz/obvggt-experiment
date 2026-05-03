@@ -15,6 +15,7 @@ from streamvggt.utils.obcache_kv import (
 from streamvggt.utils.runtime_diagnostics import (
     get_sdpa_backend_request,
     record_sdpa_call,
+    resolve_sdpa_backend_for_call,
     sdpa_kernel_context,
 )
 
@@ -273,16 +274,20 @@ class Attention(nn.Module):
 
         if self.fused_attn:
             dropout_p = self.attn_drop.p if self.training else 0.0
-            sdpa_backend = get_sdpa_backend_request()
+            sdpa_backend_request = get_sdpa_backend_request()
+            sdpa_backend_effective = resolve_sdpa_backend_for_call(
+                sdpa_backend_request, q, k_all, v_all, attn_mask
+            )
             record_sdpa_call(
                 q,
                 k_all,
                 v_all,
                 attn_mask=attn_mask,
                 dropout_p=dropout_p,
-                backend_request=sdpa_backend,
+                backend_request=sdpa_backend_request,
+                backend_effective=sdpa_backend_effective,
             )
-            with sdpa_kernel_context(sdpa_backend):
+            with sdpa_kernel_context(sdpa_backend_effective):
                 out = F.scaled_dot_product_attention(
                     q,
                     k_all,
