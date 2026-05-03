@@ -1,0 +1,3 @@
+commit,label,server,torch,cuda_available,gpu,shape,cache_attrs,ms_per_call_runs,median_ms_per_call,speedup_vs_before
+4999abd,before_position_component_cache,amd_server,2.3.1+cu121,true,NVIDIA GeForce RTX 4090 D,"[1,16,1004,64]",frequency_cache,"0.512184;0.486892;0.486482;0.485397;0.485806;0.489267;0.488397",0.486892,
+87e056a,after_position_component_cache,amd_server,2.3.1+cu121,true,NVIDIA GeForce RTX 4090 D,"[1,16,1004,64]",frequency_cache+position_component_cache,"0.382044;0.380088;0.380314;0.378440;0.378962;0.376893;0.379382",0.379382,1.283

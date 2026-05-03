@@ -17,6 +17,7 @@ The intent is to keep cache policy and budget fixed unless explicitly marked as 
 | CUDA RoPE2D microbench | isolated inline CUDA event bench | contiguous `0.083 ms` vs PyTorch `0.498 ms`; qkv-view `0.044 ms` vs `0.504 ms` | Kernel promising, but not safe end-to-end |
 | CUDA RoPE2D full-model smoke | `20260503_132309_obcache_p1_no_recent_ctrl_cuda_rope_joint_s1r0h4_video_depth` | inference writes `system_metrics.json`, then process exits with `free(): invalid pointer` / SIGABRT | Rejected; config marked non-runnable |
 | Phase profiler | `20260504_012022_obcache_p1_no_recent_ctrl_phase_profile_joint_s1r0h4_video_depth` | Profile-only Bonn 40-frame run, `formal_fps_valid=false`; model `40.68s`, aggregator `33.55s`, RoPE2D `10.57s`, OBCache scoring `8.89s`, heads `6.00s`, save-depth-maps `31.60s` | Profiler works; do not use FPS as formal speed; next infra target should be RoPE or OBCache bookkeeping/allocation |
+| PyTorch RoPE2D fallback component cache | server-side CUDA microbench, `4999abd` vs `87e056a` | median `0.4869 -> 0.3794 ms/call` for `[1,16,1004,64]`, about `1.28x` faster; server unittest `test_rope/test_runtime_diagnostics/test_phase_profile` all pass | Safe microbench candidate; requires Bonn smoke/full rerun before any end-to-end FPS claim |
 
 ## Interpretation
 
@@ -28,6 +29,8 @@ Forced SDPA backend routing is useful as instrumentation but not as an optimizat
 
 The compiled croco cuRoPE2D kernel is fast in isolation but unsafe in full-model execution in this branch and environment. Keep it behind `OBVGGT_ALLOW_UNSAFE_CUROPE=1` for isolated microbenchmarks only.
 
+The safe PyTorch RoPE2D fallback optimization caches position-dependent cosine/sine embeddings for repeated calls with the same position grid. On `amd_server` with Torch `2.3.1+cu121`, the isolated CUDA event bench improved the fallback path from median `0.4869 ms/call` at `4999abd` to `0.3794 ms/call` at `87e056a`. This is only a kernel-path signal; it must be followed by paired Bonn smoke/full runs before being treated as an end-to-end FPS result.
+
 The phase profiler confirms that the largest model-side time is still inside the aggregator stack. Within that stack, PyTorch RoPE2D fallback and OBCache scoring/bookkeeping are large enough to justify further infra work. The save-depth-maps phase is also large, but it is evaluation IO/output overhead and should be separated from model FPS claims.
 
 ## Current Recommendation
@@ -35,4 +38,5 @@ The phase profiler confirms that the largest model-side time is still inside the
 1. Treat `depth_only` as an accepted `video_depth` task-runtime candidate under the same OBCache cache budget.
 2. Keep SDPA backend logging in all future runs, but do not force Flash by default.
 3. Do not use `obcache_p1_no_recent_ctrl_cuda_rope` in quick_run; it is intentionally `runnable=false`.
-4. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
+4. Treat PyTorch RoPE2D fallback component caching as a safe microbench candidate, then gate it with paired Bonn smoke/full reruns before full matrix.
+5. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
