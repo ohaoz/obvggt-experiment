@@ -1,0 +1,16 @@
+{
+  "status": "FAILED",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/sintel_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/bonn_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/kitti_infinitevggt_rolling_memory_budget1200000/result_scale.json"
+  ],
+  "missing_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/sintel_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/bonn_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/kitti_infinitevggt_rolling_memory_budget1200000/result_scale.json"
+  ],
+  "artifacts": [],
+  "updated_at": "2026-05-04T06:06:10+08:00"
+}

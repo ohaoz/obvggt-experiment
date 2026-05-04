@@ -1,0 +1,41 @@
+{
+  "run_id": "20260504_060600_xstreamvggt_xstream_cache2048_video_depth",
+  "status": "FAILED",
+  "variant": "xstreamvggt",
+  "task": "video_depth",
+  "benchmark_role": "streaming_benchmark",
+  "model_name": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "result_tag": "xstreamvggt_xstream_cache2048",
+  "repo_path": "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/XStreamVGGT",
+  "env_name": "streamvggt",
+  "adapter": "run_xstreamvggt.py",
+  "run_dir": "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/OBVGGT/experiments/runs/20260504_060600_xstreamvggt_xstream_cache2048_video_depth",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt",
+  "log_file": "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/OBVGGT/experiments/runs/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/stdout.log",
+  "command_file": "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/OBVGGT/experiments/runs/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/command.sh",
+  "config_snapshot_file": "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/OBVGGT/experiments/runs/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/config_snapshot.json",
+  "git": {
+    "branch": "exp/2026-0503-infra-runtime-accel",
+    "commit": "6fc9571f3371da224a98b538fccf5a61652f1164"
+  },
+  "kv_cache": {
+    "enabled": true,
+    "config": {
+      "method": "xstream",
+      "kv_pool_size": 16,
+      "kv_cache_size": 2048,
+      "kv_quant_mode": ""
+    }
+  },
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/result_scale.json"
+  ],
+  "timestamps": {
+    "start": "2026-05-04T06:06:00+08:00",
+    "end": "2026-05-04T06:06:05+08:00"
+  },
+  "exit_code": 1
+}

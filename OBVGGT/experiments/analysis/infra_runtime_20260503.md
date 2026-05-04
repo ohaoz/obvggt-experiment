@@ -21,6 +21,7 @@ The intent is to keep cache policy and budget fixed unless explicitly marked as 
 | PyTorch RoPE2D fallback component cache, Bonn smoke | `20260504_043337...` (`4999abd`) vs `20260504_043719...` (`87e056a`) | Bonn 40-frame `5.6036 -> 6.0259 FPS`, `+7.54%`; `cache_max=5020`, `seq_max=6024`, evict calls/hit rate/AbsRel/RMSE/delta unchanged | Passes same-budget smoke gate; next gate is paired Bonn full |
 | PyTorch RoPE2D fallback component cache, Bonn full | `20260504_044550...` (`4999abd`) vs `20260504_045003...` (`87e056a`) | Bonn full `5.5147 -> 6.1978 FPS`, `+12.39%`; `cache_max=5020`, `seq_max=6024`, evict calls/hit rate/AbsRel/RMSE/delta unchanged | Passes same-budget Bonn full gate; promote to paired `sintel/bonn/kitti` full-matrix gate |
 | PyTorch RoPE2D fallback component cache, full matrix | `20260504_050435...` (`4999abd`) vs `20260504_052145...` (`87e056a`) | FPS: Sintel `+14.04%`, Bonn `+8.21%`, KITTI `+5.56%`; all cache/seq/evict/hit-rate and AbsRel/RMSE/delta unchanged | Accepted as same-cache-budget infra runtime optimization |
+| Cross-baseline same-window full matrix | `20260504_060635` / `062516` / `064047` / `065904` / `071552` | Same 48GB GPU full-head `video_depth` rerun for `StreamVGGT`, `XStreamVGGT`, `InfiniteVGGT`, `OBVGGT_ctrl`, `OBVGGT_best_infra`; `OBVGGT_best_infra` vs `StreamVGGT`: Sintel `-0.65%` FPS with `-23.7%` peak memory, Bonn `+89.8%` FPS with `-51.6%` peak memory, KITTI `+4.3%` FPS with much better AbsRel | Accepted as fairness snapshot; do not use it to replace the tighter RoPE effect-size gate |
 
 ## Interpretation
 
@@ -40,6 +41,10 @@ The paired Bonn full rerun confirms the same signal on the complete Bonn `video_
 
 The paired full matrix completes that gate. Relative to `4999abd`, `87e056a` improves `video_depth` FPS by `+14.04%` on Sintel, `+8.21%` on Bonn, and `+5.56%` on KITTI. Cache budget, maximum sequence length, evict calls, cache hit rate, and all depth metrics remain unchanged per dataset. Detailed values are in `analysis/tables/rope_fallback_full_matrix_20260504.csv`.
 
+The same-window 48GB cross-baseline rerun now closes the fairness gap against other full-head baselines. In that window, `OBVGGT_best_infra` is much faster than `StreamVGGT` on Bonn (`6.02 vs 3.17 FPS`) and modestly faster on KITTI (`6.11 vs 5.85 FPS`), while using far less peak memory on all three datasets and keeping much better Bonn/KITTI accuracy. `InfiniteVGGT` is slower and less accurate than `OBVGGT_best_infra` on Bonn/KITTI. `XStreamVGGT` remains the fastest full-head line in this window, but it pays for that speed with clearly worse quality, especially on KITTI (`AbsRel 0.1870 vs 0.0991`).
+
+That fairness window should not replace the tighter paired RoPE gate as the primary effect-size claim for the infra optimization. Inside the broader cross-baseline window, `4999abd -> 6fc9571` only showed `+3.19%` on Sintel, `+3.18%` on Bonn, and `+0.08%` on KITTI. The accepted same-budget RoPE effect size remains the tighter `4999abd -> 87e056a` paired matrix because it better isolates the optimization and produced the stronger `+14.04% / +8.21% / +5.56%` signal.
+
 The phase profiler confirms that the largest model-side time is still inside the aggregator stack. Within that stack, PyTorch RoPE2D fallback and OBCache scoring/bookkeeping are large enough to justify further infra work. The save-depth-maps phase is also large, but it is evaluation IO/output overhead and should be separated from model FPS claims.
 
 ## Current Recommendation
@@ -48,7 +53,8 @@ The phase profiler confirms that the largest model-side time is still inside the
 2. Keep SDPA backend logging in all future runs, but do not force Flash by default.
 3. Do not use `obcache_p1_no_recent_ctrl_cuda_rope` in quick_run; it is intentionally `runnable=false`.
 4. Accept PyTorch RoPE2D fallback component caching as a same-cache-budget infra runtime optimization for `video_depth`.
-5. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
+5. Use `analysis/tables/cross_baseline_video_depth_48gb_20260504.csv` for full-head cross-model comparisons in this branch.
+6. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
 
 ## Validation
 
@@ -60,7 +66,7 @@ Ran 12 tests in 0.555s
 OK
 ```
 
-The accepted RoPE fallback optimization is supported by three paired gates: isolated CUDA-event microbench, Bonn smoke, Bonn full, and full `sintel/bonn/kitti` rerun. The formal full-matrix conclusion is limited to OBVGGT `video_depth` with the same OBCache budget. It is not a cross-baseline paper main-table conclusion against StreamVGGT, XStreamVGGT, or InfiniteVGGT, because those baselines were not rerun in this branch/window.
+The accepted RoPE fallback optimization is supported by three paired gates: isolated CUDA-event microbench, Bonn smoke, Bonn full, and full `sintel/bonn/kitti` rerun. A same-window cross-baseline rerun against `StreamVGGT`, `XStreamVGGT`, and `InfiniteVGGT` is now synced locally, but it should be read as a fairness snapshot. The primary effect-size evidence for the RoPE optimization remains the tighter `4999abd -> 87e056a` paired matrix.
 
 ## Remaining Limits
 
@@ -68,3 +74,4 @@ The accepted RoPE fallback optimization is supported by three paired gates: isol
 - SDPA forced Flash did not beat default dispatch in the tested Bonn smoke; efficient/cuDNN backend claims were not promoted without evidence.
 - OBCache scoring/bookkeeping and allocation remain plausible next infra targets based on the phase profile, but no preallocated-KV implementation is accepted in this branch.
 - `depth_only` is accepted only as a `video_depth` task-runtime mode. It must be applied to all compared video_depth baselines before being used in a cross-model fairness table.
+- The failed `20260504_060600` / `20260504_060605` preflight runs only show that `XStreamVGGT` and `InfiniteVGGT` native `launch.py` do not accept `--max_frames`; they are not quality or throughput evidence.

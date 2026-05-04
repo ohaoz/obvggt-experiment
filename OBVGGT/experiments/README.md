@@ -49,15 +49,15 @@ $STREAMVGGT_RUNS/eval_results/
 - `experiments/analysis/SUMMARY.md`：看“已经整理过的结论”
 - `experiments/scripts/render_experiment_docs.py`：把 `runs/*` 的机器真相重建成文档
 
-## 3. 当前状态（2026-03-24）
-- ✅ `video_depth`：baseline vs obcache 对比已完成（含系统指标）。
-- ✅ `monodepth`：obcache 已完成 5 个数据集（缺 baseline 对照；仅作为 regression check）。
-- ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 现已补齐统一中台 rerun。
+## 3. 当前状态（2026-05-04）
+- ✅ `video_depth`：`StreamVGGT / XStreamVGGT / InfiniteVGGT / OBVGGT_ctrl(4999abd) / OBVGGT_best_infra(6fc9571)` 的 48GB 同窗 full-head rerun 已同步到本地。
+- ✅ `StreamVGGT video_depth`：历史 `PARTIAL_DONE` 缺口已被 `20260504_060635_baseline_video_depth` 的 `DONE` run 覆盖。
+- ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 也已有统一中台 rerun 记录。
 - ✅ `XStreamVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
 - ✅ `InfiniteVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
-- ⚠️ `StreamVGGT video_depth`：2026-03-19 重跑已补到 `system=2/3`，但仍因原始 `eval_depth.py` 后处理报错处于 `PARTIAL_DONE`。
+- ✅ 分支 `exp/2026-0503-infra-runtime-accel` 已接受的 infra 结论：PyTorch RoPE2D fallback component cache 可作为 `OBVGGT video_depth` 的同预算 runtime 优化；tight paired gate 见 `analysis/infra_runtime_20260503.md`。
+- ⚠️ 两个 `--max_frames 2` preflight run 已按 `FAILED` 记录：`20260504_060600_xstreamvggt_xstream_cache2048_video_depth`、`20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth`。它们只用于说明 native launcher 不支持该参数，正式 full rerun 已在后续 `DONE` run 中完成。
 - ⚠️ `pose_co3d`：已执行但注释缺失，未生成 `pose_summary.json`。
-- 🆕 **消融实验准备就绪**（2026-03-24）：15 个 `obcache_*` 消融配置已创建；代码已支持 `random` 驱逐和 `sliding_window` 模式。待跑 P0（7 runs）+ P1（8 runs）。
 - 当前工作区内可运行的 baseline repo 是：`StreamVGGT`、`OBVGGT`、`XStreamVGGT`、`InfiniteVGGT`。
 - `IncVGGT` 当前只保留论文参考位，不应在本工作区文档里写成”可直接运行”。
 
@@ -117,9 +117,8 @@ pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
 - `runs/<run_id>/manifest.json` / `artifacts.json` / `record.md` = 真相来源
 
 ## 8. 下一步优先级
-1. 🔴 **跑消融实验 P0 批次**（评分方法 + 预算分配消融，7 runs via `quick_run.sh obcache_<ablation> video_depth`）。
-2. 🔴 跑消融实验 P1 批次（组件 + Probe + 滑动窗口消融，8 runs）。
-3. 跑完后执行 `python render_experiment_docs.py` 重建文档。
-4. 修复并补齐 `StreamVGGT video_depth` 的最后一个缺口（当前 `result=1/3, system=2/3`）。
-5. 补跑 `StreamVGGT` 线的 `monodepth` regression（历史标签：`baseline_monodepth_full`）。
-6. 汇总 `StreamVGGT / OBVGGT / XStreamVGGT / InfiniteVGGT` 的统一效率对比表 + 消融结论，用于论文/报告。
+1. 🔴 评估并实现 `OBCache runtime` 等价优化，优先看 prealloc / allocation bookkeeping 路线；当前尚无接受的 `prealloc_kv` 结论。
+2. 🔴 在同预算口径下补 `probe6`，并决定 `best_infra + probe4/probe6` 是否值得进入主候选。
+3. 🟡 如果要把本分支结论扩成跨任务结论，补 `mv_recon` 的接受候选 rerun。
+4. 🟡 如果要把 `depth_only` 放进跨 baseline 表，必须给 `StreamVGGT / XStreamVGGT / InfiniteVGGT` 也跑同样 contract。
+5. 🟡 继续维护 `cross_baseline_video_depth_48gb_20260504.csv` 与 `infra_runtime_20260503.md`，避免把 fairness window 和 tight paired gate 混成一个结论。

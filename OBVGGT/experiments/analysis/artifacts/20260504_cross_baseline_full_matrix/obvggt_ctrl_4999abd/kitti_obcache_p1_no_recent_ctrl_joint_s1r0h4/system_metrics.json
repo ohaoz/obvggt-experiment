@@ -1,0 +1,1886 @@
+{
+  "summary": {
+    "num_sequences_total": 13,
+    "num_sequences_ok": 13,
+    "num_sequences_oom_skip": 0,
+    "num_sequences_other_skip": 0,
+    "total_frames": 1269,
+    "total_elapsed_sec": 207.94237522222102,
+    "overall_fps": 6.1026522306666084,
+    "avg_latency_ms_per_frame": 163.8631798441458,
+    "max_peak_allocated_mb": 8153.8603515625,
+    "max_peak_reserved_mb": 8492.0,
+    "profile_run": false,
+    "formal_fps_valid": true,
+    "kv_evicted_tokens_total": 11905152.0,
+    "kv_evict_calls_total": 28896.0,
+    "kv_appended_tokens_total": 12547872.0,
+    "kv_reused_tokens_total": 60811200.0,
+    "kv_cache_hit_rate": 0.8289526890416499,
+    "runtime_diagnostics_sample": {
+      "environment": {
+        "python": "3.11.8",
+        "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+        "cuda_visible_devices": "1",
+        "torch_version": "2.3.1+cu121",
+        "torch_cuda_version": "12.1",
+        "cuda_available": true,
+        "cuda_device_count": 1,
+        "cuda_current_device": 0,
+        "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+        "cuda_capability": [
+          8,
+          9
+        ]
+      },
+      "rope2d": {
+        "backend": "pytorch_python",
+        "module": "streamvggt.layers.rope",
+        "tokens_shape": [
+          1,
+          16,
+          412,
+          64
+        ],
+        "tokens_stride": [
+          421888,
+          26368,
+          64,
+          1
+        ],
+        "tokens_dtype": "torch.float32",
+        "tokens_device": "cuda:0",
+        "positions_shape": [
+          1,
+          412,
+          2
+        ],
+        "positions_stride": [
+          824,
+          2,
+          1
+        ],
+        "positions_dtype": "torch.int64",
+        "positions_device": "cuda:0"
+      },
+      "sdpa": {
+        "api": "torch.nn.functional.scaled_dot_product_attention",
+        "backend_request": "default",
+        "backend_effective": "default",
+        "q_shape": [
+          1,
+          16,
+          412,
+          64
+        ],
+        "k_shape": [
+          1,
+          16,
+          412,
+          64
+        ],
+        "v_shape": [
+          1,
+          16,
+          412,
+          64
+        ],
+        "q_stride": [
+          1265664,
+          64,
+          3072,
+          1
+        ],
+        "k_stride": [
+          1265664,
+          64,
+          3072,
+          1
+        ],
+        "v_stride": [
+          1265664,
+          64,
+          3072,
+          1
+        ],
+        "q_dtype": "torch.bfloat16",
+        "k_dtype": "torch.bfloat16",
+        "v_dtype": "torch.bfloat16",
+        "q_device": "cuda:0",
+        "k_device": "cuda:0",
+        "v_device": "cuda:0",
+        "attn_mask_present": false,
+        "attn_mask_shape": null,
+        "attn_mask_dtype": "",
+        "dropout_p": 0.0,
+        "is_causal": false,
+        "flash_sdp_enabled": null,
+        "mem_efficient_sdp_enabled": null,
+        "math_sdp_enabled": null,
+        "cudnn_sdp_enabled": null,
+        "likely_fused_candidate": true
+      },
+      "counters": {
+        "rope2d_calls": 6432,
+        "sdpa_calls": 5896
+      }
+    }
+  },
+  "per_sequence": [
+    {
+      "sequence": "2011_09_26_drive_0002_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 67,
+      "elapsed_sec": 11.575468383729458,
+      "fps": 5.788102716791622,
+      "latency_ms_per_frame": 172.76818483178295,
+      "peak_allocated_mb": 7442.11767578125,
+      "peak_reserved_mb": 7692.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 1488.0,
+      "kv_evicted_tokens_total": 613056.0,
+      "kv_appended_tokens_total": 662496.0,
+      "kv_reused_tokens_total": 3164160.0,
+      "kv_cache_hit_rate": 0.8268733850129198,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 6432,
+          "sdpa_calls": 5896
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0005_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 18.078689398244023,
+      "fps": 6.084511856854196,
+      "latency_ms_per_frame": 164.3517218022184,
+      "peak_allocated_mb": 7953.52783203125,
+      "peak_reserved_mb": 8290.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 16992,
+          "sdpa_calls": 15576
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0013_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.949445052072406,
+      "fps": 6.12832316992996,
+      "latency_ms_per_frame": 163.17677320065823,
+      "peak_allocated_mb": 8153.8603515625,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 27552,
+          "sdpa_calls": 25256
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0020_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 76,
+      "elapsed_sec": 12.396492464467883,
+      "fps": 6.130766442026977,
+      "latency_ms_per_frame": 163.11174295352478,
+      "peak_allocated_mb": 7991.955078125,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 1704.0,
+      "kv_evicted_tokens_total": 702048.0,
+      "kv_appended_tokens_total": 751488.0,
+      "kv_reused_tokens_total": 3609120.0,
+      "kv_cache_hit_rate": 0.8276643990929705,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 34848,
+          "sdpa_calls": 31944
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0023_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.940090224146843,
+      "fps": 6.131518773074127,
+      "latency_ms_per_frame": 163.09172931042585,
+      "peak_allocated_mb": 7999.486328125,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 45408,
+          "sdpa_calls": 41624
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0036_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.937020372599363,
+      "fps": 6.1325681587582,
+      "latency_ms_per_frame": 163.06382156908512,
+      "peak_allocated_mb": 8148.3447265625,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 55968,
+          "sdpa_calls": 51304
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0079_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 90,
+      "elapsed_sec": 14.685370648279786,
+      "fps": 6.128548073830361,
+      "latency_ms_per_frame": 163.1707849808865,
+      "peak_allocated_mb": 8058.7919921875,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2040.0,
+      "kv_evicted_tokens_total": 840480.0,
+      "kv_appended_tokens_total": 889920.0,
+      "kv_reused_tokens_total": 4301280.0,
+      "kv_cache_hit_rate": 0.8285714285714286,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 64608,
+          "sdpa_calls": 59224
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0095_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.90668740309775,
+      "fps": 6.142956400800891,
+      "latency_ms_per_frame": 162.78806730088863,
+      "peak_allocated_mb": 8062.7685546875,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 75168,
+          "sdpa_calls": 68904
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_26_drive_0113_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 77,
+      "elapsed_sec": 12.58121038787067,
+      "fps": 6.1202378488348295,
+      "latency_ms_per_frame": 163.3923426996191,
+      "peak_allocated_mb": 7993.546875,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 1728.0,
+      "kv_evicted_tokens_total": 711936.0,
+      "kv_appended_tokens_total": 761376.0,
+      "kv_reused_tokens_total": 3658560.0,
+      "kv_cache_hit_rate": 0.8277404921700223,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 82560,
+          "sdpa_calls": 75680
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_28_drive_0037_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 79,
+      "elapsed_sec": 12.952284704893827,
+      "fps": 6.0993100290754905,
+      "latency_ms_per_frame": 163.95297094802314,
+      "peak_allocated_mb": 7856.97021484375,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 1776.0,
+      "kv_evicted_tokens_total": 731712.0,
+      "kv_appended_tokens_total": 781152.0,
+      "kv_reused_tokens_total": 3757440.0,
+      "kv_cache_hit_rate": 0.8278867102396514,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 90144,
+          "sdpa_calls": 82632
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_29_drive_0026_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.958207227289677,
+      "fps": 6.125333036186466,
+      "latency_ms_per_frame": 163.25642933899707,
+      "peak_allocated_mb": 8010.51806640625,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 100704,
+          "sdpa_calls": 92312
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_09_30_drive_0016_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.994464110583067,
+      "fps": 6.112991157947616,
+      "latency_ms_per_frame": 163.58603736893699,
+      "peak_allocated_mb": 8148.3447265625,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 111264,
+          "sdpa_calls": 101992
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    },
+    {
+      "sequence": "2011_10_03_drive_0047_sync_02",
+      "status": "ok",
+      "head_mode": "full",
+      "num_frames": 110,
+      "elapsed_sec": 17.986944844946265,
+      "fps": 6.1155466338635245,
+      "latency_ms_per_frame": 163.51768040860242,
+      "peak_allocated_mb": 8148.3447265625,
+      "peak_reserved_mb": 8492.0,
+      "kv_total_layers": 24.0,
+      "kv_obcache_layers": 24.0,
+      "kv_has_obcache_stats": 1.0,
+      "kv_cache_tokens_mean": 2060.0,
+      "kv_cache_tokens_min": 2060.0,
+      "kv_cache_tokens_max": 2060.0,
+      "kv_max_seq_len_seen": 2472.0,
+      "kv_evict_calls": 2520.0,
+      "kv_evicted_tokens_total": 1038240.0,
+      "kv_appended_tokens_total": 1087680.0,
+      "kv_reused_tokens_total": 5290080.0,
+      "kv_cache_hit_rate": 0.8294573643410853,
+      "runtime_diagnostics": {
+        "environment": {
+          "python": "3.11.8",
+          "platform": "Linux-3.10.0-1160.119.1.el7.x86_64-x86_64-with-glibc2.17",
+          "cuda_visible_devices": "1",
+          "torch_version": "2.3.1+cu121",
+          "torch_cuda_version": "12.1",
+          "cuda_available": true,
+          "cuda_device_count": 1,
+          "cuda_current_device": 0,
+          "cuda_device_name": "NVIDIA GeForce RTX 4090 D",
+          "cuda_capability": [
+            8,
+            9
+          ]
+        },
+        "rope2d": {
+          "backend": "pytorch_python",
+          "module": "streamvggt.layers.rope",
+          "tokens_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "tokens_stride": [
+            421888,
+            26368,
+            64,
+            1
+          ],
+          "tokens_dtype": "torch.float32",
+          "tokens_device": "cuda:0",
+          "positions_shape": [
+            1,
+            412,
+            2
+          ],
+          "positions_stride": [
+            824,
+            2,
+            1
+          ],
+          "positions_dtype": "torch.int64",
+          "positions_device": "cuda:0"
+        },
+        "sdpa": {
+          "api": "torch.nn.functional.scaled_dot_product_attention",
+          "backend_request": "default",
+          "backend_effective": "default",
+          "q_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "k_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "v_shape": [
+            1,
+            16,
+            412,
+            64
+          ],
+          "q_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "k_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "v_stride": [
+            1265664,
+            64,
+            3072,
+            1
+          ],
+          "q_dtype": "torch.bfloat16",
+          "k_dtype": "torch.bfloat16",
+          "v_dtype": "torch.bfloat16",
+          "q_device": "cuda:0",
+          "k_device": "cuda:0",
+          "v_device": "cuda:0",
+          "attn_mask_present": false,
+          "attn_mask_shape": null,
+          "attn_mask_dtype": "",
+          "dropout_p": 0.0,
+          "is_causal": false,
+          "flash_sdp_enabled": null,
+          "mem_efficient_sdp_enabled": null,
+          "math_sdp_enabled": null,
+          "cudnn_sdp_enabled": null,
+          "likely_fused_candidate": true
+        },
+        "counters": {
+          "rope2d_calls": 121824,
+          "sdpa_calls": 111672
+        }
+      },
+      "runtime_rope2d_backend": "pytorch_python",
+      "runtime_sdpa_backend_request": "default",
+      "runtime_sdpa_backend_effective": "default",
+      "runtime_sdpa_likely_fused_candidate": true
+    }
+  ]
+}

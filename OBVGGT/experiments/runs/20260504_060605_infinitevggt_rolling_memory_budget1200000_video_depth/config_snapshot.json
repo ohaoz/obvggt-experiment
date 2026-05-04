@@ -1,0 +1,25 @@
+{
+  "variant": "infinitevggt",
+  "description": "InfiniteVGGT - rolling memory / total budget baseline for long streams",
+  "runnable": true,
+  "repo_path": "../InfiniteVGGT",
+  "model_family": "InfiniteVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "infinitevggt",
+  "adapter": "run_infinitevggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d",
+    "long_stream"
+  ],
+  "kv_policy_summary": "Rolling memory with total budget control for infinite-horizon streaming.",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "method": "rolling_memory",
+    "total_budget": 1200000,
+    "max_frames": 300
+  }
+}

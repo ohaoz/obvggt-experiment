@@ -1,0 +1,16 @@
+{
+  "status": "FAILED",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/result_scale.json"
+  ],
+  "missing_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/result_scale.json"
+  ],
+  "artifacts": [],
+  "updated_at": "2026-05-04T06:06:05+08:00"
+}

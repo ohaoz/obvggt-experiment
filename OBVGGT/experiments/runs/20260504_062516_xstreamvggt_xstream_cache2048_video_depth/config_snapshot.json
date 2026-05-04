@@ -1,0 +1,25 @@
+{
+  "variant": "xstreamvggt",
+  "description": "XStreamVGGT - 剪枝 + 量化的 KV 压缩基线",
+  "runnable": true,
+  "repo_path": "../XStreamVGGT",
+  "model_family": "XStreamVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "streamvggt",
+  "adapter": "run_xstreamvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "KV token pruning with optional quantization (KV_POOL_SIZE / KV_CACHE_SIZE / KV_QUANT_MODE).",
+  "checkpoint": "ckpt/checkpoints.pth",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "method": "xstream",
+    "kv_pool_size": 16,
+    "kv_cache_size": 2048,
+    "kv_quant_mode": ""
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "variant": "baseline",
+  "description": "StreamVGGT 原版，无 KV cache",
+  "runnable": true,
+  "repo_path": "../StreamVGGT",
+  "model_family": "StreamVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "streamvggt",
+  "adapter": "run_streamvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "No KV compression; full-cache streaming baseline.",
+  "kv_cache_enable": false,
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

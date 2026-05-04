@@ -1,0 +1,43 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 260
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/bonn_xstreamvggt_xstream_cache2048/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 4203
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 254
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/kitti_xstreamvggt_xstream_cache2048/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 10174
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 255
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 16917
+    }
+  ],
+  "updated_at": "2026-05-04T06:40:33+08:00"
+}

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+cd "/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571/StreamVGGT"
+python -m accelerate.commands.launch --num_processes 1 ../src/eval/video_depth/launch.py --weights /mnt/data5/OBVGGT/code/OBVGGT/ckpt/checkpoints.pth --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/sintel_baseline --eval_dataset sintel --size 518
+python ../src/eval/video_depth/eval_depth.py --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/sintel_baseline --eval_dataset sintel --align scale
+python -m accelerate.commands.launch --num_processes 1 ../src/eval/video_depth/launch.py --weights /mnt/data5/OBVGGT/code/OBVGGT/ckpt/checkpoints.pth --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/bonn_baseline --eval_dataset bonn --size 518
+python ../src/eval/video_depth/eval_depth.py --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/bonn_baseline --eval_dataset bonn --align scale
+python -m accelerate.commands.launch --num_processes 1 ../src/eval/video_depth/launch.py --weights /mnt/data5/OBVGGT/code/OBVGGT/ckpt/checkpoints.pth --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/kitti_baseline --eval_dataset kitti --size 518
+python ../src/eval/video_depth/eval_depth.py --output_dir /mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/kitti_baseline --eval_dataset kitti --align scale

@@ -1,6 +1,6 @@
 # PROJECT_BRIEF
 
-Last updated: 2026-03-24
+Last updated: 2026-05-04
 
 ## What This Workspace Is
 - Multi-repo workspace for VGGT long-sequence / KV-cache evaluation and reproduction.
@@ -18,8 +18,12 @@ Last updated: 2026-03-24
 - Primary KV-sensitive benchmarks: `video_depth` and `mv_recon`.
 - `monodepth` is regression-only. Use it to check accuracy drift, not to claim KV wins or losses.
 - `pose_co3d` is supplementary and still incomplete because annotation / result cleanup is unfinished.
-- As of March 19, 2026, `XStreamVGGT` and `InfiniteVGGT` have fresh unified-harness system metrics for both `video_depth` and `mv_recon`; `StreamVGGT` has fresh `mv_recon` system metrics and a partial `video_depth` rerun (`result=1/3, system=2/3`).
-- As of March 24, 2026, 15 ablation configs for OBVGGT are ready (scoring method / budget / component / probe / sliding window); code supports `random` eviction and `sliding_window` mode. Runs pending.
+- As of May 4, 2026, a same-machine same-window `video_depth` rerun on the 48GB RTX 4090D exists for `StreamVGGT`, `XStreamVGGT`, `InfiniteVGGT`, `OBVGGT_ctrl` (`4999abd`), and `OBVGGT_best_infra` (`6fc9571`).
+- Accepted branch-local infra result: PyTorch RoPE2D fallback component caching is a same-cache-budget `OBVGGT video_depth` optimization. The tight paired gate remains `4999abd -> 87e056a`, with FPS gains of `+14.04%` on Sintel, `+8.21%` on Bonn, and `+5.56%` on KITTI at unchanged cache budget and depth metrics.
+- The broader fairness window `4999abd -> 6fc9571` only showed `+3.19% / +3.18% / +0.08%` FPS. Use it as a cross-baseline comparison window, not as the primary effect-size estimate for the infra claim.
+- In that 48GB full-head window, `OBVGGT_best_infra` is much better than `StreamVGGT` on Bonn (`6.02 vs 3.17 FPS`, `-51.6%` peak memory, better AbsRel), slightly faster and much more accurate on KITTI (`6.11 vs 5.85 FPS`, AbsRel `0.0991 vs 0.1725`), and roughly equal-FPS but lower-memory on Sintel.
+- `XStreamVGGT` is the fastest full-head baseline in that window, but it is clearly worse than `OBVGGT_best_infra` on Bonn/KITTI accuracy; `InfiniteVGGT` is slower and less accurate than `OBVGGT_best_infra` on Bonn/KITTI.
+- Any cross-model use of `depth_only` still requires rerunning every compared baseline with the same task contract.
 
 ## Naming Map
 - Historical `baseline` in `OBVGGT/experiments/*` means the `StreamVGGT` baseline line.

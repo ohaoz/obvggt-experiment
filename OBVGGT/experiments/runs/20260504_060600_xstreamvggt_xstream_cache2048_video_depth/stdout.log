@@ -1,0 +1,23 @@
+The following values were not passed to `accelerate launch` and had defaults used instead:
+	`--num_machines` was set to a value of `1`
+	`--mixed_precision` was set to a value of `'no'`
+	`--dynamo_backend` was set to a value of `'no'`
+To avoid this warning pass in values for each of the problematic parameters or run `accelerate config`.
+usage: launch.py [-h] [--weights WEIGHTS] [--device DEVICE]
+                 [--output_dir OUTPUT_DIR] [--no_crop NO_CROP]
+                 [--eval_dataset {davis,kitti,bonn,nyu,scannet,tum,sintel}]
+                 [--size SIZE] [--pose_eval_stride POSE_EVAL_STRIDE]
+                 [--full_seq] [--seq_list SEQ_LIST [SEQ_LIST ...]]
+launch.py: error: unrecognized arguments: --max_frames 2
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1415, in <module>
+    main()
+  File "/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1411, in main
+    launch_command(args)
+  File "/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/accelerate/commands/launch.py", line 1405, in launch_command
+    simple_launcher(args)
+  File "/home/szw/.conda/envs/obvggt/lib/python3.11/site-packages/accelerate/commands/launch.py", line 993, in simple_launcher
+    raise subprocess.CalledProcessError(returncode=process.returncode, cmd=cmd)
+subprocess.CalledProcessError: Command '['/home/szw/.conda/envs/obvggt/bin/python', '../src/eval/video_depth/launch.py', '--weights', '/mnt/data5/OBVGGT/code/OBVGGT/ckpt/checkpoints.pth', '--output_dir', '/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/video_depth/xstreamvggt/sintel_xstreamvggt_xstream_cache2048', '--eval_dataset', 'sintel', '--size', '518', '--max_frames', '2']' returned non-zero exit status 2.

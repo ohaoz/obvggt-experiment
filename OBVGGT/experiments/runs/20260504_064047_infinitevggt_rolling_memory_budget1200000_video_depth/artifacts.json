@@ -1,0 +1,43 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/sintel_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/bonn_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/kitti_infinitevggt_rolling_memory_budget1200000/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/bonn_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 261
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/bonn_infinitevggt_rolling_memory_budget1200000/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 4287
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/kitti_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 254
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/kitti_infinitevggt_rolling_memory_budget1200000/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 10129
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/sintel_infinitevggt_rolling_memory_budget1200000/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 256
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/video_depth/infinitevggt/sintel_infinitevggt_rolling_memory_budget1200000/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 16936
+    }
+  ],
+  "updated_at": "2026-05-04T06:58:47+08:00"
+}

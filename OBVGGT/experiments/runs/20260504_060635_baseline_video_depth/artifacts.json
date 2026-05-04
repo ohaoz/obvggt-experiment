@@ -1,0 +1,43 @@
+{
+  "status": "DONE",
+  "output_root": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline",
+  "expected_artifacts": [
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/sintel_baseline/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/bonn_baseline/result_scale.json",
+    "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/kitti_baseline/result_scale.json"
+  ],
+  "missing_artifacts": [],
+  "artifacts": [
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/bonn_baseline/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 257
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/bonn_baseline/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 4198
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/kitti_baseline/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 258
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/kitti_baseline/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 10109
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/sintel_baseline/result_scale.json",
+      "name": "result_scale.json",
+      "size_bytes": 257
+    },
+    {
+      "path": "/mnt/data3/OBVGGT/infra_runtime_20260503/runs/eval_results/by_run/20260504_060635_baseline_video_depth/video_depth/baseline/sintel_baseline/system_metrics.json",
+      "name": "system_metrics.json",
+      "size_bytes": 16904
+    }
+  ],
+  "updated_at": "2026-05-04T06:25:02+08:00"
+}

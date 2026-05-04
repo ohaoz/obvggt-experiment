@@ -12,6 +12,13 @@
 
 | Run ID | Variant | Task | Date | Status | Run Record | 关键指标 |
 |--------|---------|------|------|--------|------------|----------|
+| `20260504_071552_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_071552_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=3/3, system=3/3 |
+| `20260504_065904_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_065904_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=3/3, system=3/3 |
+| `20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth` | `InfiniteVGGT` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_064047_infinitevggt_rolling_memory_budget1200000_video_depth/record.md` | result=3/3, system=3/3 |
+| `20260504_062516_xstreamvggt_xstream_cache2048_video_depth` | `XStreamVGGT` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_062516_xstreamvggt_xstream_cache2048_video_depth/record.md` | result=3/3, system=3/3 |
+| `20260504_060635_baseline_video_depth` | `StreamVGGT` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_060635_baseline_video_depth/record.md` | result=3/3, system=3/3 |
+| `20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth` | `InfiniteVGGT` | `video_depth` | `2026-05-04` | `FAILED` | `experiments/runs/20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth/record.md` | result=0/3, system=0/3 |
+| `20260504_060600_xstreamvggt_xstream_cache2048_video_depth` | `XStreamVGGT` | `video_depth` | `2026-05-04` | `FAILED` | `experiments/runs/20260504_060600_xstreamvggt_xstream_cache2048_video_depth/record.md` | result=0/3, system=0/3 |
 | `20260504_052145_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_052145_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=3/3, system=3/3 |
 | `20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_050435_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=3/3, system=3/3 |
 | `20260504_045003_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` | `obcache_p1_no_recent_ctrl` | `video_depth` | `2026-05-04` | `DONE` | `experiments/runs/20260504_045003_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth/record.md` | result=1/3, system=1/3 |

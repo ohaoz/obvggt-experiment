@@ -1,0 +1,31 @@
+{
+  "variant": "obcache_p1_no_recent_ctrl",
+  "description": "Supplemental local control: p=1 with no recent window and matched total budget (s1r0h4)",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Supplemental: p=1 + no recent window, matched total budget (1+0+4 frames).",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 1,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 0,
+    "num_heavy_frames": 4,
+    "probe_mode": true,
+    "num_patch_probes": 8
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}
