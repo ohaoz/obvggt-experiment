@@ -1,0 +1,32 @@
+{
+  "variant": "obcache_p1_no_recent_ctrl_prealloc_kv",
+  "description": "Runtime-equivalent control: p=1 no-recent OBCache with preallocated KV append/compaction buffers",
+  "runnable": true,
+  "repo_path": ".",
+  "model_family": "OBVGGT",
+  "model_name": "StreamVGGT",
+  "env_name": "obvggt",
+  "adapter": "run_obvggt.py",
+  "supported_tasks": [
+    "monodepth",
+    "video_depth",
+    "mv_recon",
+    "pose_co3d"
+  ],
+  "kv_policy_summary": "Runtime-equivalent: p=1 + no recent window, matched total budget, preallocated KV append/evict buffers.",
+  "kv_cache_enable": true,
+  "kv_cache_cfg": {
+    "enable": true,
+    "method": "obcvk",
+    "p": 1,
+    "use_vnorm": true,
+    "num_sink_frames": 1,
+    "num_recent_frames": 0,
+    "num_heavy_frames": 4,
+    "probe_mode": true,
+    "num_patch_probes": 8,
+    "prealloc_kv": true
+  },
+  "model": "StreamVGGT",
+  "checkpoint": "ckpt/checkpoints.pth"
+}

@@ -184,16 +184,120 @@ class StreamOBCacheLayerState:
     scored_frame_count: int = 0
     profile_times_ms: Optional[Dict[str, float]] = None
     profile_counts: Optional[Dict[str, int]] = None
+    prealloc_enabled: bool = False
+    k_storage: Optional[Tensor] = None
+    v_storage: Optional[Tensor] = None
+    k_scratch: Optional[Tensor] = None
+    v_scratch: Optional[Tensor] = None
+    _seq_len: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        if self._seq_len is None:
+            self._seq_len = int(self.k.size(-2))
 
     @property
     def seq_len(self) -> int:
-        return int(self.k.size(-2))
+        if self._seq_len is None:
+            self._seq_len = int(self.k.size(-2))
+        return int(self._seq_len)
 
     @property
     def max_cache_tokens(self) -> Optional[int]:
         if self.num_recent_tokens is None or self.num_heavy_tokens is None:
             return None
         return int(self.num_recent_tokens + self.num_heavy_tokens)
+
+    @property
+    def prealloc_capacity(self) -> int:
+        if self.k_storage is None:
+            return int(self.k.size(-2))
+        return int(self.k_storage.size(-2))
+
+    def _refresh_views(self) -> None:
+        if self.k_storage is None or self.v_storage is None:
+            return
+        self.k = self.k_storage[..., : self.seq_len, :]
+        self.v = self.v_storage[..., : self.seq_len, :]
+
+    def _ensure_prealloc_capacity(self, min_capacity: int) -> None:
+        target_capacity = int(max(min_capacity, self.seq_len))
+        if self.k_storage is not None and self.k_storage.size(-2) >= target_capacity:
+            return
+
+        current_k = self.k
+        current_v = self.v
+        shape_prefix = current_k.shape[:-2]
+        head_dim = int(current_k.size(-1))
+        device = current_k.device
+        dtype = current_k.dtype
+        cap = max(int(target_capacity), 1)
+
+        self.k_storage = torch.empty(*shape_prefix, cap, head_dim, device=device, dtype=dtype)
+        self.v_storage = torch.empty(*shape_prefix, cap, head_dim, device=current_v.device, dtype=current_v.dtype)
+        self.k_scratch = torch.empty_like(self.k_storage)
+        self.v_scratch = torch.empty_like(self.v_storage)
+        if self.seq_len > 0:
+            self.k_storage[..., : self.seq_len, :].copy_(current_k)
+            self.v_storage[..., : self.seq_len, :].copy_(current_v)
+        self._refresh_views()
+
+    def enable_prealloc(self, append_tokens: int) -> None:
+        append_tokens = max(int(append_tokens), 0)
+        target_capacity = self.seq_len + append_tokens
+        if self.max_cache_tokens is not None:
+            target_capacity = max(target_capacity, int(self.max_cache_tokens) + append_tokens)
+        self.prealloc_enabled = True
+        self._ensure_prealloc_capacity(target_capacity)
+
+    def append_kv(self, k_new: Tensor, v_new: Tensor) -> None:
+        num_new_tokens = int(k_new.size(-2))
+        if not self.prealloc_enabled:
+            self.k = torch.cat([self.k, k_new], dim=-2)
+            self.v = torch.cat([self.v, v_new], dim=-2)
+            self._seq_len = int(self.k.size(-2))
+            return
+
+        new_len = self.seq_len + num_new_tokens
+        self._ensure_prealloc_capacity(new_len)
+        assert self.k_storage is not None and self.v_storage is not None
+        self.k_storage[..., self.seq_len : new_len, :].copy_(k_new)
+        self.v_storage[..., self.seq_len : new_len, :].copy_(v_new)
+        self._seq_len = new_len
+        self._refresh_views()
+
+    def _truncate_to_last_tokens_prealloc(self, keep: int) -> None:
+        keep = max(int(keep), 0)
+        assert self.k_storage is not None and self.v_storage is not None
+        assert self.k_scratch is not None and self.v_scratch is not None
+        if keep > 0:
+            self.k_scratch[..., :keep, :].copy_(self.k[..., -keep:, :])
+            self.v_scratch[..., :keep, :].copy_(self.v[..., -keep:, :])
+            self.k_storage[..., :keep, :].copy_(self.k_scratch[..., :keep, :])
+            self.v_storage[..., :keep, :].copy_(self.v_scratch[..., :keep, :])
+        self._seq_len = keep
+        self._refresh_views()
+
+    def _gather_kv_prealloc(self, keep_topk_idx: Tensor, recent_cutoff: int) -> None:
+        assert self.k_storage is not None and self.v_storage is not None
+        assert self.k_scratch is not None and self.v_scratch is not None
+        topk = int(keep_topk_idx.size(-1))
+        recent_len = max(self.seq_len - int(recent_cutoff), 0)
+        total_keep = topk + recent_len
+        self._ensure_prealloc_capacity(total_keep)
+
+        if topk > 0:
+            k_index = keep_topk_idx.unsqueeze(-1).expand(-1, -1, -1, self.k.size(-1))
+            v_index = keep_topk_idx.unsqueeze(-1).expand(-1, -1, -1, self.v.size(-1))
+            torch.gather(self.k[..., :recent_cutoff, :], dim=-2, index=k_index, out=self.k_scratch[..., :topk, :])
+            torch.gather(self.v[..., :recent_cutoff, :], dim=-2, index=v_index, out=self.v_scratch[..., :topk, :])
+        if recent_len > 0:
+            self.k_scratch[..., topk:total_keep, :].copy_(self.k[..., recent_cutoff:, :])
+            self.v_scratch[..., topk:total_keep, :].copy_(self.v[..., recent_cutoff:, :])
+        if total_keep > 0:
+            self.k_storage[..., :total_keep, :].copy_(self.k_scratch[..., :total_keep, :])
+            self.v_storage[..., :total_keep, :].copy_(self.v_scratch[..., :total_keep, :])
+        self._seq_len = total_keep
+        self._refresh_views()
 
     def maybe_evict(self, num_coming: int = 0) -> None:
         if self.tracker is None:
@@ -205,12 +309,16 @@ class StreamOBCacheLayerState:
             before_len = int(self.seq_len)
             self.max_seq_len_seen = max(self.max_seq_len_seen, before_len)
             keep = max(max_cache - num_coming, 0)
-            if keep > 0:
+            if self.prealloc_enabled:
+                self._truncate_to_last_tokens_prealloc(keep)
+            elif keep > 0:
                 self.k = self.k[..., -keep:, :]
                 self.v = self.v[..., -keep:, :]
+                self._seq_len = int(self.k.size(-2))
             else:
                 self.k = self.k[..., :0, :]
                 self.v = self.v[..., :0, :]
+                self._seq_len = 0
             after_len = int(self.seq_len)
             self.evict_calls += 1
             self.evicted_tokens_total += max(before_len - after_len, 0)
@@ -231,8 +339,12 @@ class StreamOBCacheLayerState:
             layer_idx=0,
         ).to(self.k.device)
 
-        self.k = take_gather(self.k, keep_topk_idx, recent_cutoff, gather_dim=-2)
-        self.v = take_gather(self.v, keep_topk_idx, recent_cutoff, gather_dim=-2)
+        if self.prealloc_enabled:
+            self._gather_kv_prealloc(keep_topk_idx, recent_cutoff)
+        else:
+            self.k = take_gather(self.k, keep_topk_idx, recent_cutoff, gather_dim=-2)
+            self.v = take_gather(self.v, keep_topk_idx, recent_cutoff, gather_dim=-2)
+            self._seq_len = int(self.k.size(-2))
         after_len = int(self.seq_len)
         self.evict_calls += 1
         self.evicted_tokens_total += max(before_len - after_len, 0)
@@ -263,6 +375,9 @@ class StreamOBCacheLayerState:
             "scored_seq_len": float(self.scored_seq_len),
             "scored_frame_count": float(self.scored_frame_count),
         }
+        if self.prealloc_enabled:
+            snap["prealloc_kv_enabled"] = 1.0
+            snap["prealloc_kv_capacity"] = float(self.prealloc_capacity)
         if self.profile_times_ms:
             for name, elapsed_ms in self.profile_times_ms.items():
                 snap[f"profile_{name}_ms"] = float(elapsed_ms)

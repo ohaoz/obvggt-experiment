@@ -141,6 +141,8 @@ class Attention(nn.Module):
         )
         state.appended_tokens_total = int(num_new_tokens)
         state.max_seq_len_seen = int(k_all.size(-2))
+        if bool(obcache_cfg.get("prealloc_kv", False)):
+            state.enable_prealloc(append_tokens=num_new_tokens)
         return state
 
     @staticmethod
@@ -273,6 +275,7 @@ class Attention(nn.Module):
             k_new = self.rope(k_new, pos)
 
         state: Optional[StreamOBCacheLayerState] = None
+        previous_seq_len: int = 0
         obcache_enabled = bool(use_cache and obcache_cfg and obcache_cfg.get("enable", False))
         if use_cache:
             profile_enabled = _obcache_profile_enabled(obcache_cfg)
@@ -280,8 +283,9 @@ class Attention(nn.Module):
             cache_append_phase = phase_profile_start("obcache_cache_append", x) if obcache_enabled else None
             if isinstance(past_key_values, StreamOBCacheLayerState):
                 state = past_key_values
-                k_all = torch.cat([state.k, k_new], dim=-2)
-                v_all = torch.cat([state.v, v_new], dim=-2)
+                previous_seq_len = int(state.seq_len)
+                state.append_kv(k_new, v_new)
+                k_all, v_all = state.k, state.v
             elif past_key_values is not None:
                 past_k, past_v = past_key_values
                 k_all = torch.cat([past_k, k_new], dim=-2)
@@ -347,11 +351,8 @@ class Attention(nn.Module):
                 obcache_cfg=obcache_cfg,
             )
         else:
-            old_len = int(state.seq_len)
-            state.k = k_all
-            state.v = v_all
             state.frame_count += 1
-            state.reused_tokens_total += old_len
+            state.reused_tokens_total += previous_seq_len
             state.appended_tokens_total += int(N)
             state.max_seq_len_seen = max(state.max_seq_len_seen, int(k_all.size(-2)))
 
