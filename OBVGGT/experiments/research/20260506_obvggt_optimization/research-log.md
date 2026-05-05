@@ -66,3 +66,19 @@ changed. The research state and human roadmap were updated accordingly:
 - Decision: do not start the probe smoke in that remote directory. Use the
   runbook only after preparing a clean branch/worktree on a safe disk or after
   confirming an existing clean server checkout.
+
+## Probe Smoke Result
+
+- Prepared a clean checkout on `/mnt/data3/OBVGGT/research_20260506` and used
+  the clean branch `exp/2026-0506-obvggt-research-opt`.
+- Ran Bonn `balloon2`, 40-frame smoke for:
+  - ctrl: `20260506_024906_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth`
+  - probe6: `20260506_025001_obcache_p1_no_recent_probe6_joint_s1r0h4_video_depth`
+  - probe4: `20260506_025054_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth`
+- Gate checker result:
+  - probe6 failed: FPS `5.0544 -> 4.3749` (`-13.44%`), cache/seq unchanged,
+    depth metrics worse.
+  - probe4 failed: FPS `5.0544 -> 4.9659` (`-1.75%`), cache/seq unchanged,
+    depth metrics roughly comparable but no speed gain.
+- Decision: do not promote probe6/probe4 to Bonn full. This rejects the current
+  probe-count follow-up under the clean 2026-05-06 smoke gate.

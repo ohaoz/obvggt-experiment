@@ -49,6 +49,17 @@ Observed 2026-05-06 preflight:
 Decision from that preflight: do not run smoke there until a clean server
 checkout/worktree is prepared on a disk with enough headroom.
 
+Clean checkout prepared:
+
+- Root clone: `/mnt/data3/OBVGGT/research_20260506/code/OBVGGT`
+- Runnable OBVGGT repo: `/mnt/data3/OBVGGT/research_20260506/code/OBVGGT/OBVGGT`
+- Run/output root: `/mnt/data3/OBVGGT/research_20260506/runs`
+- Branch: `exp/2026-0506-obvggt-research-opt`
+- Commit: `29c9ff13aa6c0b3334d1ae8638c812a64f96f80a`
+- `data` and `ckpt` are symlinked from the existing prepared checkout.
+- `conda run -n obvggt` sees Torch `2.3.1+cu121`, CUDA available, required
+  Sintel/Bonn/KITTI eval roots, and `ckpt/checkpoints.pth`.
+
 ## Commands
 
 Use one GPU and keep the same Bonn sequence/prefix for all three runs.
@@ -153,3 +164,16 @@ and no update was required because the run did not pass promotion gates.
 - `probe6` or `probe4` passing smoke only authorizes Bonn full.
 - Bonn full passing authorizes full `sintel/bonn/kitti`.
 - Smoke passing does not by itself authorize a paper/report conclusion.
+
+## Executed Result
+
+Runs completed on the clean `/mnt/data3` checkout:
+
+| Label | Run ID | FPS | Delta vs ctrl | Cache max | Seq max | AbsRel | Gate |
+|---|---|---:|---:|---:|---:|---:|---|
+| ctrl | `20260506_024906_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth` | `5.0544` | `0.00%` | `5020` | `6024` | `0.094637` | reference |
+| probe6 | `20260506_025001_obcache_p1_no_recent_probe6_joint_s1r0h4_video_depth` | `4.3749` | `-13.44%` | `5020` | `6024` | `0.099921` | FAIL |
+| probe4 | `20260506_025054_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth` | `4.9659` | `-1.75%` | `5020` | `6024` | `0.094560` | FAIL |
+
+Decision: do not promote either candidate to Bonn full. The current probe-count
+follow-up is rejected under this clean smoke gate.

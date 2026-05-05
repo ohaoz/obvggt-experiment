@@ -280,6 +280,11 @@ Relevant synchronized tables:
   against StreamVGGT/XStreamVGGT/InfiniteVGGT.
 - `prealloc_kv_bonn_smoke_20260504.csv`: rejected current preallocation attempt.
 
+Update after the 2026-05-06 smoke: `probe_smoke_20260506.csv` now contains a
+clean Bonn `balloon2` 40-frame smoke for ctrl/probe6/probe4. Both candidates
+failed the promotion gate, so they remain rejected smoke results rather than
+accepted FPS candidates.
+
 ## Explicit Non-Goals
 
 - No layer-adaptive budget.

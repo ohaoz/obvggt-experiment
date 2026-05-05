@@ -116,6 +116,28 @@ local_validations:
   - name: probe_smoke_adapter_dry_run
     command: "scripts/run_obvggt.py --dry-run for ctrl/probe6/probe4 with --dataset-filter bonn --seq_list balloon2 --max_frames 40"
     result: "All three expand to launch.py plus eval_depth.py; probe count differs as intended."
+server_runs:
+  - name: probe_smoke_20260506
+    server: amd_server
+    checkout: /mnt/data3/OBVGGT/research_20260506/code/OBVGGT/OBVGGT
+    output_root: /mnt/data3/OBVGGT/research_20260506/runs/eval_results/by_run
+    dataset: "bonn:balloon2"
+    max_frames: 40
+    status: rejected
+    rows:
+      - label: ctrl
+        run_id: 20260506_024906_obcache_p1_no_recent_ctrl_backend_probe_joint_s1r0h4_video_depth
+        fps: 5.054376738201627
+      - label: probe6
+        run_id: 20260506_025001_obcache_p1_no_recent_probe6_joint_s1r0h4_video_depth
+        fps: 4.3748821090166246
+        fps_delta_pct_vs_ctrl: -13.443687805249958
+        gate: fail
+      - label: probe4
+        run_id: 20260506_025054_obcache_p1_no_recent_probe4_joint_s1r0h4_video_depth
+        fps: 4.965907389477671
+        fps_delta_pct_vs_ctrl: -1.7503512956462783
+        gate: fail
 future_algorithm_background:
   note: >
     The following ideas remain useful literature context but are not part of
