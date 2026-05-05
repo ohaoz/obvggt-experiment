@@ -178,6 +178,11 @@ Adapter audit:
 - All adapters forward unknown extra args into their target `launch.py`, but
   `--head_mode depth_only` is only proven for this OBVGGT branch's
   `eval/video_depth/launch.py`.
+- Local sibling repo mirrors under `G:\vggt\StreamVGGT`,
+  `G:\vggt\XStreamVGGT`, and `G:\vggt\InfiniteVGGT` do not expose
+  `--head_mode` in `src/eval/video_depth/launch.py`; their inference calls are
+  still plain `loss_of_one_batch(..., inference=True)` without
+  `inference_output_keys`.
 
 Consequence: before a cross-baseline depth-only table, first dry-run and, if
 needed, patch the XStreamVGGT/InfiniteVGGT adapters or target repos so they
