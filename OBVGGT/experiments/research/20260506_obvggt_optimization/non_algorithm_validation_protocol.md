@@ -115,6 +115,22 @@ Local dry-run validation confirmed this command shape expands to
 `launch.py --eval_dataset bonn --seq_list balloon2 --max_frames 40` followed by
 `eval_depth.py --eval_dataset bonn --align scale`.
 
+After artifacts are synced, use the read-only gate checker:
+
+```bash
+python OBVGGT/experiments/scripts/check_video_depth_gate.py \
+  --ctrl-system <ctrl>/system_metrics.json \
+  --cand-system <candidate>/system_metrics.json \
+  --ctrl-result <ctrl>/result_scale.json \
+  --cand-result <candidate>/result_scale.json \
+  --min-fps-gain-pct 3 \
+  --metric-abs-tol 1e-9 \
+  --cache-abs-tol 0
+```
+
+The checker was validated on the accepted RoPE Bonn full pair as a positive
+case and on ctrl-vs-ctrl as an expected failure case.
+
 ### Gate B: Depth-only fairness table
 
 Allowed because `head_mode=depth_only` changes the `video_depth` output contract,

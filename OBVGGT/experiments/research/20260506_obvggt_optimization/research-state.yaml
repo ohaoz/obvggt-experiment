@@ -94,6 +94,8 @@ next_hypotheses:
 artifacts:
   - path: OBVGGT/experiments/research/20260506_obvggt_optimization/non_algorithm_validation_protocol.md
     purpose: "Executable validation gates for allowed non-algorithm optimization directions."
+  - path: OBVGGT/experiments/scripts/check_video_depth_gate.py
+    purpose: "Read-only paired artifact gate checker for same-budget video_depth FPS claims."
 local_fixes:
   - name: runtime_diagnostics_safe_call
     scope: instrumentation_only
@@ -102,6 +104,13 @@ local_fixes:
       - OBVGGT/experiments/scripts/tests/test_runtime_diagnostics.py
     validation: "python -m unittest OBVGGT.experiments.scripts.tests.test_runtime_diagnostics"
     result: "Ran 7 tests; OK"
+local_validations:
+  - name: check_video_depth_gate_positive
+    command: "python OBVGGT/experiments/scripts/check_video_depth_gate.py on accepted RoPE Bonn full before/after artifacts"
+    result: "GATE: PASS"
+  - name: check_video_depth_gate_negative
+    command: "python OBVGGT/experiments/scripts/check_video_depth_gate.py on ctrl-vs-ctrl artifacts"
+    result: "GATE: FAIL with expected exit 2"
 future_algorithm_background:
   note: >
     The following ideas remain useful literature context but are not part of
