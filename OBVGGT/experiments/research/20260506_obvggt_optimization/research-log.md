@@ -39,3 +39,15 @@ changed. The research state and human roadmap were updated accordingly:
 - Do not claim `depth_only` as a general OBVGGT algorithm improvement; it is a `video_depth` task contract.
 - Do not adopt low-bit KV quantization until an offline attention-logit fidelity harness exists.
 - Do not implement algorithmic variants without explicit approval.
+
+## Second Pass: Non-Algorithm Protocol
+
+- Added `non_algorithm_validation_protocol.md` to map each allowed direction to
+  concrete code evidence, promotion gates, and rejection criteria.
+- Confirmed `video_depth` formal FPS is model-only; depth-map saving is outside
+  the timed model window and must be reported as wall-clock/output-mode work.
+- Confirmed OBCache scoring is a measurable hot path, but implementation changes
+  must preserve retained-index decisions before any end-to-end promotion.
+- Found and fixed a runtime diagnostics instrumentation bug: `_safe_call()`
+  returned `None` for all backend flag methods because its call block was
+  unreachable. Added unit-test coverage.

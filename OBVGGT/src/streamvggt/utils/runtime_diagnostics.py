@@ -51,6 +51,10 @@ def _safe_call(obj: Any, name: str) -> Optional[Any]:
     fn = getattr(obj, name, None)
     if fn is None:
         return None
+    try:
+        return fn()
+    except Exception:
+        return None
 
 
 def get_sdpa_backend_request() -> str:
@@ -104,10 +108,6 @@ def resolve_sdpa_backend_for_call(backend_request: str, q: Any, k: Any, v: Any, 
     if not (cuda_ok and dtype_ok and attn_mask is None):
         return "default"
     return backend
-    try:
-        return fn()
-    except Exception:
-        return None
 
 
 def _torch_environment() -> Dict[str, Any]:

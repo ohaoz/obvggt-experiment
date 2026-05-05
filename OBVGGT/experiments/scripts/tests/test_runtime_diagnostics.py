@@ -28,6 +28,19 @@ class RuntimeDiagnosticsTest(unittest.TestCase):
     def setUp(self):
         diag.snapshot_runtime_diagnostics(reset=True)
 
+    def test_safe_call_handles_success_missing_and_exception(self):
+        class Sample:
+            def ok(self):
+                return True
+
+            def broken(self):
+                raise RuntimeError("boom")
+
+        sample = Sample()
+        self.assertTrue(diag._safe_call(sample, "ok"))
+        self.assertIsNone(diag._safe_call(sample, "missing"))
+        self.assertIsNone(diag._safe_call(sample, "broken"))
+
     def test_record_rope2d_call_captures_first_sample(self):
         tokens = FakeTensor((1, 16, 1004, 64), (1028 * 64, 64, 64, 1))
         positions = FakeTensor((1, 1004, 2), (2008, 2, 1), dtype="fake.int64")
