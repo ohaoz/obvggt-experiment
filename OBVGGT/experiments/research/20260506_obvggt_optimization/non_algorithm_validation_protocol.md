@@ -37,6 +37,16 @@ must not be reported as strict model FPS improvements.
 Consequence: a fast-output mode is valid only as an eval-output/wall-clock
 optimization. It must keep metric inputs intact or be isolated from metric runs.
 
+`OBVGGT/src/eval/video_depth/eval_depth.py` uses `frame*.npy` predictions for
+Sintel, Bonn, and KITTI metrics:
+
+- Sintel: lines `110-112` glob `frame_*.npy`; lines `164-172` load with `np.load`.
+- Bonn: lines `256-258` glob `frame*.npy`; lines `276-284` load with `np.load`.
+- KITTI: lines `359-360` glob `frame_*.npy`; lines `377-384` load with `np.load`.
+
+Consequence: metric-preserving IO optimization may skip or defer PNG/colorbar
+visualization only if it still writes identical `.npy` depth arrays.
+
 ### OBCache scoring is measurable but semantically sensitive
 
 `OBVGGT/src/streamvggt/layers/attention.py` lines `200-235` show the scoring
@@ -135,7 +145,8 @@ Allowed only if labeled as experiment-throughput or output-mode work.
 
 Promotion gate:
 
-- Preserve metric-producing outputs for metric runs.
+- Preserve metric-producing `.npy` outputs for metric runs.
+- Treat PNG/colorbar/confidence visualization as optional wall-clock output.
 - Keep formal model FPS unchanged and clearly separated.
 - Add wall-clock fields or phase summaries rather than replacing FPS.
 - Verify that `eval_depth.py` still consumes the expected files for the selected mode.
