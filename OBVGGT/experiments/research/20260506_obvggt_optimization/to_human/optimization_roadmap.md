@@ -2,51 +2,69 @@
 
 ## Bottom Line
 
-The next credible OBVGGT gains should come from either:
+Current scope: OBVGGT is an OBCache-based method, and this branch must not
+change the core cache algorithm. The next credible work should focus on:
 
-1. Combining the accepted infra branch with already-defined same-budget probe variants.
-2. Expanding `depth_only` fairly across baselines for a stronger `video_depth` table.
-3. Moving beyond uniform OBCache budgets toward layer-adaptive or query-aware cache selection.
+1. Existing same-algorithm config validation (`probe6` / repeated `probe4`).
+2. Fair `video_depth` task-runtime comparison using `depth_only` across all baselines.
+3. Infra and measurement improvements that do not alter cache decisions.
 
-Do not spend more time rerunning the current `prealloc_kv` implementation. It is a confirmed negative.
+Do not spend more time rerunning the current `prealloc_kv` implementation. It
+is a confirmed negative. Do not treat `score_interval=2` as a same-budget
+speedup because it changes effective cache/sequence behavior.
 
 ## Immediate Experiment Queue
 
 | Priority | Candidate | Why now | Pass gate |
 |---|---|---|---|
-| P0 | `best_infra + probe6` | Existing config; tests known probe/speed tradeoff | Bonn smoke `>+3%`, no cache/seq/quality drift |
-| P0 | `best_infra + probe4` confirm | `probe4` had prior small same-budget signal | Full matrix only if repeated Bonn full survives |
-| P0 | `depth_only` for all baselines | Turns accepted task-runtime win into fair cross-model table | All baselines rerun with same `head_mode=depth_only` |
-| P1 | Layer-adaptive budget | PyramidKV-style insight; uniform layer budget likely suboptimal | Same total budget; full matrix quality guard |
-| P1 | Query-aware page selection | Quest/SnapKV-style; reduce scoring/attention reads | Keep-index overlap + Bonn smoke before full run |
-| P1 | Lower-precision scoring | Current scoring uses float32 matmul/softmax | Keep-index overlap first; then Bonn smoke |
-| P2 | Token merge/prune | Large possible speedup but geometry risk | Offline token maps + strict KITTI/Sintel guard |
-| P2 | KV quantization | Strong frontier direction but kernel-heavy | Offline q/k/v fidelity before runtime prototype |
+| P0 | `best_infra + probe6` | Existing config; no new OBCache policy | Bonn smoke `>+3%`, no cache/seq/quality drift |
+| P0 | `best_infra + probe4` confirm | Prior small same-budget signal | Full matrix only if repeated Bonn full survives |
+| P0 | `depth_only` for all baselines | Fair task-runtime table for `video_depth` | All baselines rerun with same `head_mode=depth_only` |
+| P1 | Eval IO wall-clock split | Faster experiment turnaround, formal FPS kept separate | Metrics unchanged; formal FPS label unchanged |
+| P1 | CUDA graph / regional compile feasibility | Possible infra gain without algorithm changes | Opt-in microbench first; compile overhead reported |
+| P1 | Scoring implementation microbench | Locate overhead without changing policy | Keep-index overlap first; otherwise reject |
+| P2 | Backend preflight logging expansion | Prevent false SDPA/TF32/CUDA conclusions | One-time logs, outside formal timing |
+
+## Out Of Current Scope
+
+These are not allowed in the current non-algorithm optimization branch because
+they change OBCache semantics or token-retention decisions:
+
+- Layer-adaptive cache budgets.
+- Query-aware probe/page selection.
+- New scoring formulas or eviction policies.
+- Visual token pruning or merging.
+- Runtime KV-cache quantization.
+
+They can be kept as background literature only. If pursued later, they should
+be explicit algorithm branches, not infra cleanups.
 
 ## Suggested First 24h Plan
 
-1. Create configs:
+1. Keep the current branch as a research/planning branch; do not alter core OBCache files for algorithmic behavior.
+2. Create or verify configs only for already-supported probe counts:
    - `obcache_p1_no_recent_ctrl_best_infra_probe6`
    - `obcache_p1_no_recent_ctrl_best_infra_probe4`
-2. Run paired Bonn 40-frame smoke:
-   - ctrl: current `obcache_p1_no_recent_ctrl`
-   - candidates: probe6/probe4 under this branch
-3. If one candidate beats ctrl by `>3%` with identical budget/metrics, run Bonn full.
-4. If Bonn full passes, run full `sintel/bonn/kitti`.
-5. In parallel, write a protocol for layer-adaptive budgets and implement only diagnostics first:
-   - per-layer cache size
-   - per-layer evict overlap
-   - per-layer score entropy
+3. Run paired Bonn 40-frame smoke:
+   - ctrl: current `obcache_p1_no_recent_ctrl` on the same infra branch
+   - candidates: probe6/probe4 under the same branch
+4. Promote a candidate only if FPS improves by `>3%` and `cache_max`, `seq_max`, and depth metrics match ctrl.
+5. If a candidate passes, run Bonn full, then full `sintel/bonn/kitti`.
+6. Separately prepare a `depth_only` fairness run plan for StreamVGGT, XStreamVGGT, InfiniteVGGT, and OBVGGT.
+7. Keep IO/compile/scoring work in opt-in diagnostics until a paired smoke justifies promotion.
 
-## Paper/Report Impact If Successful
+## Report Impact If Successful
 
-- `best_infra + probe6/probe4`: strengthens method FPS without changing task contract.
-- `depth_only` cross-baseline: strengthens deployment/runtime story for video_depth only.
-- Layer-adaptive/query-aware variants: could become a new algorithmic contribution beyond the current OBCache policy.
+- `best_infra + probe6/probe4`: strengthens OBVGGT FPS without changing the method.
+- `depth_only` cross-baseline: strengthens deployment/runtime story for `video_depth` only.
+- IO/compile/scoring diagnostics: improves reproducibility and may identify a later safe infra patch.
 
 ## Sources Used
 
 - FlashAttention-3: https://arxiv.org/abs/2407.08608
+- PyTorch CUDA Graphs: https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide.html
+- PyTorch regional compilation: https://docs.pytorch.org/tutorials/recipes/regional_compilation.html
+- PyTorch SDPA tutorial: https://docs.pytorch.org/tutorials/intermediate/scaled_dot_product_attention_tutorial.html
 - PyTorch FlexAttention inference: https://pytorch.org/blog/flexattention-for-inference/
 - H2O: https://papers.nips.cc/paper_files/paper/2023/hash/6ceefa7b15572587b78ecfcebb2827f8-Abstract-Conference.html
 - StreamingLLM: https://proceedings.iclr.cc/paper_files/paper/2024/hash/5e5fd18f863cbe6d8ae392a93fd271c9-Abstract-Conference.html

@@ -5,14 +5,32 @@ status: bootstrap_complete
 created_at: 2026-05-06
 objective: >
   Research and prioritize further OBVGGT optimizations beyond the accepted
-  RoPE fallback component cache and video_depth depth-only runtime mode.
+  RoPE fallback component cache and video_depth depth-only runtime mode,
+  without changing the core OBCache/OBVGGT algorithm.
 constraints:
+  - do_not_change_obcache_core_algorithm
+  - obvggt_is_obcache_based_keep_policy_semantics_fixed
   - do_not_touch_dirty_main_worktree
   - server_runs_must_use_conda_obvggt
   - no_sudo
   - no_system_disk_outputs
   - every_remote_run_requires_record_and_local_sync
   - paired_rerun_required_for_fps_claim
+scope:
+  allowed_now:
+    - same_algorithm_existing_config_validation
+    - inference_infra_and_kernel_selection
+    - profiling_and_backend_preflight_logs
+    - task_runtime_fairness_for_video_depth
+    - eval_io_wallclock_optimization_with_formal_fps_separated
+    - scoring_microbench_diagnostics_without_eviction_policy_change
+  out_of_scope_now:
+    - layer_adaptive_budget
+    - query_aware_probe_or_page_selection
+    - new_eviction_policy_or_scoring_formula
+    - token_pruning_or_token_merging
+    - kv_quantization_runtime_cache
+    - score_interval_as_same_budget_claim
 current_best_evidence:
   accepted_infra:
     name: pytorch_rope2d_fallback_component_cache
@@ -35,35 +53,50 @@ next_hypotheses:
     name: best_infra_plus_probe6
     class: low_risk_existing_config
     priority: P0
+    scope_note: "Allowed only as existing-configuration validation; do not change OBCache policy."
     prediction: "Probe6 may recover most of probe4 speed while reducing quality risk."
     gate: "Bonn paired smoke/full; same cache_max and seq_max; full matrix only if >3% median gain."
   - id: H2
     name: best_infra_plus_depth_only_cross_baseline
     class: task_runtime_fairness
     priority: P0
+    scope_note: "Task-output contract only; not an OBCache algorithm improvement."
     prediction: "Depth-only should improve all video_depth baselines when applied consistently."
     gate: "StreamVGGT/XStreamVGGT/InfiniteVGGT same-contract rerun."
   - id: H3
-    name: layer_adaptive_budget
-    class: algorithm_research
+    name: eval_io_wallclock_split_and_fast_mode
+    class: non_algorithm_runtime
     priority: P1
-    prediction: "PyramidKV-style per-layer budget may reduce compute or improve quality at same total budget."
-    gate: "Bonn smoke then full matrix; explicit same/relaxed budget labeling."
+    scope_note: "Allowed only if reported as wall-clock/evaluation throughput; formal model FPS is separate."
+    prediction: "save_depth_maps colorization/PNG/Numpy writes may dominate wall clock after model-side gains."
+    gate: "No change to result_scale metrics; formal_fps_valid remains from model-only timing; report wall-clock separately."
   - id: H4
-    name: query_aware_probe_or_page_selection
-    class: algorithm_research
+    name: cuda_graph_or_regional_compile_feasibility_probe
+    class: infra_research
     priority: P1
-    prediction: "Quest/SnapKV-like query-aware selection can reduce scoring or attention reads."
-    gate: "No cache-budget drift; compare cache hit, evict calls, quality."
+    scope_note: "Allowed only as opt-in prototype/microbench; no default change without paired evidence."
+    prediction: "Static-ish shapes may allow partial graph/compile gains, but dynamic cache and Python loops may block."
+    gate: "Import-safe, opt-in only, compile cold-start measured separately, full paired smoke if runtime win appears."
   - id: H5
-    name: visual_token_merge_or_prune
-    class: high_risk_geometry
+    name: scoring_implementation_microbench
+    class: diagnostics_only
     priority: P2
-    prediction: "ToMe/FastV-like token reduction may accelerate heads/aggregator but risks geometry quality."
-    gate: "microbench plus Sintel/KITTI quality guard before any Bonn-only claim."
+    scope_note: "No formula/policy change. Any precision/layout variant is diagnostic until keep indices match ctrl."
+    prediction: "OBCache scoring overhead may be reducible by implementation details, but eviction decisions must stay stable."
+    gate: "Keep-index overlap and quality parity before any end-to-end run; otherwise reject as algorithm-changing."
   - id: H6
-    name: kv_quantization
-    class: high_engineering_systems
+    name: backend_preflight_logging_expansion
+    class: instrumentation
     priority: P2
-    prediction: "KIVI/PolarQuant/TurboQuant-style KV quantization can reduce memory, but speed requires custom kernels."
-    gate: "offline attention-logit fidelity first; only then runtime prototype."
+    scope_note: "Logging only; do not force backend defaults without paired smoke evidence."
+    prediction: "SDPA/CUDNN/TF32/autocast backend evidence will prevent false infra conclusions."
+    gate: "One-time logs per run, no measurable overhead in formal timing."
+future_algorithm_background:
+  note: >
+    The following ideas remain useful literature context but are not part of
+    the current plan because they change OBCache semantics or token retention.
+  topics:
+    - layer_adaptive_budget
+    - query_aware_probe_or_page_selection
+    - visual_token_merge_or_prune
+    - kv_quantization_runtime_cache

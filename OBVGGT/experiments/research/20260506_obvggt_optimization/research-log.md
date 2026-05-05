@@ -19,7 +19,18 @@ The next best action is not another generic preallocation attempt. The highest-v
 
 1. Pair `best_infra` with existing same-budget `probe6`, because `probe4` had a small positive signal and `probe6` may be a safer speed/quality compromise.
 2. Apply `depth_only` fairly to all video_depth baselines if the goal is a stronger cross-baseline table.
-3. Start a separate P1 protocol for layer-adaptive budgets and query-aware selection, because recent KV-cache literature points to per-layer/per-head/query-aware allocation rather than uniform token budgets.
+3. Keep infra/microbench work limited to paths that do not change OBCache retention decisions.
+
+## Scope Correction After User Constraint
+
+User clarified: OBVGGT is based on OBCache and the core algorithm must not be
+changed. The research state and human roadmap were updated accordingly:
+
+- Layer-adaptive budgets moved out of the current execution queue.
+- Query-aware selection moved out of the current execution queue.
+- Token pruning/merging and runtime KV quantization moved out of scope.
+- Current work is limited to existing configs, backend/runtime infra, profiling,
+  eval wall-clock separation, and diagnostics that preserve keep decisions.
 
 ## Guardrails
 
@@ -27,3 +38,4 @@ The next best action is not another generic preallocation attempt. The highest-v
 - Do not rerun `prealloc_kv` as-is; it is already a negative result.
 - Do not claim `depth_only` as a general OBVGGT algorithm improvement; it is a `video_depth` task contract.
 - Do not adopt low-bit KV quantization until an offline attention-logit fidelity harness exists.
+- Do not implement algorithmic variants without explicit approval.

@@ -13,93 +13,131 @@ The code confirms the next hot path:
 
 - `OBVGGT/src/streamvggt/layers/attention.py` computes dense SDPA over the retained cache.
 - OBCache scoring uses `q_probe.float() @ K.float()`, `softmax`, and `A @ V` over retained tokens.
-- Probe selection is evenly spaced and cached, but it is not query-aware or layer-aware.
+- Probe selection is evenly spaced and cached.
 - Cache budget is uniform across layers.
+
+## Scope Correction: Keep OBCache Algorithm Fixed
+
+The current optimization pass must not change the core OBCache/OBVGGT algorithm.
+OBVGGT is based on OBCache, so the following are out of scope for this branch:
+
+- New eviction policies, new scoring formulas, or different token-retention semantics.
+- Layer-adaptive cache budgets, even if the total token count stays fixed.
+- Query-aware probe/page selection that changes which retained tokens are scored or attended.
+- Visual token pruning/merging.
+- Runtime KV quantization of the cache.
+- `score_interval=2` as a strict same-budget speed claim.
+
+Allowed work is limited to existing config validation, backend/kernel/runtime
+infrastructure, measurement, profiling, and evaluation wall-clock improvements
+that do not alter cache decisions.
 
 ## Ranked Hypotheses
 
 ### P0: best_infra + probe6
 
-Why: `probe4` was a small same-budget win; `probe6` is already configured and may be a better quality/speed compromise. This is the fastest useful experiment because it needs no code changes.
+Why: `probe4` was a small same-budget win; `probe6` is already configured and
+may be a better quality/speed compromise. This is the fastest useful experiment
+because it needs no code changes.
 
-Expected: `+1-4%` over ctrl or current best infra, with no budget drift. If it is below noise, stop.
+Expected: `+1-4%` over ctrl or current best infra, with no budget drift. If it
+is below noise, stop.
 
 Validation:
 
 - Paired Bonn smoke with current best infra as ctrl.
 - Bonn full only if smoke exceeds `+3%`.
 - Full `sintel/bonn/kitti` only if Bonn full passes.
+- Reject if `cache_max`, `seq_max`, or metrics drift beyond ctrl noise.
 
 ### P0: depth_only fairness expansion
 
-Why: `depth_only` is a strong runtime win, but current cross-baseline table is full-head. If the paper/report uses `depth_only`, every baseline must be rerun with that same task contract.
+Why: `depth_only` is a strong runtime win, but current cross-baseline table is
+full-head. If the paper/report uses `depth_only`, every baseline must be rerun
+with that same task contract.
 
-Expected: Higher FPS for all video_depth baselines, unchanged depth metrics. XStreamVGGT may still be fastest but lower quality.
+Expected: Higher FPS for all video_depth baselines, unchanged depth metrics.
+XStreamVGGT may still be fastest but lower quality.
 
 Validation:
 
-- Implement or expose equivalent head gating in StreamVGGT, XStreamVGGT, InfiniteVGGT adapters.
+- Expose equivalent head gating in StreamVGGT, XStreamVGGT, InfiniteVGGT only if
+  it does not change model internals.
 - Run same-window full `sintel/bonn/kitti`.
+- Label it as `video_depth` task-runtime, not OBVGGT algorithm speedup.
 
-### P1: layer-adaptive budget
+### P1: eval IO wall-clock split and optional fast mode
 
-Why: PyramidKV suggests uniform layer budgets are suboptimal. Visual geometry may need more cache in early/mid layers and less in later layers.
-
-Design:
-
-- Add `layer_budget_schedule` to `kv_cache_cfg`, e.g. `flat`, `front_heavy`, `mid_heavy`, `pyramid`.
-- Keep total token budget equal to ctrl for strict comparison.
-- Record per-layer cache sizes in diagnostics.
-
-Risk: This changes OBCache policy and must be reported as algorithmic, not infra.
-
-### P1: query-aware frame/page selection
-
-Why: Quest/SnapKV suggest query-aware page selection can avoid loading/scoring irrelevant KV. OBVGGT tokens have natural pages: frame, special tokens, and spatial patch groups.
+Why: `video_depth` formal FPS is model-only, but `save_depth_maps` still writes
+colorized PNG, colorbar images, and `.npy` files. After model-side speedups, IO
+can dominate server wall-clock and CI turnaround.
 
 Design:
 
-- Maintain per-frame/per-head summary statistics: min/max K, mean K, V norm, or centroid.
-- Use current-frame q probes to shortlist frame pages before full token scoring.
-- Keep exact OBCache budget after selection to avoid relaxed-budget claims.
+- Keep formal FPS timing unchanged.
+- Add or document a report-only wall-clock metric for postprocess/save time.
+- If implemented, any fast mode must be explicitly labeled as eval-output mode,
+  not model FPS.
 
-Risk: More complex than probe count changes; must prove no quality drop on KITTI.
+Risk: This improves experiment turnaround, not strict inference FPS.
 
-### P1: scoring kernel refactor
+### P1: CUDA graph or regional compile feasibility probe
 
-Why: OBCache scoring uses float32 dense matmul + softmax + value matmul. This is measurable overhead.
+Why: The model has repeated attention/head calls, and PyTorch has inference
+features for static-shape graph capture and regional compilation. However,
+dynamic cache length and Python control flow may block real gains.
+
+Design:
+
+- Start with microbench or opt-in wrapper only.
+- Measure compile/capture overhead separately from steady-state runtime.
+- Do not make it default unless paired Bonn smoke beats the current best branch.
+
+Risk: Compile cold start may hide the gain; graph capture can fail on dynamic
+allocation or unsupported ops.
+
+### P1: scoring implementation microbench
+
+Why: OBCache scoring uses float32 dense matmul + softmax + value matmul. This
+is measurable overhead.
 
 Design:
 
 - First isolate scoring-only microbench with current q/k/v shapes.
-- Test lower precision scoring (`bf16` or `fp16`) against score-ranking stability.
-- Test whether approximate top-k decisions match float32 decisions.
+- Test layout/contiguity/synchronization effects before changing arithmetic.
+- Treat lower precision scoring (`bf16` or `fp16`) as diagnostic only unless
+  retained-index decisions match the current float32 path.
+- Test whether any implementation variant preserves keep-index overlap.
 
-Risk: Small numerical changes can alter eviction and quality; must compare keep-index overlap before end-to-end runs.
+Risk: Small numerical changes can alter eviction and quality. If keep indices
+change, this is an algorithm change and is out of current scope.
 
-### P2: visual token merging/pruning
+### P2: backend preflight logging expansion
 
-Why: ToMe/FastV-like methods can accelerate visual transformers, but geometry tasks are sensitive to spatial detail.
-
-Design:
-
-- Only late-layer or non-depth-head tokens first.
-- Never merge special/register tokens.
-- Start with diagnostic-only token-importance maps before pruning.
-
-Risk: High quality risk, especially KITTI geometry.
-
-### P2: low-bit KV quantization
-
-Why: PolarQuant/TurboQuant/KIVI-style methods target exactly the KV memory bottleneck.
+Why: Prior forced SDPA Flash was negative, but backend dispatch can silently
+change across machines, PyTorch versions, and tensor shapes. The same applies
+to TF32/autocast/cuDNN attention settings.
 
 Design:
 
-- Capture q/k/v tensors from a Bonn sequence.
-- Offline test attention logit distortion and top-k/softmax-output error under int8/4bit/PolarQuant-like transforms.
-- Only implement runtime quantized cache if offline error is low.
+- Log PyTorch/CUDA version, GPU name, TF32 settings, SDPA backend availability,
+  and selected backend hints once per run.
+- Keep this outside formal timing or before timed loops.
+- Do not force a backend by default without paired evidence.
 
-Risk: Speed requires custom kernels or efficient dequantization; naive PyTorch quantization may reduce memory but slow runtime.
+Risk: Logging is low risk, but forced backend changes are not.
+
+## Out-of-Scope Algorithm Background
+
+These remain useful literature directions, but not for this non-algorithm pass:
+
+- Layer-adaptive budgets inspired by PyramidKV.
+- Query-aware selection inspired by Quest/SnapKV.
+- Visual token pruning/merging inspired by ToMe/FastV.
+- Runtime KV quantization inspired by KIVI/PolarQuant/TurboQuant.
+
+These would be separate algorithmic research branches and should require
+explicit approval before implementation.
 
 ## Rejected Or Low-Value Repeats
 
