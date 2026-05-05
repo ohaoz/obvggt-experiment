@@ -205,6 +205,19 @@ Promotion gate:
 
 Allowed only as opt-in infra research.
 
+Code-shape risk:
+
+- `streamvggt.py` lines `183-191` run a Python loop over frames and call the
+  aggregator once per frame with mutable `past_key_values`.
+- `aggregator.py` lines `268-283` run nested attention loops and mutate
+  per-layer cache entries.
+- `attention.py` lines `283-361` append KV, dispatch SDPA/fallback attention,
+  then update OBCache scoring and eviction.
+
+Consequence: full-model `torch.compile` or CUDA graph capture is likely to hit
+dynamic-state or guard/recompile issues. The safer first target is a repeated
+subregion microbench, not full `model.inference()`.
+
 Promotion gate:
 
 - Microbench first, no default behavior change.
