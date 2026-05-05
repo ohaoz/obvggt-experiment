@@ -143,17 +143,30 @@ local_patches:
     scope: task_runtime_contract_only
     files:
       - StreamVGGT/src/eval/video_depth/launch.py
+      - XStreamVGGT/src/eval/video_depth/eval_depth.py
       - StreamVGGT/src/dust3r/inference.py
       - StreamVGGT/src/streamvggt/models/streamvggt.py
       - XStreamVGGT/src/eval/video_depth/launch.py
       - XStreamVGGT/src/dust3r/inference.py
       - XStreamVGGT/src/streamvggt/models/streamvggt.py
       - InfiniteVGGT/src/eval/video_depth/launch.py
+      - InfiniteVGGT/src/eval/video_depth/eval_depth.py
       - InfiniteVGGT/src/dust3r/inference.py
       - InfiniteVGGT/src/streamvggt/models/streamvggt.py
       - OBVGGT/experiments/scripts/run_xstreamvggt.py
       - OBVGGT/experiments/scripts/run_infinitevggt.py
     invariant: "Default full-head behavior remains output_keys=None; no OBCache/attention/cache/scoring/eviction path changed."
+server_runtime_smokes:
+  - name: depth_only_runtime_smoke_20260506
+    server: amd_server
+    bundle: /mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571
+    dataset: "bonn:balloon2"
+    max_frames: 2
+    status: passed_code_path_smoke
+    note: "Not a formal FPS/accuracy conclusion."
+    artifacts:
+      - OBVGGT/experiments/analysis/artifacts/20260506_depth_only_runtime_smoke
+      - OBVGGT/experiments/analysis/tables/depth_only_runtime_smoke_20260506.csv
 server_runs:
   - name: probe_smoke_20260506
     server: amd_server

@@ -144,3 +144,25 @@ changed. The research state and human roadmap were updated accordingly:
 - Each server dry-run expanded to one Bonn launch command containing
   `--head_mode depth_only --max_frames 40 --seq_list balloon2` plus one Bonn
   `eval_depth.py` command.
+
+## Server Runtime Smoke Of Depth-Only Baselines
+
+- Found a complete runnable bundle with ckpt/data for all three sibling
+  baselines:
+  `/mnt/data3/OBVGGT/infra_runtime_20260503/code/2026-0503-infra-runtime-accel-6fc9571`.
+- Copied the opt-in depth-only patches into that bundle for server validation.
+- Ran StreamVGGT `depth_only` Bonn `balloon2` with `--max_frames 2`; launch and
+  metric evaluation completed and produced `result_scale.json`.
+- XStreamVGGT first launch completed and produced `system_metrics.json`, but
+  metric evaluation failed because its `eval_depth.py` lacked prefix pred/GT
+  alignment for `--max_frames` runs.
+- Patched XStreamVGGT and InfiniteVGGT `eval_depth.py` with the existing
+  StreamVGGT prefix alignment logic.
+- Re-ran XStreamVGGT and InfiniteVGGT `depth_only` Bonn `balloon2`
+  `--max_frames 2`; both produced `result_scale.json`.
+- Synced minimal smoke artifacts locally under
+  `analysis/artifacts/20260506_depth_only_runtime_smoke/` and wrote
+  `analysis/tables/depth_only_runtime_smoke_20260506.csv`.
+- Decision: the opt-in baseline `depth_only` code path is server-runtime
+  validated at smoke scale. It is still not a formal FPS/accuracy conclusion;
+  the next accepted result requires the planned paired/full smoke gates.

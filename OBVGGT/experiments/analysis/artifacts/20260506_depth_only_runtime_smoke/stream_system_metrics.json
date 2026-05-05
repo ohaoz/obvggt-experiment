@@ -1,0 +1,43 @@
+{
+  "summary": {
+    "num_sequences_total": 1,
+    "num_sequences_ok": 1,
+    "num_sequences_oom_skip": 0,
+    "num_sequences_other_skip": 0,
+    "total_frames": 2,
+    "total_elapsed_sec": 1.1713849063962698,
+    "overall_fps": 1.7073807158339946,
+    "avg_latency_ms_per_frame": 585.6924531981349,
+    "max_peak_allocated_mb": 7374.4658203125,
+    "max_peak_reserved_mb": 7744.0,
+    "kv_evicted_tokens_total": 0.0,
+    "kv_evict_calls_total": 0.0,
+    "kv_appended_tokens_total": 48192.0,
+    "kv_reused_tokens_total": 24096.0,
+    "kv_cache_hit_rate": 0.3333333333333333
+  },
+  "per_sequence": [
+    {
+      "sequence": "balloon2",
+      "status": "ok",
+      "head_mode": "depth_only",
+      "num_frames": 2,
+      "elapsed_sec": 1.1713849063962698,
+      "fps": 1.7073807158339946,
+      "latency_ms_per_frame": 585.6924531981349,
+      "peak_allocated_mb": 7374.4658203125,
+      "peak_reserved_mb": 7744.0,
+      "kv_total_layers": 24.0,
+      "kv_tracked_layers": 24.0,
+      "kv_cache_tokens_mean": 2008.0,
+      "kv_cache_tokens_min": 2008.0,
+      "kv_cache_tokens_max": 2008.0,
+      "kv_max_seq_len_seen": 2008.0,
+      "kv_evict_calls": 0.0,
+      "kv_evicted_tokens_total": 0.0,
+      "kv_appended_tokens_total": 48192.0,
+      "kv_reused_tokens_total": 24096.0,
+      "kv_cache_hit_rate": 0.3333333333333333
+    }
+  ]
+}

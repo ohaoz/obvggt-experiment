@@ -60,6 +60,9 @@ before smoke gates:
 - `run_infinitevggt.py` now uses the same resolver for normal `video_depth`
   unless `sequence_length` intentionally selects a long dataset.
 - Both adapters pass `dataset_filter` into expected-artifact generation.
+- XStreamVGGT and InfiniteVGGT `eval_depth.py` now share the existing
+  StreamVGGT prefix-eval alignment behavior, so `--max_frames` smoke outputs
+  can be evaluated against longer ground-truth sequences.
 
 ## Validation Gates
 
@@ -135,6 +138,9 @@ Local validation already run:
   `--dataset-filter bonn --head_mode depth_only --max_frames 40 --seq_list balloon2`.
 - All three dry-runs expanded to exactly one Bonn launch command plus one
   Bonn `eval_depth.py` command.
+- Server runtime smoke with `--max_frames 2 --seq_list balloon2` passed for
+  StreamVGGT, XStreamVGGT, and InfiniteVGGT. These runs are code-path checks
+  only, not FPS or accuracy conclusions.
 
 Server smoke gate:
 

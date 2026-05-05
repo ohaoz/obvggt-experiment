@@ -13,6 +13,18 @@ import json
 from eval.video_depth.metadata import dataset_metadata
 
 
+def _align_prefix_paths(pred_paths, gt_paths, key):
+    usable = min(len(pred_paths), len(gt_paths))
+    if usable <= 0:
+        return [], []
+    if len(pred_paths) != len(gt_paths):
+        print(
+            f"[prefix-eval] {key}: using first {usable} frame pairs "
+            f"(pred={len(pred_paths)}, gt={len(gt_paths)})"
+        )
+    return pred_paths[:usable], gt_paths[:usable]
+
+
 def get_args_parser():
     parser = argparse.ArgumentParser()
 
@@ -105,6 +117,9 @@ def main(args):
             for key in tqdm(grouped_pred_depth.keys()):
                 pd_pathes = grouped_pred_depth[key]
                 gt_pathes = grouped_gt_depth[key.replace("_pred_depth", "")]
+                pd_pathes, gt_pathes = _align_prefix_paths(pd_pathes, gt_pathes, key)
+                if not pd_pathes:
+                    continue
 
                 gt_depth = np.stack(
                     [depth_read(gt_path) for gt_path in gt_pathes], axis=0
@@ -215,10 +230,15 @@ def main(args):
         def get_video_results():
             grouped_pred_depth = group_by_directory(pred_pathes)
             grouped_gt_depth = group_by_directory(depth_pathes, idx=-2)
+            grouped_gt_depth = {key[10:]: value for key, value in grouped_gt_depth.items()}
             gathered_depth_metrics = []
-            for key in tqdm(grouped_gt_depth.keys()):
-                pd_pathes = grouped_pred_depth[key[10:]]
+            common_keys = sorted(set(grouped_pred_depth.keys()) & set(grouped_gt_depth.keys()))
+            for key in tqdm(common_keys):
+                pd_pathes = grouped_pred_depth[key]
                 gt_pathes = grouped_gt_depth[key]
+                pd_pathes, gt_pathes = _align_prefix_paths(pd_pathes, gt_pathes, key)
+                if not pd_pathes:
+                    continue
                 gt_depth = np.stack(
                     [depth_read(gt_path) for gt_path in gt_pathes], axis=0
                 )
@@ -318,6 +338,9 @@ def main(args):
             for key in tqdm(grouped_pred_depth.keys()):
                 pd_pathes = grouped_pred_depth[key]
                 gt_pathes = grouped_gt_depth[key]
+                pd_pathes, gt_pathes = _align_prefix_paths(pd_pathes, gt_pathes, key)
+                if not pd_pathes:
+                    continue
                 gt_depth = np.stack(
                     [depth_read(gt_path) for gt_path in gt_pathes], axis=0
                 )
