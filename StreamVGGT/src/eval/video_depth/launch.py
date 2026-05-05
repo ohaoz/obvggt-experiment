@@ -84,6 +84,13 @@ def get_args_parser():
         default=0,
         help="Random seed for reproducible prefix-eval and repeated baseline runs.",
     )
+    parser.add_argument(
+        "--head_mode",
+        type=str,
+        default="full",
+        choices=["full", "depth_only"],
+        help="When set to depth_only, skip non-depth heads for video_depth fairness runs.",
+    )
     return parser
 
 
@@ -174,7 +181,15 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     torch.cuda.synchronize(device)
                     torch.cuda.reset_peak_memory_stats(device)
                 start = time.perf_counter()
-                outputs = loss_of_one_batch(views, model, None, None, inference=True)
+                inference_output_keys = ["depth"] if args.head_mode == "depth_only" else None
+                outputs = loss_of_one_batch(
+                    views,
+                    model,
+                    None,
+                    None,
+                    inference=True,
+                    inference_output_keys=inference_output_keys,
+                )
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 end = time.perf_counter()
@@ -188,6 +203,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 seq_stats = {
                     "sequence": seq,
                     "status": "ok",
+                    "head_mode": args.head_mode,
                     "num_frames": int(num_frames),
                     "elapsed_sec": float(elapsed_sec),
                     "fps": float(num_frames / elapsed_sec),

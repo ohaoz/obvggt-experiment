@@ -76,6 +76,7 @@ def loss_of_one_batch(
     ret=None,
     img_mask=None,
     inference=False,
+    inference_output_keys=None,
 ):
     if len(batch) > 2:
         assert (
@@ -91,7 +92,7 @@ def loss_of_one_batch(
     with torch.cuda.amp.autocast(dtype=dtype):
         if inference:
             with torch.no_grad():
-                output = model.inference(batch, query_pts)
+                output = model.inference(batch, query_pts, output_keys=inference_output_keys)
                 preds, batch = output.ress, output.views
                 result = dict(views=batch, pred=preds)
                 kv_cache_stats = getattr(output, "kv_cache_stats", None)

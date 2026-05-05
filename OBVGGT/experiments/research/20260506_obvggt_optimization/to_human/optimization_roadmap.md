@@ -5,20 +5,19 @@
 Current scope: OBVGGT is an OBCache-based method, and this branch must not
 change the core cache algorithm. The next credible work should focus on:
 
-1. Existing same-algorithm config validation (`probe6` / repeated `probe4`).
-2. Fair `video_depth` task-runtime comparison using `depth_only` across all baselines.
-3. Infra and measurement improvements that do not alter cache decisions.
+1. Fair `video_depth` task-runtime comparison using `depth_only` across all baselines.
+2. Infra and measurement improvements that do not alter cache decisions.
+3. Eval/runtime diagnostics that make future FPS claims harder to misread.
 
-Do not spend more time rerunning the current `prealloc_kv` implementation. It
-is a confirmed negative. Do not treat `score_interval=2` as a same-budget
-speedup because it changes effective cache/sequence behavior.
+Do not spend more time rerunning the current `prealloc_kv` implementation or
+the current `probe4/probe6` variants. They are confirmed negative under smoke
+gates. Do not treat `score_interval=2` as a same-budget speedup because it
+changes effective cache/sequence behavior.
 
 ## Immediate Experiment Queue
 
 | Priority | Candidate | Why now | Pass gate |
 |---|---|---|---|
-| P0 | `best_infra + probe6` | Existing config; no new OBCache policy | Bonn smoke `>+3%`, no cache/seq/quality drift |
-| P0 | `best_infra + probe4` confirm | Prior small same-budget signal | Full matrix only if repeated Bonn full survives |
 | P0 | `depth_only` for all baselines | Fair task-runtime table for `video_depth` | All baselines rerun with same `head_mode=depth_only` |
 | P1 | Eval IO wall-clock split | Faster experiment turnaround, formal FPS kept separate | Metrics unchanged; formal FPS label unchanged |
 | P1 | CUDA graph / regional compile feasibility | Possible infra gain without algorithm changes | Opt-in microbench first; compile overhead reported |
@@ -42,20 +41,12 @@ be explicit algorithm branches, not infra cleanups.
 ## Suggested First 24h Plan
 
 1. Keep the current branch as a research/planning branch; do not alter core OBCache files for algorithmic behavior.
-2. Create or verify configs only for already-supported probe counts:
-   - `obcache_p1_no_recent_ctrl_best_infra_probe6`
-   - `obcache_p1_no_recent_ctrl_best_infra_probe4`
-3. Run paired Bonn 40-frame smoke:
-   - ctrl: current `obcache_p1_no_recent_ctrl` on the same infra branch
-   - candidates: probe6/probe4 under the same branch
-4. Promote a candidate only if FPS improves by `>3%` and `cache_max`, `seq_max`, and depth metrics match ctrl.
-5. If a candidate passes, run Bonn full, then full `sintel/bonn/kitti`.
-6. Separately prepare a `depth_only` fairness run plan for StreamVGGT, XStreamVGGT, InfiniteVGGT, and OBVGGT.
-7. Keep IO/compile/scoring work in opt-in diagnostics until a paired smoke justifies promotion.
+2. Treat the 2026-05-06 `probe4/probe6` smoke as closed unless a new non-algorithm implementation is proposed.
+3. Prepare a `depth_only` fairness run plan for StreamVGGT, XStreamVGGT, InfiniteVGGT, and OBVGGT.
+4. Keep IO/compile/scoring work in opt-in diagnostics until a paired smoke justifies promotion.
 
 ## Report Impact If Successful
 
-- `best_infra + probe6/probe4`: strengthens OBVGGT FPS without changing the method.
 - `depth_only` cross-baseline: strengthens deployment/runtime story for `video_depth` only.
 - IO/compile/scoring diagnostics: improves reproducibility and may identify a later safe infra patch.
 

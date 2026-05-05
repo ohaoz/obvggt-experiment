@@ -12,6 +12,7 @@ from adapter_utils import (
     metric_path_for_task,
     parse_json_arg,
     print_dry_run,
+    resolve_dataset_filter,
     repo_root_from,
     run_shell_commands,
     shell_join,
@@ -74,7 +75,7 @@ def build_commands(args):
             )
     elif args.task == "video_depth":
         src_root = repo_root / "src"
-        datasets = VIDEO_DEPTH_DATASETS
+        datasets = resolve_dataset_filter(VIDEO_DEPTH_DATASETS, args.dataset_filter)
         if args.sequence_length > 0 and "bonn_500" in (cfg.get("preferred_long_dataset") or "bonn_500"):
             datasets = [f"bonn_{args.sequence_length}"]
         for dataset in datasets:
@@ -205,7 +206,15 @@ def main():
         supported_tasks=SUPPORTED_TASKS,
         commands=commands,
     )
-    payload["expected_artifacts"] = [str(path) for path in metric_path_for_task(args.task, Path(args.output_root), args.result_tag)]
+    payload["expected_artifacts"] = [
+        str(path)
+        for path in metric_path_for_task(
+            args.task,
+            Path(args.output_root),
+            args.result_tag,
+            dataset_filter=args.dataset_filter,
+        )
+    ]
     if args.dry_run:
         print_dry_run(payload)
         return

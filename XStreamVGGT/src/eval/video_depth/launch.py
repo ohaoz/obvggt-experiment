@@ -62,6 +62,19 @@ def get_args_parser():
         default=None,
         help="list of sequences for pose evaluation",
     )
+    parser.add_argument(
+        "--max_frames",
+        type=int,
+        default=0,
+        help="If > 0, evaluate only the first N frames from each selected sequence.",
+    )
+    parser.add_argument(
+        "--head_mode",
+        type=str,
+        default="full",
+        choices=["full", "depth_only"],
+        help="When set to depth_only, skip non-depth heads for video_depth fairness runs.",
+    )
     return parser
 
 
@@ -133,6 +146,8 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 ]
                 filelist.sort()
                 filelist = filelist[:: args.pose_eval_stride]
+                if args.max_frames and args.max_frames > 0:
+                    filelist = filelist[: args.max_frames]
 
                 views = prepare_input(
                     filelist,
@@ -149,7 +164,15 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                     torch.cuda.synchronize(device)
                     torch.cuda.reset_peak_memory_stats(device)
                 start = time.perf_counter()
-                outputs = loss_of_one_batch(views, model, None, None, inference=True)
+                inference_output_keys = ["depth"] if args.head_mode == "depth_only" else None
+                outputs = loss_of_one_batch(
+                    views,
+                    model,
+                    None,
+                    None,
+                    inference=True,
+                    inference_output_keys=inference_output_keys,
+                )
                 if device.type == "cuda":
                     torch.cuda.synchronize(device)
                 end = time.perf_counter()
@@ -163,6 +186,7 @@ def eval_pose_estimation_dist(args, model, img_path, save_dir=None, mask_path=No
                 seq_stats = {
                     "sequence": seq,
                     "status": "ok",
+                    "head_mode": args.head_mode,
                     "num_frames": int(num_frames),
                     "elapsed_sec": float(elapsed_sec),
                     "fps": float(num_frames / elapsed_sec),

@@ -144,6 +144,18 @@ python OBVGGT/experiments/scripts/check_video_depth_gate.py \
 The checker was validated on the accepted RoPE Bonn full pair as a positive
 case and on ctrl-vs-ctrl as an expected failure case.
 
+Executed 2026-05-06 result:
+
+- ctrl: `5.0544 FPS`, `cache_max=5020`, `seq_max=6024`, AbsRel `0.094637`.
+- probe6: `4.3749 FPS` (`-13.44%`), `cache_max=5020`, `seq_max=6024`,
+  AbsRel `0.099921`; gate failed.
+- probe4: `4.9659 FPS` (`-1.75%`), `cache_max=5020`, `seq_max=6024`,
+  AbsRel `0.094560`; gate failed.
+
+Decision: current `probe6` and `probe4` variants are rejected. Do not promote
+them to Bonn full or full `sintel/bonn/kitti` without a new non-algorithm
+implementation rationale.
+
 ### Gate B: Depth-only fairness table
 
 Allowed because `head_mode=depth_only` changes the `video_depth` output contract,
@@ -170,24 +182,18 @@ contracts.
 
 Adapter audit:
 
-- `run_obvggt.py` and `run_streamvggt.py` both use `resolve_dataset_filter()`
-  for `video_depth`, so smoke/full subset selection is supported.
-- `run_xstreamvggt.py` and `run_infinitevggt.py` currently iterate their full
-  `VIDEO_DEPTH_DATASETS` list and do not consume `args.dataset_filter` for
-  `video_depth`.
-- All adapters forward unknown extra args into their target `launch.py`, but
-  `--head_mode depth_only` is only proven for this OBVGGT branch's
-  `eval/video_depth/launch.py`.
-- Local sibling repo mirrors under `G:\vggt\StreamVGGT`,
-  `G:\vggt\XStreamVGGT`, and `G:\vggt\InfiniteVGGT` do not expose
-  `--head_mode` in `src/eval/video_depth/launch.py`; their inference calls are
-  still plain `loss_of_one_batch(..., inference=True)` without
-  `inference_output_keys`.
+- `run_obvggt.py`, `run_streamvggt.py`, `run_xstreamvggt.py`, and
+  `run_infinitevggt.py` now use dataset filtering for normal `video_depth`
+  smoke runs.
+- StreamVGGT, XStreamVGGT, and InfiniteVGGT now expose opt-in
+  `--head_mode depth_only` in `src/eval/video_depth/launch.py`.
+- Their `dust3r/inference.py` and `streamvggt.models.streamvggt.StreamVGGT`
+  paths now forward `inference_output_keys` / `output_keys`.
+- Default full-head behavior remains `output_keys=None`.
 
-Consequence: before a cross-baseline depth-only table, first dry-run and, if
-needed, patch the XStreamVGGT/InfiniteVGGT adapters or target repos so they
-support the same dataset filter and the same output contract. Otherwise use the
-existing full-head cross-baseline table instead.
+Consequence: the branch is now ready for a server-side Bonn depth-only smoke
+for all baselines. It is not yet an accepted cross-baseline result until those
+server runs pass the metric/cache gates.
 
 ### Gate C: Eval IO wall-clock fast mode
 
@@ -251,24 +257,20 @@ Promotion gate:
 
 ## Current Ranking
 
-1. P0: paired `probe6` smoke under best infra. It is the smallest same-algorithm
-   experiment that can plausibly add FPS.
-2. P0: depth-only cross-baseline fairness plan. It converts an accepted
+1. P0: depth-only cross-baseline fairness plan. It converts an accepted
    task-runtime win into a fair table.
-3. P1: IO wall-clock split. It reduces server time but is not model FPS.
-4. P1: compile/CUDA graph feasibility. High uncertainty due dynamic cache and
+2. P1: IO wall-clock split. It reduces server time but is not model FPS.
+3. P1: compile/CUDA graph feasibility. High uncertainty due dynamic cache and
    Python control flow.
-5. P1: scoring microbench. Useful for diagnosis, but promotion is hard because
+4. P1: scoring microbench. Useful for diagnosis, but promotion is hard because
    keep decisions must remain unchanged.
-6. P2: backend logging. Low-risk support work; not an optimization by itself.
+5. P2: backend logging. Low-risk support work; not an optimization by itself.
 
 ## Existing Evidence Check
 
 Local `OBVGGT/experiments/analysis/tables/` currently contains full evidence
-for RoPE fallback, depth-only, cross-baseline full-head, and prealloc-KV
-rejection. It does not contain a dedicated probe summary CSV for `probe4` or
-`probe6`, so those remain unverified next experiments in this branch rather
-than accepted conclusions.
+for RoPE fallback, depth-only, cross-baseline full-head, prealloc-KV rejection,
+and the 2026-05-06 probe smoke rejection.
 
 Relevant synchronized tables:
 

@@ -34,21 +34,19 @@ that do not alter cache decisions.
 
 ## Ranked Hypotheses
 
-### P0: best_infra + probe6
+### Rejected: best_infra + probe6/probe4
 
-Why: `probe4` was a small same-budget win; `probe6` is already configured and
-may be a better quality/speed compromise. This is the fastest useful experiment
-because it needs no code changes.
+Why rejected: the clean 2026-05-06 server smoke reran ctrl/probe6/probe4 on
+Bonn `balloon2` with 40 frames under the same cache/sequence budget. The
+candidates did not improve FPS:
 
-Expected: `+1-4%` over ctrl or current best infra, with no budget drift. If it
-is below noise, stop.
+- ctrl: `5.0544 FPS`, `cache_max=5020`, `seq_max=6024`.
+- probe6: `4.3749 FPS` (`-13.44%`), `cache_max=5020`, `seq_max=6024`.
+- probe4: `4.9659 FPS` (`-1.75%`), `cache_max=5020`, `seq_max=6024`.
 
-Validation:
-
-- Paired Bonn smoke with current best infra as ctrl.
-- Bonn full only if smoke exceeds `+3%`.
-- Full `sintel/bonn/kitti` only if Bonn full passes.
-- Reject if `cache_max`, `seq_max`, or metrics drift beyond ctrl noise.
+Decision: do not promote current probe-count variants to Bonn full or the main
+result table. This remains a rejected existing-config check, not an algorithm
+change.
 
 ### P0: depth_only fairness expansion
 

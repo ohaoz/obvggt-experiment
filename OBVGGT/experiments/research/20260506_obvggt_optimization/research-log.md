@@ -82,3 +82,46 @@ changed. The research state and human roadmap were updated accordingly:
     depth metrics roughly comparable but no speed gain.
 - Decision: do not promote probe6/probe4 to Bonn full. This rejects the current
   probe-count follow-up under the clean 2026-05-06 smoke gate.
+
+## Post-Rejection Non-Algorithm Audit
+
+- User constraint reaffirmed: OBVGGT is OBCache-based; do not change the core
+  OBCache algorithm.
+- Updated project/research docs so current `probe4/probe6` and interval configs
+  are not presented as active same-budget FPS candidates.
+- Audited cross-baseline `depth_only` feasibility:
+  - OBVGGT already supports `--head_mode depth_only` through
+    `inference_output_keys=["depth"]`.
+  - StreamVGGT/XStreamVGGT/InfiniteVGGT did not expose the same launch,
+    inference, or model-output contract before this patch.
+  - XStreamVGGT/InfiniteVGGT adapters also lacked normal `video_depth`
+    `dataset_filter` support before this patch.
+- Added `depth_only_cross_baseline_runbook.md` and
+  `eval_io_wallclock_notes.md` as the next allowed work items.
+- Audited OBCache scoring equivalence boundary:
+  - scoring builds `qk_probe`, `A_probe`, and `O_probe` in `attention.py`;
+  - `StreamOBCScoreTracker.evict()` selects retained tokens with
+    `torch.topk(...).sort().values`;
+  - any scoring implementation change must prove exact `keep_topk_idx`
+    equality before it can be called non-algorithmic.
+- Added `scoring_microbench_equivalence_plan.md`.
+
+## Depth-Only Cross-Baseline Prep Patch
+
+- Added opt-in `--head_mode full|depth_only` support to StreamVGGT,
+  XStreamVGGT, and InfiniteVGGT `video_depth` launchers.
+- Added optional `inference_output_keys` forwarding in the three sibling
+  `dust3r/inference.py` files.
+- Added optional `output_keys` head gating in the three sibling
+  `streamvggt.models.streamvggt.StreamVGGT.inference()` methods.
+- Default `output_keys=None` preserves full-head behavior.
+- The aggregator, attention, cache, scoring, eviction, checkpoint loading,
+  preprocessing, and metrics paths were not changed.
+- Fixed XStreamVGGT/InfiniteVGGT `video_depth` adapters so `--dataset-filter`
+  works for Bonn smoke runs and expected artifacts.
+- Validation:
+  - `python -m compileall -q` on all patched launch/inference/model/adapter
+    files passed.
+  - StreamVGGT/XStreamVGGT/InfiniteVGGT dry-runs with
+    `--dataset-filter bonn --head_mode depth_only --max_frames 40 --seq_list balloon2`
+    each expanded to exactly one Bonn launch plus one Bonn metric command.

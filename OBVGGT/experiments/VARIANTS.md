@@ -47,12 +47,12 @@
 | Config 标签 | 用途 | 关键参数差异 |
 |---|---|---|
 | `obcache_p1_no_recent_ctrl_profile` | profiling only | 与 `obcache_p1_no_recent_ctrl` 同策略，但 `kv_cache_cfg.profile=true`，会引入同步计时开销 |
-| `obcache_p1_no_recent_probe4` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4` |
-| `obcache_p1_no_recent_probe6` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=6` |
-| `obcache_p1_no_recent_v_only_probe4` | FPS candidate | method=obcv, p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4` |
-| `obcache_p1_no_recent_interval2` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `score_interval=2` |
-| `obcache_p1_no_recent_interval3` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `score_interval=3` |
-| `obcache_p1_no_recent_v_only_interval2` | FPS candidate | method=obcv, p=1, sink=1/recent=0/heavy=4, `score_interval=2` |
+| `obcache_p1_no_recent_probe4` | Rejected smoke candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4`; 2026-05-06 Bonn 40-frame smoke `-1.75%` FPS vs ctrl |
+| `obcache_p1_no_recent_probe6` | Rejected smoke candidate | p=1, sink=1/recent=0/heavy=4, `num_patch_probes=6`; 2026-05-06 Bonn 40-frame smoke `-13.44%` FPS vs ctrl |
+| `obcache_p1_no_recent_v_only_probe4` | Unpromoted config | method=obcv, p=1, sink=1/recent=0/heavy=4, `num_patch_probes=4`; scoring-method variant, not part of current non-algorithm plan |
+| `obcache_p1_no_recent_interval2` | Invalid same-budget speed claim | p=1, sink=1/recent=0/heavy=4, `score_interval=2`; observed cache/sequence budget drift, do not use as strict FPS conclusion |
+| `obcache_p1_no_recent_interval3` | Unpromoted / high-risk config | p=1, sink=1/recent=0/heavy=4, `score_interval=3`; likely same semantic risk as interval2 until budget gate proves otherwise |
+| `obcache_p1_no_recent_v_only_interval2` | Invalid same-budget speed claim | method=obcv, p=1, sink=1/recent=0/heavy=4, `score_interval=2`; combines scoring-method and interval changes, not current non-algorithm plan |
 
 ### Infra / runtime variants（`exp/2026-0503-infra-runtime-accel`）
 

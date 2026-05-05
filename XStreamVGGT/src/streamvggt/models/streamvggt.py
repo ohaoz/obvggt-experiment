@@ -159,10 +159,19 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                 ress.append(res)
             return StreamVGGTOutput(ress=ress, views=views)  # [S] [B, C, H, W]
         
-    def inference(self, frames, query_points: torch.Tensor = None, past_key_values=None):  
+    def inference(self, frames, query_points: torch.Tensor = None, past_key_values=None, output_keys: Optional[List[str]] = None):
+        requested_outputs = self._normalize_inference_output_keys(output_keys)
+        run_depth = "depth" in requested_outputs
+        run_camera = "camera" in requested_outputs
+        run_points = "points" in requested_outputs
+        run_track = "track" in requested_outputs
         # import pdb; pdb.set_trace()       # enter inference
         past_key_values = [None] * self.aggregator.depth # 24
-        past_key_values_camera = [None] * self.camera_head.trunk_depth
+        past_key_values_camera = (
+            [None] * self.camera_head.trunk_depth
+            if run_camera and self.camera_head is not None
+            else None
+        )
         kv_stats_accum: Dict[str, float] = {
             "reused_tokens_total": 0.0,
             "appended_tokens_total": 0.0,
@@ -198,50 +207,62 @@ class StreamVGGT(nn.Module, PyTorchModelHubMixin):
                 )
             
             with torch.cuda.amp.autocast(enabled=False):
-                if self.camera_head is not None:
+                frame_outputs = {}
+                if run_camera and self.camera_head is not None:
                     pose_enc, past_key_values_camera = self.camera_head(aggregated_tokens, past_key_values_camera=past_key_values_camera, use_cache=True)
                     pose_enc = pose_enc[-1]
-                    camera_pose = pose_enc[:, 0, :]
+                    frame_outputs['camera_pose'] = pose_enc[:, 0, :]
 
-                if self.depth_head is not None:
+                if run_depth and self.depth_head is not None:
                     depth, depth_conf = self.depth_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx
                     )
-                    depth = depth[:, 0] 
-                    depth_conf = depth_conf[:, 0]
+                    frame_outputs['depth'] = depth[:, 0]
+                    frame_outputs['depth_conf'] = depth_conf[:, 0]
                 
-                if self.point_head is not None:
+                if run_points and self.point_head is not None:
                     pts3d, pts3d_conf = self.point_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx
                     )
-                    pts3d = pts3d[:, 0] 
-                    pts3d_conf = pts3d_conf[:, 0]
+                    frame_outputs['pts3d_in_other_view'] = pts3d[:, 0]
+                    frame_outputs['conf'] = pts3d_conf[:, 0]
 
-                if self.track_head is not None and query_points is not None:
+                if run_track and self.track_head is not None and query_points is not None:
                     track_list, vis, conf = self.track_head(
                         aggregated_tokens, images=images, patch_start_idx=patch_start_idx, query_points=query_points
                 )
                     track = track_list[-1][:, 0]  
                     query_points = track
-                    vis = vis[:, 0]
-                    track_conf = conf[:, 0]
+                    frame_outputs['track'] = track
+                    frame_outputs['vis'] = vis[:, 0]
+                    frame_outputs['track_conf'] = conf[:, 0]
 
-            all_ress.append({
-                'pts3d_in_other_view': pts3d,
-                'conf': pts3d_conf,
-                'depth': depth,
-                'depth_conf': depth_conf,
-                'camera_pose': camera_pose,
-                **({'valid_mask': frame["valid_mask"]}
-                    if 'valid_mask' in frame else {}),  
-
-                **({'track': track, 
-                    'vis': vis,  
-                    'track_conf': track_conf}
-                if query_points is not None else {})
-            })
+            if 'valid_mask' in frame:
+                frame_outputs['valid_mask'] = frame["valid_mask"]
+            all_ress.append(frame_outputs)
             processed_frames.append(frame)
         
         kv_cache_stats = self._finalize_kv_cache_stats(past_key_values, kv_stats_accum)
         output = StreamVGGTOutput(ress=all_ress, views=processed_frames, kv_cache_stats=kv_cache_stats)
         return output
+
+    @staticmethod
+    def _normalize_inference_output_keys(output_keys: Optional[List[str]]) -> set:
+        if output_keys is None:
+            return {"camera", "depth", "points", "track"}
+        normalized = set()
+        for key in output_keys:
+            value = str(key).strip().lower()
+            if value in {"all", "full"}:
+                return {"camera", "depth", "points", "track"}
+            if value in {"camera", "camera_pose", "pose", "pose_enc"}:
+                normalized.add("camera")
+            elif value in {"depth", "depth_conf"}:
+                normalized.add("depth")
+            elif value in {"points", "point", "pts3d", "world_points", "pts3d_in_other_view", "conf"}:
+                normalized.add("points")
+            elif value in {"track", "tracks", "vis", "track_conf"}:
+                normalized.add("track")
+            else:
+                raise ValueError(f"Unsupported inference output key: {key}")
+        return normalized

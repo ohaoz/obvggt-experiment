@@ -1,7 +1,7 @@
 project: obvggt_optimization_20260506
 branch: exp/2026-0506-obvggt-research-opt
 base_branch: exp/2026-0503-infra-runtime-accel
-status: non_algorithm_protocol_complete
+status: non_algorithm_probe_smoke_rejected
 created_at: 2026-05-06
 objective: >
   Research and prioritize further OBVGGT optimizations beyond the accepted
@@ -24,6 +24,7 @@ scope:
     - task_runtime_fairness_for_video_depth
     - eval_io_wallclock_optimization_with_formal_fps_separated
     - scoring_microbench_diagnostics_without_eviction_policy_change
+    - opt_in_video_depth_head_mode_contract_for_baselines
   out_of_scope_now:
     - layer_adaptive_budget
     - query_aware_probe_or_page_selection
@@ -52,10 +53,18 @@ next_hypotheses:
   - id: H1
     name: best_infra_plus_probe6
     class: low_risk_existing_config
-    priority: P0
+    priority: rejected
     scope_note: "Allowed only as existing-configuration validation; do not change OBCache policy."
     prediction: "Probe6 may recover most of probe4 speed while reducing quality risk."
-    gate: "Bonn paired smoke/full; same cache_max and seq_max; full matrix only if >3% median gain."
+    gate: "Failed 2026-05-06 Bonn balloon2 40-frame smoke; do not promote to Bonn full."
+    result: "FPS 5.0544 -> 4.3749 (-13.44%) with cache_max=5020 and seq_max=6024 unchanged."
+  - id: H1b
+    name: best_infra_plus_probe4
+    class: low_risk_existing_config
+    priority: rejected
+    scope_note: "Allowed only as existing-configuration validation; do not change OBCache policy."
+    gate: "Failed 2026-05-06 Bonn balloon2 40-frame smoke; do not promote to Bonn full."
+    result: "FPS 5.0544 -> 4.9659 (-1.75%) with cache_max=5020 and seq_max=6024 unchanged."
   - id: H2
     name: best_infra_plus_depth_only_cross_baseline
     class: task_runtime_fairness
@@ -98,6 +107,12 @@ artifacts:
     purpose: "Read-only paired artifact gate checker for same-budget video_depth FPS claims."
   - path: OBVGGT/experiments/research/20260506_obvggt_optimization/server_probe_smoke_runbook.md
     purpose: "Server SOP for ctrl/probe6/probe4 Bonn 40-frame smoke and local sync."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/depth_only_cross_baseline_runbook.md
+    purpose: "Next non-algorithm runbook for fair video_depth depth-only cross-baseline comparison."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/eval_io_wallclock_notes.md
+    purpose: "Audit notes for optional metric-only output mode and wall-clock reporting."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/scoring_microbench_equivalence_plan.md
+    purpose: "Diagnostics-only scoring microbench plan with exact keep-index equivalence gate."
 local_fixes:
   - name: runtime_diagnostics_safe_call
     scope: instrumentation_only
@@ -116,6 +131,25 @@ local_validations:
   - name: probe_smoke_adapter_dry_run
     command: "scripts/run_obvggt.py --dry-run for ctrl/probe6/probe4 with --dataset-filter bonn --seq_list balloon2 --max_frames 40"
     result: "All three expand to launch.py plus eval_depth.py; probe count differs as intended."
+  - name: depth_only_cross_baseline_dry_run
+    command: "run_streamvggt.py/run_xstreamvggt.py/run_infinitevggt.py --dry-run with --dataset-filter bonn --head_mode depth_only --max_frames 40 --seq_list balloon2"
+    result: "All three expand to one Bonn launch command plus one Bonn eval_depth command."
+local_patches:
+  - name: cross_baseline_depth_only_contract
+    scope: task_runtime_contract_only
+    files:
+      - StreamVGGT/src/eval/video_depth/launch.py
+      - StreamVGGT/src/dust3r/inference.py
+      - StreamVGGT/src/streamvggt/models/streamvggt.py
+      - XStreamVGGT/src/eval/video_depth/launch.py
+      - XStreamVGGT/src/dust3r/inference.py
+      - XStreamVGGT/src/streamvggt/models/streamvggt.py
+      - InfiniteVGGT/src/eval/video_depth/launch.py
+      - InfiniteVGGT/src/dust3r/inference.py
+      - InfiniteVGGT/src/streamvggt/models/streamvggt.py
+      - OBVGGT/experiments/scripts/run_xstreamvggt.py
+      - OBVGGT/experiments/scripts/run_infinitevggt.py
+    invariant: "Default full-head behavior remains output_keys=None; no OBCache/attention/cache/scoring/eviction path changed."
 server_runs:
   - name: probe_smoke_20260506
     server: amd_server

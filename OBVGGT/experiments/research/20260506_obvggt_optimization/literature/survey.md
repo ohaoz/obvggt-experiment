@@ -97,15 +97,16 @@ Low-bit KV quantization is a major frontier. PolarQuant reports over `4.2x` KV c
 
 Immediate practical work:
 
-1. `best_infra + probe6` paired gate.
-2. Cross-baseline `depth_only` fairness table.
-3. Eval IO wall-clock split and optional fast-output mode.
-4. CUDA graph/regional compile feasibility only as opt-in infra microbench.
-5. Scoring implementation diagnostics with keep-index overlap as the guard.
+1. Cross-baseline `depth_only` fairness table.
+2. Eval IO wall-clock split and optional fast-output mode.
+3. CUDA graph/regional compile feasibility only as opt-in infra microbench.
+4. Scoring implementation diagnostics with keep-index overlap as the guard.
+5. Backend preflight logging expansion for reproducibility.
 
 Defer:
 
 - FlashAttention-3 unless H100/Hopper or compatible kernels are available.
+- Current `probe4/probe6` configs; the 2026-05-06 smoke rejected both.
 - TurboQuant/PolarQuant until offline fidelity and compressed-kernel path exist.
 - ToMe/FastV until a geometry-safe token-reduction protocol is defined.
 - Layer-adaptive and query-aware OBCache variants until an explicit algorithm branch is approved.
