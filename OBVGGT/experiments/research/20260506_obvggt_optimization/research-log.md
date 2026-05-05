@@ -51,3 +51,18 @@ changed. The research state and human roadmap were updated accordingly:
 - Found and fixed a runtime diagnostics instrumentation bug: `_safe_call()`
   returned `None` for all backend flag methods because its call block was
   unreachable. Added unit-test coverage.
+
+## Server Preflight Attempt
+
+- `ssh amd_server` and SSH-config direct commands routed to a timed-out
+  `100.125.15.86:22`; bypassed local SSH config with
+  `ssh -F NUL -o ProxyCommand=none -p 2222 szw@192.168.166.137`.
+- `amd_server` was reachable through direct port `2222`.
+- Preflight did not satisfy run conditions:
+  - GPU 1 and GPU 3 were busy; GPU 0 and GPU 2 were idle.
+  - `/mnt/data5` was at `97%` usage with about `149G` available.
+  - `/mnt/data5/OBVGGT/code/OBVGGT` was on branch `main` with many dirty and
+    untracked files, not the clean research branch.
+- Decision: do not start the probe smoke in that remote directory. Use the
+  runbook only after preparing a clean branch/worktree on a safe disk or after
+  confirming an existing clean server checkout.

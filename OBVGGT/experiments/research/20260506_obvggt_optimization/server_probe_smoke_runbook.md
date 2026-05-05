@@ -37,6 +37,18 @@ git rev-parse HEAD
 Stop if the target GPU is occupied, the branch is wrong, or the target disk is
 near full.
 
+Observed 2026-05-06 preflight:
+
+- Direct SSH required bypassing local SSH config:
+  `ssh -F NUL -o ProxyCommand=none -p 2222 szw@192.168.166.137`.
+- GPU 0 and 2 were idle, but GPU 1 and 3 were busy.
+- `/mnt/data5` was `97%` used with about `149G` available.
+- `/mnt/data5/OBVGGT/code/OBVGGT` was dirty `main`, not a clean research
+  branch.
+
+Decision from that preflight: do not run smoke there until a clean server
+checkout/worktree is prepared on a disk with enough headroom.
+
 ## Commands
 
 Use one GPU and keep the same Bonn sequence/prefix for all three runs.
