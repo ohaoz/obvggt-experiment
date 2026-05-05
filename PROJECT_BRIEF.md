@@ -1,6 +1,6 @@
 # PROJECT_BRIEF
 
-Last updated: 2026-05-04
+Last updated: 2026-05-06
 
 ## What This Workspace Is
 - Multi-repo workspace for VGGT long-sequence / KV-cache evaluation and reproduction.
@@ -20,6 +20,8 @@ Last updated: 2026-05-04
 - `pose_co3d` is supplementary and still incomplete because annotation / result cleanup is unfinished.
 - As of May 4, 2026, a same-machine same-window `video_depth` rerun on the 48GB RTX 4090D exists for `StreamVGGT`, `XStreamVGGT`, `InfiniteVGGT`, `OBVGGT_ctrl` (`4999abd`), and `OBVGGT_best_infra` (`6fc9571`).
 - Accepted branch-local infra result: PyTorch RoPE2D fallback component caching is a same-cache-budget `OBVGGT video_depth` optimization. The tight paired gate remains `4999abd -> 87e056a`, with FPS gains of `+14.04%` on Sintel, `+8.21%` on Bonn, and `+5.56%` on KITTI at unchanged cache budget and depth metrics.
+- Accepted branch-local task-runtime result: `depth_only` is a same-budget `video_depth` optimization for `OBVGGT`, but it remains task-specific and is not yet a cross-model fairness setting.
+- Rejected branch-local runtime-equivalent candidate: `obcache_p1_no_recent_ctrl_prealloc_kv` failed the paired Bonn smoke gate, dropping FPS from `5.9636` to `5.4050` and raising peak allocated memory from `8819 MB` to `9845 MB` at unchanged depth metrics.
 - The broader fairness window `4999abd -> 6fc9571` only showed `+3.19% / +3.18% / +0.08%` FPS. Use it as a cross-baseline comparison window, not as the primary effect-size estimate for the infra claim.
 - In that 48GB full-head window, `OBVGGT_best_infra` is much better than `StreamVGGT` on Bonn (`6.02 vs 3.17 FPS`, `-51.6%` peak memory, better AbsRel), slightly faster and much more accurate on KITTI (`6.11 vs 5.85 FPS`, AbsRel `0.0991 vs 0.1725`), and roughly equal-FPS but lower-memory on Sintel.
 - `XStreamVGGT` is the fastest full-head baseline in that window, but it is clearly worse than `OBVGGT_best_infra` on Bonn/KITTI accuracy; `InfiniteVGGT` is slower and less accurate than `OBVGGT_best_infra` on Bonn/KITTI.

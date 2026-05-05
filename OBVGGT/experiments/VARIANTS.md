@@ -54,6 +54,21 @@
 | `obcache_p1_no_recent_interval3` | FPS candidate | p=1, sink=1/recent=0/heavy=4, `score_interval=3` |
 | `obcache_p1_no_recent_v_only_interval2` | FPS candidate | method=obcv, p=1, sink=1/recent=0/heavy=4, `score_interval=2` |
 
+### Infra / runtime variants（`exp/2026-0503-infra-runtime-accel`）
+
+以下变体用于 runtime / backend / kernel 层验证，不应自动解释成 OBCache 算法改进。
+
+| Config 标签 | 用途 | 当前状态 |
+|---|---|---|
+| `obcache_p1_no_recent_ctrl_backend_probe` | 记录 RoPE2D / SDPA backend、shape、dtype、GPU、torch/cuda version | Accepted instrumentation |
+| `obcache_p1_no_recent_ctrl_profile` | phase profile，区分 aggregator / RoPE / SDPA / OBCache / heads / IO | Profile-only，formal FPS 无效 |
+| `obcache_p1_no_recent_ctrl_sdpa_flash` | 强制 SDPA Flash backend | Rejected candidate；本环境不如 default dispatch |
+| `obcache_p1_no_recent_ctrl_sdpa_efficient` | 强制 SDPA efficient backend | Instrumentation-only；未进入 accepted candidate |
+| `obcache_p1_no_recent_ctrl_sdpa_math` | 强制 SDPA math backend | Instrumentation-only；未进入 accepted candidate |
+| `obcache_p1_no_recent_ctrl_depth_only` | `video_depth` 仅保留 depth 所需 heads | Accepted `video_depth` task-runtime candidate |
+| `full_cache_depth_only` | full-cache 下验证 depth-only contract | Control-only；显存更高，不作为主候选 |
+| `obcache_p1_no_recent_ctrl_prealloc_kv` | 预分配 OBCache KV buffer，避免 append/evict 分配 | Rejected candidate；paired Bonn smoke 更慢且更占显存 |
+
 ## 3. 如何解释历史标签
 - `baseline`：历史上在本目录中表示 `StreamVGGT` 基线线。
 - `obcache`：历史上在本目录中表示当前 `OBVGGT` 线，而不是“继续新增一个独立 OBCache baseline”。

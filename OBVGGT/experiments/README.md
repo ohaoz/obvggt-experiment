@@ -49,13 +49,15 @@ $STREAMVGGT_RUNS/eval_results/
 - `experiments/analysis/SUMMARY.md`：看“已经整理过的结论”
 - `experiments/scripts/render_experiment_docs.py`：把 `runs/*` 的机器真相重建成文档
 
-## 3. 当前状态（2026-05-04）
+## 3. 当前状态（2026-05-06）
 - ✅ `video_depth`：`StreamVGGT / XStreamVGGT / InfiniteVGGT / OBVGGT_ctrl(4999abd) / OBVGGT_best_infra(6fc9571)` 的 48GB 同窗 full-head rerun 已同步到本地。
 - ✅ `StreamVGGT video_depth`：历史 `PARTIAL_DONE` 缺口已被 `20260504_060635_baseline_video_depth` 的 `DONE` run 覆盖。
 - ✅ `mv_recon`：obcache 已完成 7scenes + NRGBD；`StreamVGGT / XStreamVGGT / InfiniteVGGT` 也已有统一中台 rerun 记录。
 - ✅ `XStreamVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
 - ✅ `InfiniteVGGT`：`video_depth` 与 `mv_recon` 已补齐 `system_metrics.json`。
 - ✅ 分支 `exp/2026-0503-infra-runtime-accel` 已接受的 infra 结论：PyTorch RoPE2D fallback component cache 可作为 `OBVGGT video_depth` 的同预算 runtime 优化；tight paired gate 见 `analysis/infra_runtime_20260503.md`。
+- ✅ 分支 `exp/2026-0503-infra-runtime-accel` 已接受的 task-runtime 结论：`obcache_p1_no_recent_ctrl_depth_only` 在 `video_depth` full matrix 上保持精度与 cache budget 不变，同时提升 FPS。
+- ⚠️ `obcache_p1_no_recent_ctrl_prealloc_kv` 已在 Bonn 40-frame paired smoke 中被拒绝：`5.9636 -> 5.4050 FPS`，峰值显存 `8819 -> 9845 MB`，精度不变但更慢且更占显存。
 - ⚠️ 两个 `--max_frames 2` preflight run 已按 `FAILED` 记录：`20260504_060600_xstreamvggt_xstream_cache2048_video_depth`、`20260504_060605_infinitevggt_rolling_memory_budget1200000_video_depth`。它们只用于说明 native launcher 不支持该参数，正式 full rerun 已在后续 `DONE` run 中完成。
 - ⚠️ `pose_co3d`：已执行但注释缺失，未生成 `pose_summary.json`。
 - 当前工作区内可运行的 baseline repo 是：`StreamVGGT`、`OBVGGT`、`XStreamVGGT`、`InfiniteVGGT`。
@@ -117,7 +119,7 @@ pwsh -File OBVGGT/experiments/scripts/refresh_docs_from_amd_server.ps1
 - `runs/<run_id>/manifest.json` / `artifacts.json` / `record.md` = 真相来源
 
 ## 8. 下一步优先级
-1. 🔴 评估并实现 `OBCache runtime` 等价优化，优先看 prealloc / allocation bookkeeping 路线；当前尚无接受的 `prealloc_kv` 结论。
+1. 🔴 如果继续做 `OBCache runtime` 等价优化，必须换一条与当前 `prealloc_kv` 明显不同的实现路线；重复跑同一实现没有价值。
 2. 🔴 在同预算口径下补 `probe6`，并决定 `best_infra + probe4/probe6` 是否值得进入主候选。
 3. 🟡 如果要把本分支结论扩成跨任务结论，补 `mv_recon` 的接受候选 rerun。
 4. 🟡 如果要把 `depth_only` 放进跨 baseline 表，必须给 `StreamVGGT / XStreamVGGT / InfiniteVGGT` 也跑同样 contract。

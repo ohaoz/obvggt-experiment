@@ -1,0 +1,3 @@
+variant,run_id,dataset,total_frames,overall_fps,max_peak_allocated_mb,kv_evict_calls_total,kv_cache_hit_rate,abs_rel,rmse,delta_1_25,decision
+obcache_p1_no_recent_ctrl,20260504_090602_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth,bonn,200,5.963550722379872,8818.9970703125,4200.0,0.8222222222222222,0.05892063733017017,0.2529923753237279,0.969246337180353,ctrl
+obcache_p1_no_recent_ctrl_prealloc_kv,20260504_090750_obcache_p1_no_recent_ctrl_prealloc_kv_joint_s1r0h4_video_depth,bonn,200,5.404973615078979,9844.79052734375,4200.0,0.8222222222222222,0.05892063733017017,0.2529923753237279,0.969246337180353,rejected_candidate

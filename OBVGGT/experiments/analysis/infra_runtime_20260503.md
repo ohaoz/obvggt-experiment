@@ -22,6 +22,7 @@ The intent is to keep cache policy and budget fixed unless explicitly marked as 
 | PyTorch RoPE2D fallback component cache, Bonn full | `20260504_044550...` (`4999abd`) vs `20260504_045003...` (`87e056a`) | Bonn full `5.5147 -> 6.1978 FPS`, `+12.39%`; `cache_max=5020`, `seq_max=6024`, evict calls/hit rate/AbsRel/RMSE/delta unchanged | Passes same-budget Bonn full gate; promote to paired `sintel/bonn/kitti` full-matrix gate |
 | PyTorch RoPE2D fallback component cache, full matrix | `20260504_050435...` (`4999abd`) vs `20260504_052145...` (`87e056a`) | FPS: Sintel `+14.04%`, Bonn `+8.21%`, KITTI `+5.56%`; all cache/seq/evict/hit-rate and AbsRel/RMSE/delta unchanged | Accepted as same-cache-budget infra runtime optimization |
 | Cross-baseline same-window full matrix | `20260504_060635` / `062516` / `064047` / `065904` / `071552` | Same 48GB GPU full-head `video_depth` rerun for `StreamVGGT`, `XStreamVGGT`, `InfiniteVGGT`, `OBVGGT_ctrl`, `OBVGGT_best_infra`; `OBVGGT_best_infra` vs `StreamVGGT`: Sintel `-0.65%` FPS with `-23.7%` peak memory, Bonn `+89.8%` FPS with `-51.6%` peak memory, KITTI `+4.3%` FPS with much better AbsRel | Accepted as fairness snapshot; do not use it to replace the tighter RoPE effect-size gate |
+| Preallocated KV buffers, Bonn smoke | ctrl `20260504_090602_obcache_p1_no_recent_ctrl_joint_s1r0h4_video_depth` vs prealloc `20260504_090750_obcache_p1_no_recent_ctrl_prealloc_kv_joint_s1r0h4_video_depth` | Bonn 40-frame `5.9636 -> 5.4050 FPS`, about `-9.37%`; peak allocated `8819.0 -> 9844.8 MB`, about `+11.63%`; evict calls, cache hit rate, AbsRel/RMSE/delta unchanged | Rejected; same-quality but slower and higher-memory than ctrl |
 
 ## Interpretation
 
@@ -47,6 +48,8 @@ That fairness window should not replace the tighter paired RoPE gate as the prim
 
 The phase profiler confirms that the largest model-side time is still inside the aggregator stack. Within that stack, PyTorch RoPE2D fallback and OBCache scoring/bookkeeping are large enough to justify further infra work. The save-depth-maps phase is also large, but it is evaluation IO/output overhead and should be separated from model FPS claims.
 
+The first preallocated-KV bookkeeping attempt answers the Stage 5 question in the negative for this branch. On paired Bonn smoke with the same cache settings and identical depth metrics, enabling `prealloc_kv` reduced FPS from `5.9636` to `5.4050` and raised peak allocated memory from `8819.0 MB` to `9844.8 MB`. This means the current implementation should be treated as a rejected candidate, not as an accepted runtime optimization or as evidence that allocation bookkeeping is the dominant bottleneck.
+
 ## Current Recommendation
 
 1. Treat `depth_only` as an accepted `video_depth` task-runtime candidate under the same OBCache cache budget.
@@ -54,15 +57,15 @@ The phase profiler confirms that the largest model-side time is still inside the
 3. Do not use `obcache_p1_no_recent_ctrl_cuda_rope` in quick_run; it is intentionally `runnable=false`.
 4. Accept PyTorch RoPE2D fallback component caching as a same-cache-budget infra runtime optimization for `video_depth`.
 5. Use `analysis/tables/cross_baseline_video_depth_48gb_20260504.csv` for full-head cross-model comparisons in this branch.
-6. If continuing infra work, prioritize safe RoPE2D replacement or OBCache bookkeeping/allocation optimization over more SDPA backend forcing.
+6. Do not promote `obcache_p1_no_recent_ctrl_prealloc_kv`; if continuing infra work, prefer a materially different OBCache bookkeeping design or move to algorithm-side candidates such as `probe6`.
 
 ## Validation
 
 Server-side tests on `amd_server`, conda env `obvggt`, Torch `2.3.1+cu121`:
 
 ```text
-python -m unittest experiments.scripts.tests.test_rope experiments.scripts.tests.test_runtime_diagnostics experiments.scripts.tests.test_phase_profile
-Ran 12 tests in 0.555s
+python -m unittest experiments.scripts.tests.test_obcache_prealloc experiments.scripts.tests.test_rope experiments.scripts.tests.test_runtime_diagnostics experiments.scripts.tests.test_phase_profile
+Ran 19 tests in 0.636s
 OK
 ```
 
@@ -72,6 +75,6 @@ The accepted RoPE fallback optimization is supported by three paired gates: isol
 
 - The compiled cuRoPE2D path remains rejected for full-model use because the smoke run exited with `free(): invalid pointer` / SIGABRT after writing metrics.
 - SDPA forced Flash did not beat default dispatch in the tested Bonn smoke; efficient/cuDNN backend claims were not promoted without evidence.
-- OBCache scoring/bookkeeping and allocation remain plausible next infra targets based on the phase profile, but no preallocated-KV implementation is accepted in this branch.
+- The current preallocated-KV implementation is rejected by paired Bonn smoke (`-9.37%` FPS, `+11.63%` peak allocated memory). Any revisit must materially change the bookkeeping path rather than rerunning the same implementation.
 - `depth_only` is accepted only as a `video_depth` task-runtime mode. It must be applied to all compared video_depth baselines before being used in a cross-model fairness table.
 - The failed `20260504_060600` / `20260504_060605` preflight runs only show that `XStreamVGGT` and `InfiniteVGGT` native `launch.py` do not accept `--max_frames`; they are not quality or throughput evidence.
