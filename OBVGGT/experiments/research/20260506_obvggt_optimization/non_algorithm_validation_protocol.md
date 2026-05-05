@@ -139,6 +139,22 @@ same table. If an adapter cannot express depth-only without changing model
 internals, exclude it from the depth-only fairness table rather than mixing
 contracts.
 
+Adapter audit:
+
+- `run_obvggt.py` and `run_streamvggt.py` both use `resolve_dataset_filter()`
+  for `video_depth`, so smoke/full subset selection is supported.
+- `run_xstreamvggt.py` and `run_infinitevggt.py` currently iterate their full
+  `VIDEO_DEPTH_DATASETS` list and do not consume `args.dataset_filter` for
+  `video_depth`.
+- All adapters forward unknown extra args into their target `launch.py`, but
+  `--head_mode depth_only` is only proven for this OBVGGT branch's
+  `eval/video_depth/launch.py`.
+
+Consequence: before a cross-baseline depth-only table, first dry-run and, if
+needed, patch the XStreamVGGT/InfiniteVGGT adapters or target repos so they
+support the same dataset filter and the same output contract. Otherwise use the
+existing full-head cross-baseline table instead.
+
 ### Gate C: Eval IO wall-clock fast mode
 
 Allowed only if labeled as experiment-throughput or output-mode work.
