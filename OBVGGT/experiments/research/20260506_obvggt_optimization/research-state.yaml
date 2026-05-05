@@ -1,0 +1,69 @@
+project: obvggt_optimization_20260506
+branch: exp/2026-0506-obvggt-research-opt
+base_branch: exp/2026-0503-infra-runtime-accel
+status: bootstrap_complete
+created_at: 2026-05-06
+objective: >
+  Research and prioritize further OBVGGT optimizations beyond the accepted
+  RoPE fallback component cache and video_depth depth-only runtime mode.
+constraints:
+  - do_not_touch_dirty_main_worktree
+  - server_runs_must_use_conda_obvggt
+  - no_sudo
+  - no_system_disk_outputs
+  - every_remote_run_requires_record_and_local_sync
+  - paired_rerun_required_for_fps_claim
+current_best_evidence:
+  accepted_infra:
+    name: pytorch_rope2d_fallback_component_cache
+    evidence: rope_fallback_full_matrix_20260504.csv
+    fps_gain: "Sintel +14.04%, Bonn +8.21%, KITTI +5.56%"
+    quality_delta: "none"
+    budget_delta: "none"
+  accepted_task_runtime:
+    name: video_depth_depth_only
+    evidence: depth_only_full_matrix_20260504.csv
+    fps_gain: "Sintel +10.27%, Bonn +13.14%, KITTI +18.94%"
+    quality_delta: "none"
+    caveat: "video_depth-only; all baselines must use same contract for fairness"
+  rejected_runtime:
+    name: prealloc_kv_current_impl
+    evidence: prealloc_kv_bonn_smoke_20260504.csv
+    result: "Bonn 40-frame FPS -9.37%, peak memory +11.63%"
+next_hypotheses:
+  - id: H1
+    name: best_infra_plus_probe6
+    class: low_risk_existing_config
+    priority: P0
+    prediction: "Probe6 may recover most of probe4 speed while reducing quality risk."
+    gate: "Bonn paired smoke/full; same cache_max and seq_max; full matrix only if >3% median gain."
+  - id: H2
+    name: best_infra_plus_depth_only_cross_baseline
+    class: task_runtime_fairness
+    priority: P0
+    prediction: "Depth-only should improve all video_depth baselines when applied consistently."
+    gate: "StreamVGGT/XStreamVGGT/InfiniteVGGT same-contract rerun."
+  - id: H3
+    name: layer_adaptive_budget
+    class: algorithm_research
+    priority: P1
+    prediction: "PyramidKV-style per-layer budget may reduce compute or improve quality at same total budget."
+    gate: "Bonn smoke then full matrix; explicit same/relaxed budget labeling."
+  - id: H4
+    name: query_aware_probe_or_page_selection
+    class: algorithm_research
+    priority: P1
+    prediction: "Quest/SnapKV-like query-aware selection can reduce scoring or attention reads."
+    gate: "No cache-budget drift; compare cache hit, evict calls, quality."
+  - id: H5
+    name: visual_token_merge_or_prune
+    class: high_risk_geometry
+    priority: P2
+    prediction: "ToMe/FastV-like token reduction may accelerate heads/aggregator but risks geometry quality."
+    gate: "microbench plus Sintel/KITTI quality guard before any Bonn-only claim."
+  - id: H6
+    name: kv_quantization
+    class: high_engineering_systems
+    priority: P2
+    prediction: "KIVI/PolarQuant/TurboQuant-style KV quantization can reduce memory, but speed requires custom kernels."
+    gate: "offline attention-logit fidelity first; only then runtime prototype."
