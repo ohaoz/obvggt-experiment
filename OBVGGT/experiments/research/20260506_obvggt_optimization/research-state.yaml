@@ -96,6 +96,8 @@ artifacts:
     purpose: "Executable validation gates for allowed non-algorithm optimization directions."
   - path: OBVGGT/experiments/scripts/check_video_depth_gate.py
     purpose: "Read-only paired artifact gate checker for same-budget video_depth FPS claims."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/server_probe_smoke_runbook.md
+    purpose: "Server SOP for ctrl/probe6/probe4 Bonn 40-frame smoke and local sync."
 local_fixes:
   - name: runtime_diagnostics_safe_call
     scope: instrumentation_only
@@ -111,6 +113,9 @@ local_validations:
   - name: check_video_depth_gate_negative
     command: "python OBVGGT/experiments/scripts/check_video_depth_gate.py on ctrl-vs-ctrl artifacts"
     result: "GATE: FAIL with expected exit 2"
+  - name: probe_smoke_adapter_dry_run
+    command: "scripts/run_obvggt.py --dry-run for ctrl/probe6/probe4 with --dataset-filter bonn --seq_list balloon2 --max_frames 40"
+    result: "All three expand to launch.py plus eval_depth.py; probe count differs as intended."
 future_algorithm_background:
   note: >
     The following ideas remain useful literature context but are not part of
