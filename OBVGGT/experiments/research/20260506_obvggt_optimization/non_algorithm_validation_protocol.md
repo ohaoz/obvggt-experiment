@@ -62,6 +62,19 @@ Consequence: precision/layout changes are not automatically safe. A scoring
 implementation experiment must first prove retained-index equivalence or it
 becomes an algorithm change.
 
+The retention decision is made in
+`OBVGGT/src/streamvggt/utils/obcache_kv.py` lines `614-666`:
+
+- Retrieve accumulated score.
+- Apply sink-token protection by setting sink scores to dtype max.
+- Select historical heavy tokens with `torch.topk`.
+- Sort and return `keep_topk_idx`.
+- Gather K/V and score buffers with the same `keep_topk_idx`.
+
+Consequence: the minimum semantic-equivalence artifact for a scoring
+implementation experiment is `keep_topk_idx` equality or an explicitly reported
+overlap rate. Runtime-only timing without keep-index comparison is insufficient.
+
 ### Backend diagnostics had a local instrumentation bug
 
 `runtime_diagnostics._safe_call()` was intended to query PyTorch SDPA backend
@@ -213,6 +226,8 @@ Promotion gate:
   tensors matching `[B,H,Q,D]` and `[B,H,L,D]`.
 - Compare wall time for layout/contiguity variants first.
 - If testing lower precision, compare retained-index overlap and score order.
+- Require exact `keep_topk_idx` equality for infra promotion. If exact equality
+  fails, report overlap and stop unless an algorithm branch is approved.
 - Any variant that changes retained indices is out of current scope unless the
   user explicitly approves an algorithm branch.
 
