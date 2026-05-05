@@ -134,6 +134,10 @@ local_validations:
   - name: depth_only_cross_baseline_dry_run
     command: "run_streamvggt.py/run_xstreamvggt.py/run_infinitevggt.py --dry-run with --dataset-filter bonn --head_mode depth_only --max_frames 40 --seq_list balloon2"
     result: "All three expand to one Bonn launch command plus one Bonn eval_depth command."
+  - name: server_depth_only_cross_baseline_dry_run
+    server: amd_server
+    command: "conda run -n obvggt compileall plus run_streamvggt.py/run_xstreamvggt.py/run_infinitevggt.py --dry-run with Bonn depth-only smoke args"
+    result: "PASS; server GitHub fetch failed, so patched files were copied into the clean /mnt/data3 research checkout for validation."
 local_patches:
   - name: cross_baseline_depth_only_contract
     scope: task_runtime_contract_only

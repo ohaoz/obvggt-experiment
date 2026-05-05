@@ -125,3 +125,22 @@ changed. The research state and human roadmap were updated accordingly:
   - StreamVGGT/XStreamVGGT/InfiniteVGGT dry-runs with
     `--dataset-filter bonn --head_mode depth_only --max_frames 40 --seq_list balloon2`
     each expanded to exactly one Bonn launch plus one Bonn metric command.
+
+## Server-Side Validation Of Depth-Only Prep
+
+- Pushed local commit `84ba28c`, but amd_server GitHub fetch failed twice with
+  transport errors:
+  - `Encountered end of file`
+  - `Empty reply from server`
+- To avoid destructive git operations on the server checkout, copied only the
+  patched source/adapter files into the clean
+  `/mnt/data3/OBVGGT/research_20260506` checkout.
+- Server validation under `conda run -n obvggt` passed:
+  - `python -m compileall -q` on patched StreamVGGT/XStreamVGGT/InfiniteVGGT
+    launch, inference, model files plus adapter scripts.
+  - `run_streamvggt.py --dry-run` with Bonn depth-only smoke args.
+  - `run_xstreamvggt.py --dry-run` with Bonn depth-only smoke args.
+  - `run_infinitevggt.py --dry-run` with Bonn depth-only smoke args.
+- Each server dry-run expanded to one Bonn launch command containing
+  `--head_mode depth_only --max_frames 40 --seq_list balloon2` plus one Bonn
+  `eval_depth.py` command.
