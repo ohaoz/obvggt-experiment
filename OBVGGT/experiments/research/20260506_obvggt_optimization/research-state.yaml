@@ -115,6 +115,8 @@ artifacts:
     purpose: "Diagnostics-only scoring microbench plan with exact keep-index equivalence gate."
   - path: OBVGGT/experiments/research/20260506_obvggt_optimization/scope_audit_20260506.md
     purpose: "Explicit audit that the branch does not change core OBVGGT/OBCache algorithm files."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/goal_completion_audit_20260506.md
+    purpose: "Audit against the original 0503-1.md plan under the stricter no-core-algorithm constraint."
 local_fixes:
   - name: runtime_diagnostics_safe_call
     scope: instrumentation_only
