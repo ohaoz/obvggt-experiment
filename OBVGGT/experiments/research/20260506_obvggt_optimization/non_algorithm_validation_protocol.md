@@ -89,6 +89,22 @@ Promotion gate:
 
 Reject immediately if the gain is below noise or cache/sequence budget drifts.
 
+Server command template:
+
+```bash
+cd $STREAMVGGT_CODE/experiments
+bash quick_run.sh obcache_p1_no_recent_ctrl_backend_probe video_depth --dataset-filter bonn --seq_list balloon2 --max_frames 40
+bash quick_run.sh obcache_p1_no_recent_probe6 video_depth --dataset-filter bonn --seq_list balloon2 --max_frames 40
+bash quick_run.sh obcache_p1_no_recent_probe4 video_depth --dataset-filter bonn --seq_list balloon2 --max_frames 40
+```
+
+`quick_run.sh` writes `env_snapshot.txt`, `command.sh`, `manifest.json`, and
+`record.md`; `run_obvggt.py` expands `video_depth` into `launch.py` plus
+`eval_depth.py`, so the smoke gate covers both runtime and depth metrics.
+Local dry-run validation confirmed this command shape expands to
+`launch.py --eval_dataset bonn --seq_list balloon2 --max_frames 40` followed by
+`eval_depth.py --eval_dataset bonn --align scale`.
+
 ### Gate B: Depth-only fairness table
 
 Allowed because `head_mode=depth_only` changes the `video_depth` output contract,
@@ -100,6 +116,18 @@ Promotion gate:
 - Report it separately from full-head FPS.
 - Require identical depth metrics and unchanged cache stats for OBVGGT.
 - Do not use it for `monodepth` / `mv_recon` claims.
+
+Server command shape for OBVGGT:
+
+```bash
+cd $STREAMVGGT_CODE/experiments
+bash quick_run.sh obcache_p1_no_recent_ctrl_backend_probe video_depth --head_mode depth_only
+```
+
+Other baselines need equivalent task-output gating before they can enter the
+same table. If an adapter cannot express depth-only without changing model
+internals, exclude it from the depth-only fairness table rather than mixing
+contracts.
 
 ### Gate C: Eval IO wall-clock fast mode
 
@@ -157,6 +185,24 @@ Promotion gate:
 5. P1: scoring microbench. Useful for diagnosis, but promotion is hard because
    keep decisions must remain unchanged.
 6. P2: backend logging. Low-risk support work; not an optimization by itself.
+
+## Existing Evidence Check
+
+Local `OBVGGT/experiments/analysis/tables/` currently contains full evidence
+for RoPE fallback, depth-only, cross-baseline full-head, and prealloc-KV
+rejection. It does not contain a dedicated probe summary CSV for `probe4` or
+`probe6`, so those remain unverified next experiments in this branch rather
+than accepted conclusions.
+
+Relevant synchronized tables:
+
+- `rope_fallback_full_matrix_20260504.csv`: accepted same-cache-budget infra
+  improvement.
+- `depth_only_full_matrix_20260504.csv`: accepted `video_depth` task-runtime
+  result, not a general OBCache algorithm improvement.
+- `cross_baseline_video_depth_48gb_20260504.csv`: full-head fairness snapshot
+  against StreamVGGT/XStreamVGGT/InfiniteVGGT.
+- `prealloc_kv_bonn_smoke_20260504.csv`: rejected current preallocation attempt.
 
 ## Explicit Non-Goals
 
