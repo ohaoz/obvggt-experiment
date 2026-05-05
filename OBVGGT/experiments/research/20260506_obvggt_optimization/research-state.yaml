@@ -113,6 +113,8 @@ artifacts:
     purpose: "Audit notes for optional metric-only output mode and wall-clock reporting."
   - path: OBVGGT/experiments/research/20260506_obvggt_optimization/scoring_microbench_equivalence_plan.md
     purpose: "Diagnostics-only scoring microbench plan with exact keep-index equivalence gate."
+  - path: OBVGGT/experiments/research/20260506_obvggt_optimization/scope_audit_20260506.md
+    purpose: "Explicit audit that the branch does not change core OBVGGT/OBCache algorithm files."
 local_fixes:
   - name: runtime_diagnostics_safe_call
     scope: instrumentation_only
