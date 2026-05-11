@@ -1,0 +1,5 @@
+config,p,recent,S,R,H,sintel_absrel,bonn_absrel,kitti_absrel
+obcache_default,2,2,1,2,4,0.3391,0.0561,0.1676
+obcache_p1,1,2,1,2,4,0.3269,0.0543,0.1268
+obcache_p2_norecent,2,0,1,0,4,0.3290,0.0532,0.1402
+p1_no_recent_ctrl,1,0,1,0,4,0.3193,0.0516,0.0991
